@@ -174,7 +174,7 @@
     <ClInclude Include="native_sdk\entity\cbaseentity.h">
       <Filter>头文件\native_sdk\entity</Filter>
     </ClInclude>
-    <ClInclude Include="VTHook.h">
+    <ClInclude Include="vmthook.h">
       <Filter>头文件\memory</Filter>
     </ClInclude>
     <ClInclude Include="native_sdk\entity\cbaseplayercontroller.h">
@@ -254,7 +254,7 @@
     <ClCompile Include="schema.cpp">
       <Filter>源文件\native_sdk\interfaces</Filter>
     </ClCompile>
-    <ClCompile Include="vmt.cpp">
+    <ClCompile Include="VTHook.cpp">
       <Filter>源文件\memory</Filter>
     </ClCompile>
     <ClCompile Include="native_sdk\cschemasystem.cpp">

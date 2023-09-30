@@ -195,7 +195,7 @@
     <ClInclude Include="sdk\tier1\UtlVector.hpp" />
     <ClInclude Include="stb.hh" />
     <ClInclude Include="vmt.h" />
-    <ClInclude Include="VTHook.h" />
+    <ClInclude Include="vmthook.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
@@ -223,7 +223,7 @@
     <ClCompile Include="schema.cpp" />
     <ClCompile Include="sdk\convar\convar.cpp" />
     <ClCompile Include="sdk\tier1\UtlString.cpp" />
-    <ClCompile Include="vmt.cpp" />
+    <ClCompile Include="VTHook.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

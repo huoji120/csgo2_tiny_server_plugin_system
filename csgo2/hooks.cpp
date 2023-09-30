@@ -6,11 +6,12 @@ OnClientConnect_t original_OnClientConnected = NULL;
 Host_Say_t original_Host_Say = NULL;
 
 namespace hooks {
-    VTHook* HIServerGameClient;
-    bool __fastcall hook_OnClientConnected(CPlayerSlot slot, const char* pszName, uint64_t xuid, const char* pszNetworkID, bool unk1, CBufferString* pRejectReason)
+    // "player_connect" 
+    VMTHook* VMT_IServerGameClient;
+    void __fastcall hook_OnClientConnected(void* rcx, CPlayerSlot slot, const char* pszName, uint64_t xuid, const char* pszNetworkID, const char* pszAddress, bool bFakePlayer)
     {
-        LOG("Hook_OnClientConnected(%d, \"%s\", %d, \"%s\")\n", slot, pszName, xuid, pszNetworkID);
-        return original_OnClientConnected(slot, pszName, xuid, pszNetworkID, unk1, pRejectReason);
+        LOG("OnClientConnected(%d, \"%s\", %d, \"%s\", \"%s\" \"%d\")\n", slot.Get(), pszName, xuid, pszNetworkID, pszAddress, bFakePlayer);
+        return original_OnClientConnected(rcx, slot, pszName, xuid, pszNetworkID, pszAddress, bFakePlayer);
     }
     void __fastcall hook_Host_Say(void* pEntity, void* args, bool teamonly, int unk1, const char* unk2)
     {
@@ -101,9 +102,10 @@ namespace hooks {
 
     }
     auto initVmtHook() -> bool {
+        VMT_IServerGameClient = new VMTHook(Memory::read<void*>(reinterpret_cast<uint64_t>(Offset::InterFaces::IServerGameClient)));
+        original_OnClientConnected = reinterpret_cast<OnClientConnect_t>(VMT_IServerGameClient->Hook(11, hook_OnClientConnected));
 
-        HIServerGameClient = new VTHook((DWORD64**)Offset::InterFaces::IServerGameClient);
-        original_OnClientConnected = (OnClientConnect_t)HIServerGameClient->HookFunction((DWORD64)hook_OnClientConnected, 1);
+        LOG("%s original_OnClientConnected: %p \n", __FUNCTION__, original_OnClientConnected);
         return original_OnClientConnected != nullptr;
     }
 	auto init() -> bool {
@@ -113,6 +115,10 @@ namespace hooks {
 	}
     auto unload() -> void
     {
+        VMT_IServerGameClient->ClearHooks();
+
+        delete VMT_IServerGameClient;
+
         MH_DisableHook(MH_ALL_HOOKS);
         MH_RemoveHook(MH_ALL_HOOKS);
         MH_Uninitialize();

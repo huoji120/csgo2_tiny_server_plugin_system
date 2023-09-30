@@ -9,6 +9,7 @@
 #include <Psapi.h>
 #include <thread>
 #include <unordered_map>
+#include <map>
 
 #include "framework.h"
 #include "stb.hh"
@@ -31,4 +32,4 @@ extern void DebugPrintA(const char* format, ...);
 #include "offset.h"
 #include "events.h"
 #include "hooks.h"
-#include "VTHook.h"
+#include "vmthook.h"

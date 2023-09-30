@@ -1,11 +1,11 @@
 #pragma once
 #include "pch.h"
 #include "sdk/gameevent/IGameEvent.h"
-
+#include "sdk/tier1/bufferstring.h"
 
 typedef bool(__fastcall* FireEventServerSide_t)(CGameEventManager*, IGameEvent*, bool);
 typedef void(__fastcall* Host_Say_t)(void*, void*, bool, int, const char*);
-typedef bool(__fastcall* OnClientConnect_t)(CPlayerSlot, const char*, uint64_t, const char*, bool unk1, CBufferString*);
+typedef void(__fastcall* OnClientConnect_t)(void*, CPlayerSlot, const char*, uint64_t, const char*, const char*, bool);
 
 extern FireEventServerSide_t original_FireEventServerSide;
 extern Host_Say_t original_Host_Say;

@@ -7,7 +7,7 @@ struct vis_info_t;
 class IHLTVServer;
 class IHLTVDirector;
 class CSteamID;
-
+class CCommand;
 struct CEntityIndex
 {
 	CEntityIndex(int index)

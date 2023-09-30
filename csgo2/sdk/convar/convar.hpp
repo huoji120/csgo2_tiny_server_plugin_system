@@ -1,3 +1,4 @@
+#pragma once
 #include "../sdk.h"
 #include "../tier1/UtlVector.hpp"
 struct characterset_t

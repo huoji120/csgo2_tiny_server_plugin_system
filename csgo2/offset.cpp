@@ -30,10 +30,10 @@ auto Init() -> bool {
     InterFaces::SchemaSystem = reinterpret_cast<CSchemaSystem*>(schemasystem.FindInterface("SchemaSystem_001").Get());
     // engine.dll
     InterFaces::GameEventManager = reinterpret_cast<IGameEventManager2*>(engine.FindInterface("GameEventSystemServerV001").Get());
-    InterFaces::GameResourceServiceServer = reinterpret_cast<CGameResourceService*>(engine.FindInterface("Source2GameClients001").Get());
+    InterFaces::GameResourceServiceServer = reinterpret_cast<CGameResourceService*>(engine.FindInterface("GameResourceServiceServerV001").Get());
 
     // server.dll
-    InterFaces::IServerGameClient = reinterpret_cast<IServerGameClients*>(server.FindInterface("GameResourceServiceServerV001").Get());
+    InterFaces::IServerGameClient = reinterpret_cast<IServerGameClients*>(server.FindInterface("Source2GameClients001").Get());
     // only init in console server
     InterFaces::CGameEventManger = reinterpret_cast<CGameEventManager*>(CGameEventManagerPtr);
 

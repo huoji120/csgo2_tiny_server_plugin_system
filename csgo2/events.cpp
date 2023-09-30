@@ -9,9 +9,11 @@ namespace events {
         const auto victim = reinterpret_cast<CCSPlayerController*>(event->GetPlayerPawn(&userIdNameParams));
         const auto attacker = reinterpret_cast<CCSPlayerController*>(event->GetPlayerPawn(&attackerNameParams));
         auto victimName = &victim->m_iszPlayerName();
+        auto attackerName = &attacker->m_iszPlayerName();
+
         //victimBasePlayer->ForceRespawn();
         printf("victim %s\n", victimName);
-        printf("attacker %s\n", attacker->m_iszPlayerName());
+        printf("attacker %s\n", attackerName);
 
     }
     auto OnPlayerChat(IGameEvent* event) -> void
