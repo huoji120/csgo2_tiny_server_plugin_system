@@ -1,0 +1,282 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="源文件">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="头文件\minhook">
+      <UniqueIdentifier>{89393917-f155-4ae6-9e03-2529967f88c3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\sdk">
+      <UniqueIdentifier>{88318acc-d490-446b-8333-f20a22d748a6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\math">
+      <UniqueIdentifier>{aed2a097-5c17-4c61-a5de-65cde80a84a4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\memory">
+      <UniqueIdentifier>{c3ddaa59-6f23-48e1-b43c-03e626960a5e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\memory">
+      <UniqueIdentifier>{d8b32656-ba7f-49d3-be6d-c97f9bc02ba0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\sdk\gameevent">
+      <UniqueIdentifier>{87180362-2725-4f7b-a702-17cb8cff94d3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\sdk\handle">
+      <UniqueIdentifier>{8ce5a064-6e56-4bfb-9c12-b6da38016dbc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\sdk\player">
+      <UniqueIdentifier>{b8db59a4-0a74-4cd8-9f3d-5e30e04a52f3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\events">
+      <UniqueIdentifier>{a4fd0778-933c-4ac7-a724-70b62977c3f9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\events">
+      <UniqueIdentifier>{341ff6a7-81b6-4c44-9d66-ac9c4fbe8684}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\sdk\interfaces">
+      <UniqueIdentifier>{76acdb22-3f64-4cf6-8447-986ab46533ae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\native_sdk">
+      <UniqueIdentifier>{c28f9f29-7571-4821-9cbd-11f27692566a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\native_sdk\interfaces">
+      <UniqueIdentifier>{e26bdf5e-ad8d-4ed2-965c-1fdb958a6098}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\native_sdk">
+      <UniqueIdentifier>{c5938a38-9035-4f7a-952c-156a8549bb54}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\native_sdk\interfaces">
+      <UniqueIdentifier>{ec02337e-1abc-42a9-b29c-355278bf4bf2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\native_sdk\entity">
+      <UniqueIdentifier>{6c9da4be-92c5-4504-8c46-ab0cc612bfe5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\native_sdk\entity">
+      <UniqueIdentifier>{f1101bd0-b17e-4c9e-87f1-e34d97979e77}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\native_sdk\handle">
+      <UniqueIdentifier>{63beb427-0b96-4062-83e0-752efb2ed5f0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\native_sdk\handle">
+      <UniqueIdentifier>{68556c7c-97c0-4e1e-82f0-e4b45b9ad40d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\sdk\convar">
+      <UniqueIdentifier>{befb97b4-a3ba-48a8-84a8-c36a74d2d48c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\sdk\tier1">
+      <UniqueIdentifier>{a403d20d-862c-4c26-965b-9cc23e67745f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\sdk\public">
+      <UniqueIdentifier>{c359acb2-cc33-4be0-b5dd-3dfef50ba594}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="framework.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MinHook\include\MinHook.h">
+      <Filter>头文件\minhook</Filter>
+    </ClInclude>
+    <ClInclude Include="MinHook\src\buffer.h">
+      <Filter>头文件\minhook</Filter>
+    </ClInclude>
+    <ClInclude Include="MinHook\src\trampoline.h">
+      <Filter>头文件\minhook</Filter>
+    </ClInclude>
+    <ClInclude Include="MinHook\src\HDE\hde32.h">
+      <Filter>头文件\minhook</Filter>
+    </ClInclude>
+    <ClInclude Include="MinHook\src\HDE\hde64.h">
+      <Filter>头文件\minhook</Filter>
+    </ClInclude>
+    <ClInclude Include="MinHook\src\HDE\pstdint.h">
+      <Filter>头文件\minhook</Filter>
+    </ClInclude>
+    <ClInclude Include="MinHook\src\HDE\table32.h">
+      <Filter>头文件\minhook</Filter>
+    </ClInclude>
+    <ClInclude Include="MinHook\src\HDE\table64.h">
+      <Filter>头文件\minhook</Filter>
+    </ClInclude>
+    <ClInclude Include="interface.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="stb.hh">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="math\types\vector.hpp">
+      <Filter>头文件\math</Filter>
+    </ClInclude>
+    <ClInclude Include="math\types\vmatrix.hpp">
+      <Filter>头文件\math</Filter>
+    </ClInclude>
+    <ClInclude Include="global.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="vmt.h">
+      <Filter>头文件\memory</Filter>
+    </ClInclude>
+    <ClInclude Include="memory.h">
+      <Filter>头文件\memory</Filter>
+    </ClInclude>
+    <ClInclude Include="hooks.h">
+      <Filter>头文件\memory</Filter>
+    </ClInclude>
+    <ClInclude Include="module.h">
+      <Filter>头文件\memory</Filter>
+    </ClInclude>
+    <ClInclude Include="offset.h">
+      <Filter>头文件\memory</Filter>
+    </ClInclude>
+    <ClInclude Include="sdk\sdk.h">
+      <Filter>头文件\sdk</Filter>
+    </ClInclude>
+    <ClInclude Include="sdk\gameevent\IGameEvent.h">
+      <Filter>头文件\sdk\gameevent</Filter>
+    </ClInclude>
+    <ClInclude Include="sdk\handle\basehandle.h">
+      <Filter>头文件\sdk\handle</Filter>
+    </ClInclude>
+    <ClInclude Include="sdk\player\playerslot.h">
+      <Filter>头文件\sdk\player</Filter>
+    </ClInclude>
+    <ClInclude Include="sdk\player\player.h">
+      <Filter>头文件\sdk\player</Filter>
+    </ClInclude>
+    <ClInclude Include="events.h">
+      <Filter>头文件\events</Filter>
+    </ClInclude>
+    <ClInclude Include="sdk\interfaces\interfaces.h">
+      <Filter>头文件\sdk\interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="schema.h">
+      <Filter>头文件\native_sdk\interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="native_sdk\cschemasystem.h">
+      <Filter>头文件\native_sdk\interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="native_sdk\cgameentitysystem.h">
+      <Filter>头文件\native_sdk\interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="native_sdk\entity\cbaseentity.h">
+      <Filter>头文件\native_sdk\entity</Filter>
+    </ClInclude>
+    <ClInclude Include="VTHook.h">
+      <Filter>头文件\memory</Filter>
+    </ClInclude>
+    <ClInclude Include="native_sdk\entity\cbaseplayercontroller.h">
+      <Filter>头文件\native_sdk\entity</Filter>
+    </ClInclude>
+    <ClInclude Include="native_sdk\handle\handle.h">
+      <Filter>头文件\native_sdk\handle</Filter>
+    </ClInclude>
+    <ClInclude Include="player.h">
+      <Filter>头文件\native_sdk\entity</Filter>
+    </ClInclude>
+    <ClInclude Include="native_sdk\cgameresourceserviceserver.h">
+      <Filter>头文件\native_sdk\interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="sdk\convar\convar.hpp">
+      <Filter>头文件\sdk\convar</Filter>
+    </ClInclude>
+    <ClInclude Include="sdk\tier1\UtlMemory.hpp">
+      <Filter>头文件\sdk\tier1</Filter>
+    </ClInclude>
+    <ClInclude Include="sdk\tier1\UtlString.hpp">
+      <Filter>头文件\sdk\tier1</Filter>
+    </ClInclude>
+    <ClInclude Include="sdk\tier1\UtlVector.hpp">
+      <Filter>头文件\sdk\tier1</Filter>
+    </ClInclude>
+    <ClInclude Include="sdk\public\eiface.h">
+      <Filter>头文件\sdk\public</Filter>
+    </ClInclude>
+    <ClInclude Include="sdk\public\IAppSystem.h">
+      <Filter>头文件\sdk\public</Filter>
+    </ClInclude>
+    <ClInclude Include="sdk\tier1\bufferstring.h">
+      <Filter>头文件\sdk\tier1</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="dllmain.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="pch.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="MinHook\src\buffer.c">
+      <Filter>头文件\minhook</Filter>
+    </ClCompile>
+    <ClCompile Include="MinHook\src\hook.c">
+      <Filter>头文件\minhook</Filter>
+    </ClCompile>
+    <ClCompile Include="MinHook\src\trampoline.c">
+      <Filter>头文件\minhook</Filter>
+    </ClCompile>
+    <ClCompile Include="MinHook\src\HDE\hde32.c">
+      <Filter>头文件\minhook</Filter>
+    </ClCompile>
+    <ClCompile Include="MinHook\src\HDE\hde64.c">
+      <Filter>头文件\minhook</Filter>
+    </ClCompile>
+    <ClCompile Include="interface.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="global.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="offset.cpp">
+      <Filter>源文件\memory</Filter>
+    </ClCompile>
+    <ClCompile Include="memory.cpp">
+      <Filter>源文件\memory</Filter>
+    </ClCompile>
+    <ClCompile Include="hooks.cpp">
+      <Filter>源文件\memory</Filter>
+    </ClCompile>
+    <ClCompile Include="events.cpp">
+      <Filter>源文件\events</Filter>
+    </ClCompile>
+    <ClCompile Include="schema.cpp">
+      <Filter>源文件\native_sdk\interfaces</Filter>
+    </ClCompile>
+    <ClCompile Include="vmt.cpp">
+      <Filter>源文件\memory</Filter>
+    </ClCompile>
+    <ClCompile Include="native_sdk\cschemasystem.cpp">
+      <Filter>源文件\native_sdk\interfaces</Filter>
+    </ClCompile>
+    <ClCompile Include="native_sdk\cgameentitysystem.cpp">
+      <Filter>源文件\native_sdk\interfaces</Filter>
+    </ClCompile>
+    <ClCompile Include="player.cpp">
+      <Filter>源文件\native_sdk\entity</Filter>
+    </ClCompile>
+    <ClCompile Include="native_sdk\handle\handle.cpp">
+      <Filter>源文件\native_sdk\handle</Filter>
+    </ClCompile>
+    <ClCompile Include="sdk\convar\convar.cpp">
+      <Filter>头文件\sdk\convar</Filter>
+    </ClCompile>
+    <ClCompile Include="sdk\tier1\UtlString.cpp">
+      <Filter>头文件\sdk\tier1</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="cpp.hint" />
+  </ItemGroup>
+</Project>
