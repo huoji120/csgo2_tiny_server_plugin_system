@@ -30,10 +30,13 @@ static const auto pattern_fnGetLocalPlayerController =
 //"\"Console<0>\" say \"%s\"\n"
 static const auto pattern_fnHost_SayPtr =
     THE_GAME_SIG("44 89 4C 24 ?? 44 88 44 24 ?? 55 53 56 57 41 54 41 55");
+static const auto pattern_MaxPlayerNumsPtr = 
+    THE_GAME_SIG("41 3B 87 ?? ?? ?? ?? 0F 8E ?? ?? ?? ?? 8B 0D ?? ?? ?? ??");
 extern uint64_t GameResourceServicePtr;
 extern uint64_t FireEventServerSidePtr;
 extern uint64_t Module_tier0;
 extern uint64_t NetworkStateChangedPtr;
 extern uint64_t Host_SayPtr;
+extern uint64_t MaxPlayerNumsPtr;
 auto Init() -> bool;
 };  // namespace Offset

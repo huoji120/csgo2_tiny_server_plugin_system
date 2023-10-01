@@ -7,6 +7,8 @@ uint64_t NetworkStateChangedPtr;
 uint64_t CGameEventManagerPtr;
 uint64_t Host_SayPtr;
 uint64_t Module_tier0;
+uint64_t MaxPlayerNumsPtr;
+
 namespace InterFaces {
 CSchemaSystem* SchemaSystem;
 IGameEventManager2* GameEventManager;
@@ -19,6 +21,8 @@ auto Init() -> bool {
     CModule server("server.dll");
     CModule schemasystem("schemasystem.dll");
     CModule engine("engine2.dll");
+    // engine.dll
+    engine.FindPattern(pattern_MaxPlayerNumsPtr).ToAbsolute(3, 0).Get(MaxPlayerNumsPtr);
 
     // server.dll
     server.FindPattern(pattern_FireEventServerSide).Get(FireEventServerSidePtr);
@@ -49,10 +53,13 @@ auto Init() -> bool {
     InterFaces::CGameEventManger =
         reinterpret_cast<CGameEventManager*>(CGameEventManagerPtr);
 
+    //global::MaxPlayers = *(int*)((char*)MaxPlayerNumsPtr + 2);
     // client.FindPattern(pattern_FireEventServerSide).Get(FireEventServerSidePtr);
     LOG("[huoji]FireEventServerSidePtr : %llx \n", FireEventServerSidePtr);
     LOG("[huoji]NetworkStateChangedPtr : %llx \n", NetworkStateChangedPtr);
     LOG("[huoji]Host_SayPtr : %llx \n", Host_SayPtr);
+    LOG("[huoji]Host_SayPtr : %llx \n", MaxPlayerNumsPtr);
+    LOG("[huoji]MaxGlobals : %d \n", global::MaxPlayers);
 
     LOG("[huoji]InterFaces::SchemaSystem : %llx \n", InterFaces::SchemaSystem);
     LOG("[huoji]InterFaces::GameEventManager : %llx \n",

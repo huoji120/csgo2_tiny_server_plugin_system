@@ -14,7 +14,10 @@ VMTHook* VMT_IServerGameClient;
 void __fastcall hook_ClientDisconnect(void* rcx, CPlayerSlot slot, int reason,
                                       const char* pszName, uint64_t xuid,
                                       const char* pszNetworkID) {
-    PlayerManager::RemovePlayerNameFromPlayerNameList(slot, pszName);
+    if (pszNetworkID != NULL && *pszNetworkID == '[') {
+        ExtendPlayerManager::RemovePlayerSlotBySteamId(
+            ExtendPlayerManager::SteamIDStringToUInt64(pszNetworkID));
+    }
     return original_OnClientDisconnect(rcx, slot, reason, pszName, xuid,
                                        pszNetworkID);
 }
@@ -24,10 +27,10 @@ void __fastcall hook_OnClientConnected(void* rcx, CPlayerSlot slot,
                                        const char* pszAddress,
                                        bool bFakePlayer) {
     if (bFakePlayer == false) {
-        LOG("%s %d %s %s %s %d", __FUNCTION__, slot.Get(), pszName, pszNetworkID,
-            pszAddress, bFakePlayer);
+        ExtendPlayerManager::AddSteamIdToPlayerSteamIdWithNameTable(
+            ExtendPlayerManager::SteamIDStringToUInt64(pszNetworkID),
+            slot.Get());
     }
-    PlayerManager::AddPlayerNameToPlayerNameList(slot, pszName);
 
     return original_OnClientConnected(rcx, slot, pszName, xuid, pszNetworkID,
                                       pszAddress, bFakePlayer);
@@ -43,9 +46,8 @@ void __fastcall hook_Host_Say(void* pEntity, void* args, bool teamonly,
             break;
         }
         auto message = std::string(theArgs->GetCommandString());
-        auto playerName = PlayerManager::GetPlayerNameByPlayerSlot(
-            theEntity->GetRefEHandle().GetPlayerSlot());
-        printf("player %s : %s \n", playerName.c_str(), message.c_str());
+        printf("player[%d][%p] %s : %s \n", theEntity->GetRefEHandle().GetEntryIndex(),theEntity, &theEntity->m_iszPlayerName(),
+               message.c_str());
     } while (false);
     /*
     if (*pMessage == '!' || *pMessage == '/')

@@ -4,27 +4,30 @@
 #include "player_manager.h"
 
 namespace events {
-    auto OnPlayerDeathEvent(IGameEvent* event) -> void {
-        UnkGameEventStruct_t userIdNameParams{ "userid" };
-        UnkGameEventStruct_t attackerNameParams{ "attacker" };
+auto OnPlayerDeathEvent(IGameEvent* event) -> void {
+    UnkGameEventStruct_t userIdNameParams{"userid"};
+    UnkGameEventStruct_t attackerNameParams{"attacker"};
 
-        const auto victim = reinterpret_cast<CCSPlayerController*>(event->GetPlayerPawn(&userIdNameParams));
-        const auto attacker = reinterpret_cast<CCSPlayerController*>(event->GetPlayerPawn(&attackerNameParams));
+    const auto victim = reinterpret_cast<CCSPlayerPawn*>(
+        event->GetPlayerPawn(&userIdNameParams));
+    const auto attacker = reinterpret_cast<CCSPlayerPawn*>(
+        event->GetPlayerPawn(&attackerNameParams));
 
-        auto victimName = std::string(PlayerManager::GetPlayerNameByPlayerSlot(victim->GetRefEHandle().GetPlayerSlot()));
-        auto attackerName = std::string(PlayerManager::GetPlayerNameByPlayerSlot(attacker->GetRefEHandle().GetPlayerSlot()));
+    CGameEntitySystem* pEntitySystem = CGameEntitySystem::GetInstance();
+    if (!pEntitySystem) return;
 
-        printf("player %s killed %s\n", victimName.c_str(), attackerName.c_str());
-
+    for (int i = 1; i <= 64; ++i) {
+        CBaseEntity* pEntity = pEntitySystem->GetBaseEntity(i);
+        if (!pEntity) continue;
+        if (pEntity->IsBasePlayerController()) {
+            const auto player = reinterpret_cast<CCSPlayerController*>(pEntity);
+            if (player->m_hPawn().Get() == victim) {
+                printf("Found Pawn Player: %d %s \n", player->GetRefEHandle().GetEntryIndex(),&player->m_iszPlayerName());
+                break;
+            }
+        }
     }
-    auto OnPlayerChat(IGameEvent* event) -> void
-    {
-        UnkGameEventStruct_t userIdNameParams{ "userid" };
-        const auto chater = reinterpret_cast<CCSPlayerController*>(event->GetPlayer(&userIdNameParams));
-        const auto text = event->GetString("text");
-        const auto chaterName = chater->m_iszPlayerName();
-
-        LOG("player: %s say: %s \n", chaterName, text);
-
-    }
+    //printf("player[%p] %s kill[%p] %llu\n", attacker, &attacker->m_iszPlayerName(), victim,  &victim->m_steamID());
 }
+auto OnPlayerChat(IGameEvent* event) -> void {}
+}  // namespace events

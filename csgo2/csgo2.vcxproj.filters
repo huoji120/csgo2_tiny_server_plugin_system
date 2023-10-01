@@ -287,6 +287,9 @@
     <ClCompile Include="player_manager.cpp">
       <Filter>源文件\players</Filter>
     </ClCompile>
+    <ClCompile Include="native_sdk\entity\cbaseentity.cpp">
+      <Filter>源文件\native_sdk\entity</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

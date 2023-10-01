@@ -11,6 +11,7 @@
 #include <unordered_map>
 #include <map>
 #include <shared_mutex>
+#include <sstream>
 
 #include "framework.h"
 #include "stb.hh"

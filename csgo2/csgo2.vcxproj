@@ -214,6 +214,7 @@
     <ClCompile Include="MinHook\src\trampoline.c" />
     <ClCompile Include="native_sdk\cgameentitysystem.cpp" />
     <ClCompile Include="native_sdk\cschemasystem.cpp" />
+    <ClCompile Include="native_sdk\entity\cbaseentity.cpp" />
     <ClCompile Include="native_sdk\handle\handle.cpp" />
     <ClCompile Include="offset.cpp" />
     <ClCompile Include="pch.cpp">
