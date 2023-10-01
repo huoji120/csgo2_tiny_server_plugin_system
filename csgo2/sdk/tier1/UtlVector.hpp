@@ -2,6 +2,7 @@
 
 #include <cstring>
 #include "UtlMemory.hpp"
+#define _Utl_Vector_assert
 template <class T>
 inline T* CopyConstruct(T* pMemory, T const& src)
 {
@@ -103,7 +104,7 @@ public:
 
 protected:
     // Can't copy this unless we explicitly do it!
-    CUtlVector(CUtlVector const& vec) { assert(0); }
+    CUtlVector(CUtlVector const& vec) { _Utl_Vector_assert(0); }
 
     // Grows the vector
     void GrowVector(int num = 1);
@@ -168,56 +169,56 @@ inline CUtlVector<T, A>& CUtlVector<T, A>::operator=(const CUtlVector<T, A> &oth
 template< typename T, class A >
 inline T& CUtlVector<T, A>::operator[](int i)
 {
-    assert(i < m_Size);
+    _Utl_Vector_assert(i < m_Size);
     return m_Memory[i];
 }
 
 template< typename T, class A >
 inline const T& CUtlVector<T, A>::operator[](int i) const
 {
-    assert(i < m_Size);
+    _Utl_Vector_assert(i < m_Size);
     return m_Memory[i];
 }
 
 template< typename T, class A >
 inline T& CUtlVector<T, A>::Element(int i)
 {
-    assert(i < m_Size);
+    _Utl_Vector_assert(i < m_Size);
     return m_Memory[i];
 }
 
 template< typename T, class A >
 inline const T& CUtlVector<T, A>::Element(int i) const
 {
-    assert(i < m_Size);
+    _Utl_Vector_assert(i < m_Size);
     return m_Memory[i];
 }
 
 template< typename T, class A >
 inline T& CUtlVector<T, A>::Head()
 {
-    assert(m_Size > 0);
+    _Utl_Vector_assert(m_Size > 0);
     return m_Memory[0];
 }
 
 template< typename T, class A >
 inline const T& CUtlVector<T, A>::Head() const
 {
-    assert(m_Size > 0);
+    _Utl_Vector_assert(m_Size > 0);
     return m_Memory[0];
 }
 
 template< typename T, class A >
 inline T& CUtlVector<T, A>::Tail()
 {
-    assert(m_Size > 0);
+    _Utl_Vector_assert(m_Size > 0);
     return m_Memory[m_Size - 1];
 }
 
 template< typename T, class A >
 inline const T& CUtlVector<T, A>::Tail() const
 {
-    assert(m_Size > 0);
+    _Utl_Vector_assert(m_Size > 0);
     return m_Memory[m_Size - 1];
 }
 
@@ -280,7 +281,7 @@ void CUtlVector<T, A>::Sort(int(__cdecl *pfnCompare)(const T *, const T *))
     if(Base()) {
         qsort(Base(), Count(), sizeof(T), (QSortCompareFunc_t)(pfnCompare));
     } else {
-        assert(0);
+        _Utl_Vector_assert(0);
         // this path is untested
         // if you want to sort vectors that use a non-sequential memory allocator,
         // you'll probably want to patch in a quicksort algorithm here
@@ -326,7 +327,7 @@ void CUtlVector<T, A>::EnsureCount(int num)
 template< typename T, class A >
 void CUtlVector<T, A>::ShiftElementsRight(int elem, int num)
 {
-    assert(IsValidIndex(elem) || (m_Size == 0) || (num == 0));
+    _Utl_Vector_assert(IsValidIndex(elem) || (m_Size == 0) || (num == 0));
     int numToMove = m_Size - elem - num;
     if((numToMove > 0) && (num > 0))
         memmove(&Element(elem + num), &Element(elem), numToMove * sizeof(T));
@@ -335,7 +336,7 @@ void CUtlVector<T, A>::ShiftElementsRight(int elem, int num)
 template< typename T, class A >
 void CUtlVector<T, A>::ShiftElementsLeft(int elem, int num)
 {
-    assert(IsValidIndex(elem) || (m_Size == 0) || (num == 0));
+    _Utl_Vector_assert(IsValidIndex(elem) || (m_Size == 0) || (num == 0));
     int numToMove = m_Size - elem - num;
     if((numToMove > 0) && (num > 0)) {
         memmove(&Element(elem), &Element(elem + num), numToMove * sizeof(T));
@@ -372,7 +373,7 @@ template< typename T, class A >
 int CUtlVector<T, A>::InsertBefore(int elem)
 {
     // Can insert at the end
-    assert((elem == Count()) || IsValidIndex(elem));
+    _Utl_Vector_assert((elem == Count()) || IsValidIndex(elem));
 
     GrowVector();
     ShiftElementsRight(elem);
@@ -388,7 +389,7 @@ template< typename T, class A >
 inline int CUtlVector<T, A>::AddToHead(const T& src)
 {
     // Can't insert something that's in the list... reallocation may hose us
-    assert((Base() == NULL) || (&src < Base()) || (&src >= (Base() + Count())));
+    _Utl_Vector_assert((Base() == NULL) || (&src < Base()) || (&src >= (Base() + Count())));
     return InsertBefore(0, src);
 }
 
@@ -396,7 +397,7 @@ template< typename T, class A >
 inline int CUtlVector<T, A>::AddToTail(const T& src)
 {
     // Can't insert something that's in the list... reallocation may hose us
-    assert((Base() == NULL) || (&src < Base()) || (&src >= (Base() + Count())));
+    _Utl_Vector_assert((Base() == NULL) || (&src < Base()) || (&src >= (Base() + Count())));
     return InsertBefore(m_Size, src);
 }
 
@@ -404,7 +405,7 @@ template< typename T, class A >
 inline int CUtlVector<T, A>::InsertAfter(int elem, const T& src)
 {
     // Can't insert something that's in the list... reallocation may hose us
-    assert((Base() == NULL) || (&src < Base()) || (&src >= (Base() + Count())));
+    _Utl_Vector_assert((Base() == NULL) || (&src < Base()) || (&src >= (Base() + Count())));
     return InsertBefore(elem + 1, src);
 }
 
@@ -412,10 +413,10 @@ template< typename T, class A >
 int CUtlVector<T, A>::InsertBefore(int elem, const T& src)
 {
     // Can't insert something that's in the list... reallocation may hose us
-    assert((Base() == NULL) || (&src < Base()) || (&src >= (Base() + Count())));
+    _Utl_Vector_assert((Base() == NULL) || (&src < Base()) || (&src >= (Base() + Count())));
 
     // Can insert at the end
-    assert((elem == Count()) || IsValidIndex(elem));
+    _Utl_Vector_assert((elem == Count()) || IsValidIndex(elem));
 
     GrowVector();
     ShiftElementsRight(elem);
@@ -443,7 +444,7 @@ template< typename T, class A >
 inline int CUtlVector<T, A>::AddMultipleToTail(int num, const T *pToCopy)
 {
     // Can't insert something that's in the list... reallocation may hose us
-    assert((Base() == NULL) || !pToCopy || (pToCopy + num <= Base()) || (pToCopy >= (Base() + Count())));
+    _Utl_Vector_assert((Base() == NULL) || !pToCopy || (pToCopy + num <= Base()) || (pToCopy >= (Base() + Count())));
 
     return InsertMultipleBefore(m_Size, num, pToCopy);
 }
@@ -480,7 +481,7 @@ template< typename T, class A >
 void CUtlVector<T, A>::CopyArray(const T *pArray, int size)
 {
     // Can't insert something that's in the list... reallocation may hose us
-    assert((Base() == NULL) || !pArray || (Base() >= (pArray + size)) || (pArray >= (Base() + Count())));
+    _Utl_Vector_assert((Base() == NULL) || !pArray || (Base() >= (pArray + size)) || (pArray >= (Base() + Count())));
 
     SetSize(size);
     for(int i = 0; i < size; i++) {
@@ -501,7 +502,7 @@ void CUtlVector<T, A>::Swap(CUtlVector< T, A > &vec)
 template< typename T, class A >
 int CUtlVector<T, A>::AddVectorToTail(CUtlVector const &src)
 {
-    assert(&src != this);
+    _Utl_Vector_assert(&src != this);
 
     int base = Count();
 
@@ -524,7 +525,7 @@ inline int CUtlVector<T, A>::InsertMultipleBefore(int elem, int num)
         return elem;
 
     // Can insert at the end
-    assert((elem == Count()) || IsValidIndex(elem));
+    _Utl_Vector_assert((elem == Count()) || IsValidIndex(elem));
 
     GrowVector(num);
     ShiftElementsRight(elem, num);
@@ -544,7 +545,7 @@ inline int CUtlVector<T, A>::InsertMultipleBefore(int elem, int num, const T *pT
         return elem;
 
     // Can insert at the end
-    assert((elem == Count()) || IsValidIndex(elem));
+    _Utl_Vector_assert((elem == Count()) || IsValidIndex(elem));
 
     GrowVector(num);
     ShiftElementsRight(elem, num);
@@ -598,7 +599,7 @@ bool CUtlVector<T, A>::HasElement(const T& src) const
 template< typename T, class A >
 void CUtlVector<T, A>::FastRemove(int elem)
 {
-    assert(IsValidIndex(elem));
+    _Utl_Vector_assert(IsValidIndex(elem));
 
     Destruct(&Element(elem));
     if(m_Size > 0) {
@@ -641,8 +642,8 @@ bool CUtlVector<T, A>::FindAndFastRemove(const T& src)
 template< typename T, class A >
 void CUtlVector<T, A>::RemoveMultiple(int elem, int num)
 {
-    assert(elem >= 0);
-    assert(elem + num <= Count());
+    _Utl_Vector_assert(elem >= 0);
+    _Utl_Vector_assert(elem + num <= Count());
 
     for(int i = elem + num; --i >= elem; )
         Destruct(&Element(i));
@@ -654,7 +655,7 @@ void CUtlVector<T, A>::RemoveMultiple(int elem, int num)
 template< typename T, class A >
 void CUtlVector<T, A>::RemoveMultipleFromHead(int num)
 {
-    assert(num <= Count());
+    _Utl_Vector_assert(num <= Count());
 
     for(int i = num; --i >= 0; )
         Destruct(&Element(i));
@@ -666,7 +667,7 @@ void CUtlVector<T, A>::RemoveMultipleFromHead(int num)
 template< typename T, class A >
 void CUtlVector<T, A>::RemoveMultipleFromTail(int num)
 {
-    assert(num <= Count());
+    _Utl_Vector_assert(num <= Count());
 
     for(int i = m_Size - num; i < m_Size; i++)
         Destruct(&Element(i));

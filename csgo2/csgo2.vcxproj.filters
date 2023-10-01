@@ -79,6 +79,12 @@
     <Filter Include="头文件\sdk\public">
       <UniqueIdentifier>{c359acb2-cc33-4be0-b5dd-3dfef50ba594}</UniqueIdentifier>
     </Filter>
+    <Filter Include="源文件\players">
+      <UniqueIdentifier>{1a10744b-6cb8-44aa-882b-97c0fb47e0e4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\players">
+      <UniqueIdentifier>{120a3b6b-23e6-42e1-af96-c129732e797c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -210,6 +216,9 @@
     <ClInclude Include="sdk\tier1\bufferstring.h">
       <Filter>头文件\sdk\tier1</Filter>
     </ClInclude>
+    <ClInclude Include="player_manager.h">
+      <Filter>头文件\players</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -274,6 +283,9 @@
     </ClCompile>
     <ClCompile Include="sdk\tier1\UtlString.cpp">
       <Filter>头文件\sdk\tier1</Filter>
+    </ClCompile>
+    <ClCompile Include="player_manager.cpp">
+      <Filter>源文件\players</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

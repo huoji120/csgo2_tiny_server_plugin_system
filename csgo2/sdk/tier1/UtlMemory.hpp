@@ -4,7 +4,6 @@
 #define UTLMEMORY_TRACK_ALLOC()
 #define MEM_ALLOC_CREDIT_CLASS()
 #define UTLMEMORY_TRACK_FREE()
-#define assert
 template< class T, class I = int >
 class CUtlMemory
 {
@@ -92,7 +91,6 @@ CUtlMemory<T, I>::CUtlMemory(int nGrowSize, int nInitAllocationCount) : m_pMemor
 m_nAllocationCount(nInitAllocationCount), m_nGrowSize(nGrowSize)
 {
     ValidateGrowSize();
-    assert(nGrowSize >= 0);
     if(m_nAllocationCount) {
         m_pMemory = (T*)new unsigned char[m_nAllocationCount * sizeof(T)];
         //m_pMemory = (T*)malloc(m_nAllocationCount * sizeof(T));
@@ -129,7 +127,6 @@ void CUtlMemory<T, I>::Init(int nGrowSize /*= 0*/, int nInitSize /*= 0*/)
     m_nGrowSize = nGrowSize;
     m_nAllocationCount = nInitSize;
     ValidateGrowSize();
-    assert(nGrowSize >= 0);
     if(m_nAllocationCount) {
         UTLMEMORY_TRACK_ALLOC();
         MEM_ALLOC_CREDIT_CLASS();
@@ -235,30 +232,24 @@ inline T* CUtlMemory<T, I>::Detach()
 template< class T, class I >
 inline T& CUtlMemory<T, I>::operator[](I i)
 {
-    assert(!IsReadOnly());
-    assert(IsIdxValid(i));
     return m_pMemory[i];
 }
 
 template< class T, class I >
 inline const T& CUtlMemory<T, I>::operator[](I i) const
 {
-    assert(IsIdxValid(i));
     return m_pMemory[i];
 }
 
 template< class T, class I >
 inline T& CUtlMemory<T, I>::Element(I i)
 {
-    assert(!IsReadOnly());
-    assert(IsIdxValid(i));
     return m_pMemory[i];
 }
 
 template< class T, class I >
 inline const T& CUtlMemory<T, I>::Element(I i) const
 {
-    assert(IsIdxValid(i));
     return m_pMemory[i];
 }
 
@@ -286,8 +277,6 @@ bool CUtlMemory<T, I>::IsReadOnly() const
 template< class T, class I >
 void CUtlMemory<T, I>::SetGrowSize(int nSize)
 {
-    assert(!IsExternallyAllocated());
-    assert(nSize >= 0);
     m_nGrowSize = nSize;
     ValidateGrowSize();
 }
@@ -299,7 +288,6 @@ void CUtlMemory<T, I>::SetGrowSize(int nSize)
 template< class T, class I >
 inline T* CUtlMemory<T, I>::Base()
 {
-    assert(!IsReadOnly());
     return m_pMemory;
 }
 
@@ -370,11 +358,8 @@ inline int UtlMemory_CalcNewAllocationCount(int nAllocationCount, int nGrowSize,
 template< class T, class I >
 void CUtlMemory<T, I>::Grow(int num)
 {
-    assert(num > 0);
-
     if(IsExternallyAllocated()) {
         // Can't grow a buffer whose memory was externally allocated 
-        assert(0);
         return;
     }
 
@@ -393,7 +378,6 @@ void CUtlMemory<T, I>::Grow(int num)
         } else {
             if((int)(I)nAllocationRequested != nAllocationRequested) {
                 // we've been asked to grow memory to a size s.t. the index type can't address the requested amount of memory
-                assert(0);
                 return;
             }
             while((int)(I)nNewAllocationCount < nAllocationRequested) {
@@ -426,7 +410,6 @@ inline void CUtlMemory<T, I>::EnsureCapacity(int num)
 
     if(IsExternallyAllocated()) {
         // Can't grow a buffer whose memory was externally allocated 
-        assert(0);
         return;
     }
     m_nAllocationCount = num;
@@ -457,11 +440,9 @@ void CUtlMemory<T, I>::Purge()
 template< class T, class I >
 void CUtlMemory<T, I>::Purge(int numElements)
 {
-    assert(numElements >= 0);
 
     if(numElements > m_nAllocationCount) {
         // Ensure this isn't a grow request in disguise.
-        assert(numElements <= m_nAllocationCount);
         return;
     }
 
@@ -519,7 +500,7 @@ public:
     void Purge();
 
     // Purge all but the given number of elements (NOT IMPLEMENTED IN CUtlMemoryAligned)
-    void Purge(int numElements) { assert(0); }
+    void Purge(int numElements) { __debugbreak(); }
 
 private:
     void *Align(const void *pAddr);
@@ -550,7 +531,6 @@ CUtlMemoryAligned<T, nAlignment>::CUtlMemoryAligned(int nGrowSize, int nInitAllo
 
     // Alignment must be a power of two
     COMPILE_TIME_ASSERT((nAlignment & (nAlignment - 1)) == 0);
-    assert((nGrowSize >= 0) && (nGrowSize != CUtlMemory<T>::EXTERNAL_BUFFER_MARKER));
     if(CUtlMemory<T>::m_nAllocationCount) {
         UTLMEMORY_TRACK_ALLOC();
         MEM_ALLOC_CREDIT_CLASS();
@@ -621,11 +601,8 @@ void CUtlMemoryAligned<T, nAlignment>::SetExternalBuffer(const T* pMemory, int n
 template< class T, int nAlignment >
 void CUtlMemoryAligned<T, nAlignment>::Grow(int num)
 {
-    assert(num > 0);
-
     if(this->IsExternallyAllocated()) {
         // Can't grow a buffer whose memory was externally allocated 
-        assert(0);
         return;
     }
 
@@ -642,11 +619,9 @@ void CUtlMemoryAligned<T, nAlignment>::Grow(int num)
     if(CUtlMemory<T>::m_pMemory) {
         MEM_ALLOC_CREDIT_CLASS();
         CUtlMemory<T>::m_pMemory = (T*)MemAlloc_ReallocAligned(CUtlMemory<T>::m_pMemory, CUtlMemory<T>::m_nAllocationCount * sizeof(T), nAlignment);
-        assert(CUtlMemory<T>::m_pMemory);
     } else {
         MEM_ALLOC_CREDIT_CLASS();
         CUtlMemory<T>::m_pMemory = (T*)MemAlloc_AllocAligned(CUtlMemory<T>::m_nAllocationCount * sizeof(T), nAlignment);
-        assert(CUtlMemory<T>::m_pMemory);
     }
 }
 
@@ -662,7 +637,6 @@ inline void CUtlMemoryAligned<T, nAlignment>::EnsureCapacity(int num)
 
     if(this->IsExternallyAllocated()) {
         // Can't grow a buffer whose memory was externally allocated 
-        assert(0);
         return;
     }
 

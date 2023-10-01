@@ -8,10 +8,10 @@
 class CEntityIdentity
 {
 public:
-	CBaseEntity *entity;
-	void *dunno;
-	int64_t unk0;
-	int64_t unk1;
+	CBaseEntity *entity; //0
+	void *dunno; //8
+	int64_t unk0; //12
+	int64_t unk1; //16
 	const char *internalName;
 	const char *entityName;
 	void *unk2;

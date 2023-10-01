@@ -3,6 +3,7 @@
 #define NOMINMAX
 #include <Windows.h>
 #include <stdio.h>
+#define _UtlString_assert
 
 //-----------------------------------------------------------------------------
 // Base class, containing simple memory management
@@ -29,7 +30,7 @@ CUtlBinaryBlock::CUtlBinaryBlock(const CUtlBinaryBlock& src)
 
 void CUtlBinaryBlock::Get(void *pValue, int nLen) const
 {
-    assert(nLen > 0);
+    _UtlString_assert(nLen > 0);
     if(m_nActualLength < nLen) {
         nLen = m_nActualLength;
     }
@@ -41,7 +42,7 @@ void CUtlBinaryBlock::Get(void *pValue, int nLen) const
 
 void CUtlBinaryBlock::SetLength(int nLength)
 {
-    assert(!m_Memory.IsReadOnly());
+    _UtlString_assert(!m_Memory.IsReadOnly());
 
     m_nActualLength = nLength;
     if(nLength > m_Memory.NumAllocated()) {
@@ -63,7 +64,7 @@ void CUtlBinaryBlock::SetLength(int nLength)
 
 void CUtlBinaryBlock::Set(const void *pValue, int nLen)
 {
-    assert(!m_Memory.IsReadOnly());
+    _UtlString_assert(!m_Memory.IsReadOnly());
 
     if(!pValue) {
         nLen = 0;
@@ -84,7 +85,7 @@ void CUtlBinaryBlock::Set(const void *pValue, int nLen)
 
 CUtlBinaryBlock &CUtlBinaryBlock::operator=(const CUtlBinaryBlock &src)
 {
-    assert(!m_Memory.IsReadOnly());
+    _UtlString_assert(!m_Memory.IsReadOnly());
     Set(src.Get(), src.Length());
     return *this;
 }
@@ -127,7 +128,7 @@ CUtlString::CUtlString(const void* pMemory, int nSizeInBytes) : m_Storage(pMemor
 
 void CUtlString::Set(const char *pValue)
 {
-    assert(!m_Storage.IsReadOnly());
+    _UtlString_assert(!m_Storage.IsReadOnly());
     int nLen = pValue ? strlen(pValue) + 1 : 0;
     m_Storage.Set(pValue, nLen);
 }
@@ -141,7 +142,7 @@ int CUtlString::Length() const
 // Sets the length (used to serialize into the buffer )
 void CUtlString::SetLength(int nLen)
 {
-    assert(!m_Storage.IsReadOnly());
+    _UtlString_assert(!m_Storage.IsReadOnly());
 
     // Add 1 to account for the NULL
     m_Storage.SetLength(nLen > 0 ? nLen + 1 : 0);
@@ -164,7 +165,7 @@ CUtlString::operator const char*() const
 
 char *CUtlString::Get()
 {
-    assert(!m_Storage.IsReadOnly());
+    _UtlString_assert(!m_Storage.IsReadOnly());
 
     if(m_Storage.Length() == 0) {
         // In general, we optimise away small mallocs for empty strings
@@ -179,14 +180,14 @@ char *CUtlString::Get()
 
 CUtlString &CUtlString::operator=(const CUtlString &src)
 {
-    assert(!m_Storage.IsReadOnly());
+    _UtlString_assert(!m_Storage.IsReadOnly());
     m_Storage = src.m_Storage;
     return *this;
 }
 
 CUtlString &CUtlString::operator=(const char *src)
 {
-    assert(!m_Storage.IsReadOnly());
+    _UtlString_assert(!m_Storage.IsReadOnly());
     Set(src);
     return *this;
 }
@@ -203,7 +204,7 @@ bool CUtlString::operator==(const char *src) const
 
 CUtlString &CUtlString::operator+=(const CUtlString &rhs)
 {
-    assert(!m_Storage.IsReadOnly());
+    _UtlString_assert(!m_Storage.IsReadOnly());
 
     const int lhsLength(Length());
     const int rhsLength(rhs.Length());
@@ -220,7 +221,7 @@ CUtlString &CUtlString::operator+=(const CUtlString &rhs)
 
 CUtlString &CUtlString::operator+=(const char *rhs)
 {
-    assert(!m_Storage.IsReadOnly());
+    _UtlString_assert(!m_Storage.IsReadOnly());
 
     const int lhsLength(Length());
     const int rhsLength(strlen(rhs));
@@ -237,7 +238,7 @@ CUtlString &CUtlString::operator+=(const char *rhs)
 
 CUtlString &CUtlString::operator+=(char c)
 {
-    assert(!m_Storage.IsReadOnly());
+    _UtlString_assert(!m_Storage.IsReadOnly());
 
     int nLength = Length();
     SetLength(nLength + 1);
@@ -248,8 +249,8 @@ CUtlString &CUtlString::operator+=(char c)
 
 CUtlString &CUtlString::operator+=(int rhs)
 {
-    assert(!m_Storage.IsReadOnly());
-    assert(sizeof(rhs) == 4);
+    _UtlString_assert(!m_Storage.IsReadOnly());
+    _UtlString_assert(sizeof(rhs) == 4);
 
     char tmpBuf[12];	// Sufficient for a signed 32 bit integer [ -2147483648 to +2147483647 ]
     snprintf(tmpBuf, sizeof(tmpBuf), "%d", rhs);
@@ -260,7 +261,7 @@ CUtlString &CUtlString::operator+=(int rhs)
 
 CUtlString &CUtlString::operator+=(double rhs)
 {
-    assert(!m_Storage.IsReadOnly());
+    _UtlString_assert(!m_Storage.IsReadOnly());
 
     char tmpBuf[256];	// How big can doubles be???  Dunno.
     snprintf(tmpBuf, sizeof(tmpBuf), "%lg", rhs);
@@ -271,7 +272,7 @@ CUtlString &CUtlString::operator+=(double rhs)
 
 int CUtlString::Format(const char *pFormat, ...)
 {
-    assert(!m_Storage.IsReadOnly());
+    _UtlString_assert(!m_Storage.IsReadOnly());
 
     char tmpBuf[4096];	//< Nice big 4k buffer, as much memory as my first computer had, a Radio Shack Color Computer
 

@@ -78,9 +78,11 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
+    <IncludePath>F:\source2\csgo2\csgo2\sdk\protobuf-2.6.1\src;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
+    <IncludePath>F:\source2\csgo2\csgo2\sdk\protobuf-2.6.1\src;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -179,6 +181,7 @@
     <ClInclude Include="offset.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="player.h" />
+    <ClInclude Include="player_manager.h" />
     <ClInclude Include="schema.h" />
     <ClInclude Include="sdk\convar\convar.hpp" />
     <ClInclude Include="sdk\gameevent\IGameEvent.h" />
@@ -220,6 +223,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="player.cpp" />
+    <ClCompile Include="player_manager.cpp" />
     <ClCompile Include="schema.cpp" />
     <ClCompile Include="sdk\convar\convar.cpp" />
     <ClCompile Include="sdk\tier1\UtlString.cpp" />

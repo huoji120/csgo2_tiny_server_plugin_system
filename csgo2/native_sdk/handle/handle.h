@@ -2,7 +2,8 @@
 #include <cstdint>
 #define INVALID_EHANDLE_INDEX 0xFFFFFFFF
 #define ENT_ENTRY_MASK		  0x7FFF
-
+inline int PlayerSlot_to_EntityIndex(int PlayerSlot) { return PlayerSlot + 1; }
+inline int EntityIndex_to_PlayerSlot(int EntityIndex) { return EntityIndex - 1; }
 class CBaseEntity;
 
 class CHandle
@@ -21,6 +22,8 @@ public:
 	{
 		return reinterpret_cast<T*>(GetBaseEntity());
 	}
-
+	auto GetPlayerSlot() {
+		return m_Index - 1;
+	}
 	uint32_t m_Index;
 };

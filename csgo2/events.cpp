@@ -1,6 +1,8 @@
 #include "events.h"
 #include "native_sdk/entity/cbaseplayercontroller.h"
 #include "player.h"
+#include "player_manager.h"
+
 namespace events {
     auto OnPlayerDeathEvent(IGameEvent* event) -> void {
         UnkGameEventStruct_t userIdNameParams{ "userid" };
@@ -8,12 +10,11 @@ namespace events {
 
         const auto victim = reinterpret_cast<CCSPlayerController*>(event->GetPlayerPawn(&userIdNameParams));
         const auto attacker = reinterpret_cast<CCSPlayerController*>(event->GetPlayerPawn(&attackerNameParams));
-        auto victimName = &victim->m_iszPlayerName();
-        auto attackerName = &attacker->m_iszPlayerName();
 
-        //victimBasePlayer->ForceRespawn();
-        printf("victim %s\n", victimName);
-        printf("attacker %s\n", attackerName);
+        auto victimName = std::string(PlayerManager::GetPlayerNameByPlayerSlot(victim->GetRefEHandle().GetPlayerSlot()));
+        auto attackerName = std::string(PlayerManager::GetPlayerNameByPlayerSlot(attacker->GetRefEHandle().GetPlayerSlot()));
+
+        printf("player %s killed %s\n", victimName.c_str(), attackerName.c_str());
 
     }
     auto OnPlayerChat(IGameEvent* event) -> void
@@ -24,7 +25,6 @@ namespace events {
         const auto chaterName = chater->m_iszPlayerName();
 
         LOG("player: %s say: %s \n", chaterName, text);
-
 
     }
 }
