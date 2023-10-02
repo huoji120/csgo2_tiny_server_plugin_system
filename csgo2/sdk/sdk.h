@@ -1,4 +1,6 @@
 #pragma once
+#include <limits.h>
+#include <cstdint>
 #define CORRECT_PATH_SEPARATOR '\\'
 #define CORRECT_PATH_SEPARATOR_S "\\"
 #define INCORRECT_PATH_SEPARATOR '/'
@@ -29,4 +31,31 @@ enum EUniverse
 	// k_EUniverseRC = 5,				// no such universe anymore
 	k_EUniverseMax
 };
+
+#define Plat_FastMemset memset
+#define Plat_FastMemcpy memcpy
+#define RESTRICT				__restrict
+#define RESTRICT_FUNC			__declspec(restrict)
+#define FORCEINLINE_TEMPLATE	__forceinline
+#define PAD_NUMBER(number, boundary) \
+	( ((number) + ((boundary)-1)) / (boundary) ) * (boundary)
+typedef __int64 intp;
+#ifndef Assert
+#define Assert
+#endif // !Assert
+template <class T>
+inline T* Construct(T* pMemory)
+{
+	return ::new(pMemory) T;
+}
+
+template <class T>
+inline void Destruct(T* pMemory)
+{
+	pMemory->~T();
+
+#ifdef _DEBUG
+	memset((void*)pMemory, 0xDD, sizeof(T));
+#endif
+}
 #include "../head.h"

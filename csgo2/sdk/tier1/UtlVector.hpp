@@ -1,5 +1,5 @@
 #pragma once
-
+#include <stdint.h>
 #include <cstring>
 #include "UtlMemory.hpp"
 #define _Utl_Vector_assert

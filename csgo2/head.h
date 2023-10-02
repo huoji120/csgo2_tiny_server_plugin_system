@@ -32,23 +32,33 @@ static void DebugPrintA(const char* format, ...) {
 #include "./MinHook/include/MinHook.h"
 #include "hash_fnv1a_constexpr.h"
 // ¹¤¾ß¿â
-
+#include "vector.h"
 #include "vmt.h"
 #include "memory.h"
+
+// sdk
 #include "sdk/gameevent/IGameEvent.h"
 #include "sdk/tier1/bufferstring.h"
 #include "sdk/public/eiface.h"
 #include "sdk/player/playerslot.h"
 
-// sdk
 #include "sdk/sdk.h"
+#include "sdk/public/mathlib.h"
+#include "sdk/public/string_t.h"
+#include "sdk/tier1/UtlMemory.hpp"
+#include "sdk/tier1/utlfixedmemory.h"
+#include "sdk/tier1/utlblockmemory.h"
 #include "sdk/tier1/UtlString.hpp"
 #include "sdk/interfaces/interfaces.h"
 #include "sdk/public/eiface.h"
 #include "sdk/gameevent/IGameEvent.h"
 #include "sdk/convar/convar.hpp"
 #include "sdk/tier1/bufferstring.h"
+#include "sdk/public/bitvec.h"
+#include "sdk/public/iserver.h"
+#include "sdk/public/utlrbtree.h"
 
+#include "sdk/public/utlmap.h"
 #include "offset.h"
 #include "native_sdk.h"
 
@@ -64,6 +74,7 @@ static void DebugPrintA(const char* format, ...) {
 #include "sdk_tools.h"
 
 #include "lua/lua.hpp"
+#include "LuaBridge/LuaBridge.h"
 #include "tools.h"
 #include "script_engine.h"
 #include "script_apis.h"

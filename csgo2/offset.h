@@ -1,10 +1,14 @@
 #pragma once
 #include "head.h"
 #define SERVER_HASH_FUCNTION_KEY 0x31415926
+class CEntityInstance;
 typedef uint64_t(__fastcall* HashFunction_t)(const char*, unsigned int, unsigned int);
+typedef void(__fastcall* StateChanged_t)(void* networkTransmitComponent, CEntityInstance* ent, uint64_t offset, int a4, int a5);
+typedef void(__fastcall* NetworkStateChanged_t)(uintptr_t chainEntity, uintptr_t offset, uintptr_t a3);
 
 class CSchemaSystem;
 class CGameResourceService;
+class CLocalize;
 namespace Offset {
 namespace InterFaces {
     extern CSchemaSystem* SchemaSystem;
@@ -13,9 +17,12 @@ namespace InterFaces {
     extern CGameResourceService* GameResourceServiceServer;
     extern IServerGameClients* IServerGameClient;
     extern IVEngineServer2* IVEngineServer;
+    extern CLocalize* ILocalize;
+    extern INetworkServerService* INetworkServerServiceInteFace;
 };
 static const auto pattern_CGameEventManager = THE_GAME_SIG("48 ?? ?? ?? ?? ?? ?? 48 89 ?? ?? ?? 48 89 01 48 8B D9 48 ?? ?? ?? ?? ?? ?? 48 89 ?? ?? E8 ?? ?? ?? ?? 48 ?? ?? ?? ?? ?? ??");
 static const auto pattern_NetworkStateChanged = THE_GAME_SIG("4C 8B C9 48 8B 09 48 85 C9 74 ? 48 8B 41 10");
+static const auto pattern_FnStateChangedPtr = THE_GAME_SIG("48 89 54 24 10 55 53 57 41 55");
 static const auto pattern_FireEventServerSide = THE_GAME_SIG(
     "40 53 57 41 54 41 55 41 56 48 ?? ?? ?? 4C 8B F2 4C 8B E1 BA ?? ?? ?? "
     "?? 48 ?? ?? ?? ?? ?? ?? 45 0F B6 E8 E8 ?? ?? ?? ?? 48 85 C0 75 ?? 48 "
@@ -37,9 +44,12 @@ static const auto pattern_MaxPlayerNumsPtr =
 extern uint64_t GameResourceServicePtr;
 extern uint64_t FireEventServerSidePtr;
 extern uint64_t Module_tier0;
-extern uint64_t NetworkStateChangedPtr;
 extern uint64_t Host_SayPtr;
 extern uint64_t MaxPlayerNumsPtr;
 extern HashFunction_t FnServerHashFunction;
+extern StateChanged_t FnStateChanged;
+extern NetworkStateChanged_t FnNetworkStateChanged;
+
+
 auto Init() -> bool;
 };  // namespace Offset

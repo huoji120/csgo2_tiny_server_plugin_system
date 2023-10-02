@@ -86,7 +86,7 @@ auto luaCall_onPlayerDisconnect(int player, int slot, const char* pszName,
                                  }
                              });
 }
-auto luaCall_onPlayerDeath(int victim, int killer) -> void {
+auto luaCall_onPlayerDeath(int victim, int killer, bool isHeadShot) -> void {
     ExcuteCallbackInAllLuaVm(_CallbackNames::kOnPlayerDeath,
                              [&](lua_State* luaVm, int refIndex) -> void {
                                  lua_rawgeti(luaVm, LUA_REGISTRYINDEX,
@@ -94,7 +94,9 @@ auto luaCall_onPlayerDeath(int victim, int killer) -> void {
                                  if (lua_isfunction(luaVm, -1)) {
                                      lua_pushinteger(luaVm, victim);
                                      lua_pushinteger(luaVm, killer);
-                                     if (lua_pcall(luaVm, 2, 0, 0) != LUA_OK) {
+                                     lua_pushboolean(luaVm, isHeadShot);
+
+                                     if (lua_pcall(luaVm, 3, 0, 0) != LUA_OK) {
                                          LOG("Error calling Lua callback: %s\n",
                                              lua_tostring(luaVm, -1));
                                          lua_pop(luaVm, 1);

@@ -42,9 +42,10 @@ auto initLuaScripts() -> void {
         std::string dirName = dirNames[i];
 
         lua_State* L = luaL_newstate();
-        ScriptApis::initFunciton(L);
 
         luaL_openlibs(L);
+        ScriptApis::initFunciton(L);
+
         pluginEnvs[dirName] = L;
 
         std::string file = dirPath + "\\main.lua";

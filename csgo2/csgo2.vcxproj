@@ -78,11 +78,11 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>F:\source2\csgo2\csgo2\sdk\protobuf-2.6.1\src;$(IncludePath)</IncludePath>
+    <IncludePath>$(MSBuildProjectDirectory)\sdk\protobuf-2.6.1\src;$(MSBuildProjectDirectory)\LuaBridge;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>F:\source2\csgo2\csgo2\sdk\protobuf-2.6.1\src;$(IncludePath)</IncludePath>
+    <IncludePath>$(MSBuildProjectDirectory)\sdk\protobuf-2.6.1\src;$(MSBuildProjectDirectory)\LuaBridge;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -213,16 +213,25 @@
     <ClInclude Include="sdk\interfaces\interfaces.h" />
     <ClInclude Include="sdk\player\player.h" />
     <ClInclude Include="sdk\player\playerslot.h" />
+    <ClInclude Include="sdk\public\bitvec.h" />
     <ClInclude Include="sdk\public\eiface.h" />
     <ClInclude Include="sdk\public\IAppSystem.h" />
+    <ClInclude Include="sdk\public\iserver.h" />
+    <ClInclude Include="sdk\public\mathlib.h" />
+    <ClInclude Include="sdk\public\string_t.h" />
+    <ClInclude Include="sdk\public\utlmap.h" />
+    <ClInclude Include="sdk\public\utlrbtree.h" />
     <ClInclude Include="sdk\sdk.h" />
     <ClInclude Include="sdk\tier1\bufferstring.h" />
+    <ClInclude Include="sdk\tier1\utlblockmemory.h" />
+    <ClInclude Include="sdk\tier1\utlfixedmemory.h" />
     <ClInclude Include="sdk\tier1\UtlMemory.hpp" />
     <ClInclude Include="sdk\tier1\UtlString.hpp" />
     <ClInclude Include="sdk\tier1\UtlVector.hpp" />
     <ClInclude Include="sdk_tools.h" />
     <ClInclude Include="stb.hh" />
     <ClInclude Include="tools.h" />
+    <ClInclude Include="vector.h" />
     <ClInclude Include="vmt.h" />
     <ClInclude Include="vmthook.h" />
     <ClInclude Include="script_callbacks.h" />

@@ -4,9 +4,10 @@ namespace events {
 auto OnPlayerDeathEvent(IGameEvent* event) -> void {
     UnkGameEventStruct_t userIdNameParams{"userid"};
     UnkGameEventStruct_t attackerNameParams{"attacker"};
-    UnkGameEventStruct_t headshotNameParams{ 0 };
+    UnkGameEventStruct_t headshotNameParams{0};
     static const auto headShotStr = "headshot";
-    headshotNameParams.m_Unk = Offset::FnServerHashFunction(headShotStr, sizeof headShotStr, SERVER_HASH_FUCNTION_KEY);
+    headshotNameParams.m_Unk = Offset::FnServerHashFunction(
+        headShotStr, sizeof headShotStr, SERVER_HASH_FUCNTION_KEY);
     headshotNameParams.m_Key = headShotStr;
     const auto victimPawn = reinterpret_cast<CCSPlayerPawn*>(
         event->GetPlayerPawn(&userIdNameParams));
@@ -25,10 +26,9 @@ auto OnPlayerDeathEvent(IGameEvent* event) -> void {
     if (victim == nullptr || attacker == nullptr) {
         return;
     }
-    const auto victimIndex = victim->GetRefEHandle().m_Index;
-    const auto attackerIndex = attacker->GetRefEHandle().m_Index;
-    LOG("is head shot: %d \n", isHeadShot);
-    ScriptCallBacks::luaCall_onPlayerDeath(victimIndex, attackerIndex);
+    const auto victimIndex = victim->GetRefEHandle().GetEntryIndex();
+    const auto attackerIndex = attacker->GetRefEHandle().GetEntryIndex();
+    ScriptCallBacks::luaCall_onPlayerDeath(victimIndex, attackerIndex, isHeadShot);
     // printf("player[%p] %s kill[%p] %llu\n", attacker,
     // &attacker->m_iszPlayerName(), victim,  &victim->m_steamID());
 }

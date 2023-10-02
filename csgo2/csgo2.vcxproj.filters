@@ -291,6 +291,33 @@
     <ClInclude Include="script_callbacks.h">
       <Filter>头文件\script_engine</Filter>
     </ClInclude>
+    <ClInclude Include="sdk\public\bitvec.h">
+      <Filter>头文件\sdk\tier1</Filter>
+    </ClInclude>
+    <ClInclude Include="sdk\public\iserver.h">
+      <Filter>头文件\sdk\public</Filter>
+    </ClInclude>
+    <ClInclude Include="sdk\public\string_t.h">
+      <Filter>头文件\sdk\public</Filter>
+    </ClInclude>
+    <ClInclude Include="sdk\public\utlmap.h">
+      <Filter>头文件\sdk\public</Filter>
+    </ClInclude>
+    <ClInclude Include="sdk\public\utlrbtree.h">
+      <Filter>头文件\sdk\tier1</Filter>
+    </ClInclude>
+    <ClInclude Include="sdk\tier1\utlfixedmemory.h">
+      <Filter>头文件\sdk\tier1</Filter>
+    </ClInclude>
+    <ClInclude Include="sdk\tier1\utlblockmemory.h">
+      <Filter>头文件\sdk\tier1</Filter>
+    </ClInclude>
+    <ClInclude Include="sdk\public\mathlib.h">
+      <Filter>头文件\sdk\public</Filter>
+    </ClInclude>
+    <ClInclude Include="vector.h">
+      <Filter>头文件\native_sdk</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">

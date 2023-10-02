@@ -1,47 +1,80 @@
 #pragma once
 #include "head.h"
+class CEntityInstance;
+typedef void(__fastcall* StateChanged_t)(void* networkTransmitComponent, CEntityInstance* ent, uint64_t offset, int a4, int a5);
+typedef void(__fastcall* NetworkStateChanged_t)(uintptr_t chainEntity, uintptr_t offset, uintptr_t a3);
 namespace Offset {
-	extern uint64_t NetworkStateChangedPtr;
+	extern StateChanged_t FnStateChanged;
+	extern NetworkStateChanged_t FnNetworkStateChanged;
 }
-#define DECLARE_CLASS(className) static constexpr auto ThisClass = #className;
+struct SchemaKey {
+	int16_t offset;
+	bool networked;
+};
+class Z_CBaseEntity;
+extern auto SetStateChanged(Z_CBaseEntity* pEntity, int offset) -> void;
 
 #define MAX_ENTITIES_IN_LIST 512
 #define MAX_ENTITY_LISTS	 64
 #define MAX_TOTAL_ENTITIES	 MAX_ENTITIES_IN_LIST *MAX_ENTITY_LISTS
 #define INVALID_EHANDLE_INDEX 0xFFFFFFFF
 #define ENT_ENTRY_MASK		  0x7FFF
-#define SCHEMA_FIELD_OFFSET(type, varName, extra_offset)														\
-	std::add_lvalue_reference_t<type> varName()																	\
-	{																											\
-		static constexpr auto datatable_hash = hash_32_fnv1a_const(ThisClass);									\
-		static constexpr auto prop_hash = hash_32_fnv1a_const(#varName);										\
-																												\
-		static const auto m_offset =																			\
-			schema::GetOffset(ThisClass, datatable_hash, #varName, prop_hash);									\
-																												\
-		return *reinterpret_cast<std::add_pointer_t<type>>(														\
-			(uintptr_t)(this) + m_offset + extra_offset);														\
-	}																											\
-	void varName(type val)																						\
-	{																											\
-		static constexpr auto datatable_hash = hash_32_fnv1a_const(ThisClass);									\
-		static constexpr auto prop_hash = hash_32_fnv1a_const(#varName);										\
-																												\
-		static const auto m_offset =																			\
-			schema::GetOffset(ThisClass, datatable_hash, #varName, prop_hash);									\
-																												\
-		static const auto m_chain =																				\
-			schema::FindChainOffset(ThisClass);																	\
-																												\
-		if (m_chain != 0)																						\
-		{																										\
-			reinterpret_cast<FnNetworkStateChanged>(Offset::NetworkStateChangedPtr)((uintptr_t)(this) + m_chain, m_offset + extra_offset, 0xFFFFFFFF);	\
-		}																										\
-		*reinterpret_cast<std::add_pointer_t<type>>((uintptr_t)(this) + m_offset + extra_offset) = val;			\
-	}
+
+#define DECLARE_SCHEMA_CLASS_BASE(className, isStruct) \
+	static constexpr const char *ThisClass = #className;      \
+	static constexpr bool OffsetIsStruct = isStruct;
+
+#define DECLARE_CLASS(className) DECLARE_SCHEMA_CLASS_BASE(className, false)
+
+// Use this for classes that can be wholly included within other classes (like CCollisionProperty within CBaseModelEntity)
+#define DECLARE_SCHEMA_CLASS_INLINE(className) \
+	DECLARE_SCHEMA_CLASS_BASE(className, true)
+
+#define SCHEMA_FIELD_OFFSET(type, varName, extra_offset)															\
+	std::add_lvalue_reference_t<type> varName()																		\
+	{																												\
+		static constexpr auto datatable_hash = hash_32_fnv1a_const(ThisClass);										\
+		static constexpr auto prop_hash = hash_32_fnv1a_const(#varName);											\
+																													\
+		static const auto m_key =																					\
+			schema::GetOffset(ThisClass, datatable_hash, #varName, prop_hash);										\
+																													\
+		return *reinterpret_cast<std::add_pointer_t<type>>(															\
+			(uintptr_t)(this) + m_key.offset + extra_offset);														\
+	}																												\
+	void varName(type val)																							\
+	{																												\
+		static constexpr auto datatable_hash = hash_32_fnv1a_const(ThisClass);										\
+		static constexpr auto prop_hash = hash_32_fnv1a_const(#varName);											\
+																													\
+		static const auto m_key =																					\
+			schema::GetOffset(ThisClass, datatable_hash, #varName, prop_hash);										\
+																													\
+		static const auto m_chain =																					\
+			schema::FindChainOffset(ThisClass);																		\
+																													\
+		if (m_chain != 0 && m_key.networked)																		\
+		{																											\
+			LOG("Found chain offset %d for %s::%s\n", m_chain, ThisClass, #varName);							\
+			Offset::FnNetworkStateChanged((uintptr_t)(this) + m_chain, m_key.offset + extra_offset, 0xFFFFFFFF);	\
+		}																											\
+		else if(m_key.networked)																					\
+		{																											\
+			/* WIP: Works fine for most props, but inlined classes in the middle of a class will
+				need to have their this pointer corrected by the offset .*/											\
+					LOG("Attempting to call SetStateChanged on on %s::%s\n", ThisClass, #varName);						\
+					if (!OffsetIsStruct)																							\
+						SetStateChanged((Z_CBaseEntity*)this, m_key.offset + extra_offset);									\
+					else 																									\
+						CALL_VIRTUAL(void, 1, this, m_key.offset + extra_offset, 0xFFFFFFFF, 0xFFFF);						\
+						\
+		}																											\
+	* reinterpret_cast<std::add_pointer_t<type>>((uintptr_t)(this) + m_key.offset + extra_offset) = val;			\
+}
 
 #define SCHEMA_FIELD(type, varName) \
 	SCHEMA_FIELD_OFFSET(type, varName, 0)
+
 
 #define PSCHEMA_FIELD_OFFSET(type, varName, extra_offset) \
 	auto varName()																\
@@ -49,31 +82,47 @@ namespace Offset {
 		static constexpr auto datatable_hash = hash_32_fnv1a_const(ThisClass);	\
 		static constexpr auto prop_hash = hash_32_fnv1a_const(#varName);		\
 																				\
-		static const auto m_offset =											\
+		static const auto m_key =											\
 			schema::GetOffset(ThisClass, datatable_hash, #varName, prop_hash);	\
 																				\
 		return reinterpret_cast<std::add_pointer_t<type>>(						\
-			(uintptr_t)(this) + m_offset + extra_offset);						\
+			(uintptr_t)(this) + m_key.offset + extra_offset);						\
 	}
 
 #define PSCHEMA_FIELD(type, varName) \
 	PSCHEMA_FIELD_OFFSET(type, varName, 0)
 
-typedef void(__fastcall* FnNetworkStateChanged)(uintptr_t chainEntity, uintptr_t offset, uintptr_t a3);
+
+
 namespace schema
 {
 	int16_t FindChainOffset(const char* className);
-	int16_t GetOffset(const char* className, uint32_t classKey, const char* memberName, uint32_t memberKey);
+	SchemaKey GetOffset(const char* className, uint32_t classKey, const char* memberName, uint32_t memberKey);
 }
 
+struct CSchemaNetworkValue {
+	union {
+		const char* m_sz_value;
+		int m_n_value;
+		float m_f_value;
+		std::uintptr_t m_p_value;
+	};
+};
+
+struct SchemaMetadataEntryData_t {
+	const char* m_name;
+	CSchemaNetworkValue* m_value;
+};
 
 struct SchemaClassFieldData_t
 {
 	const char* m_name;
 	char pad0[0x8];
 	short m_offset;
-	char pad1[0xE];
+	int32_t m_metadata_size;
+	SchemaMetadataEntryData_t* m_metadata;
 };
+
 
 class SchemaClassInfoData_t;
 
@@ -101,8 +150,11 @@ public:
 		return m_fields;
 	}
 
-	auto GetParent()
+	auto GetParent() -> SchemaClassInfoData_t*
 	{
+		if (!m_schema_parent)
+			return nullptr;
+
 		return m_schema_parent->m_class;
 	}
 
@@ -132,14 +184,34 @@ private:
 class CSchemaSystemTypeScope
 {
 public:
-	auto FindDeclaredClass(const char* pClass)->SchemaClassInfoData_t*;
+	auto FindDeclaredClass(const char* pClass) -> SchemaClassInfoData_t*;
 };
 
 class CSchemaSystem
 {
 public:
-	auto FindTypeScopeForModule(const char* module)->CSchemaSystemTypeScope*;
+	auto FindTypeScopeForModule(const char* module) -> CSchemaSystemTypeScope*;
 };
+
+template <typename T>
+class CUtlVector_NativeSdk {
+public:
+	auto begin() const { return m_data; }
+	auto end() const { return m_data + m_size; }
+
+	bool Exists(T val) const {
+		for (const auto& it : *this)
+			if (it == val) return true;
+		return false;
+	}
+	bool Empty() const { return m_size == 0; }
+
+	int m_size;
+	char pad0[0x4];  // no idea
+	T* m_data;
+	char pad1[0x8];  // no idea
+};
+
 
 class CBaseEntity;
 class CEntityIdentity
@@ -211,9 +283,9 @@ public:
 	DECLARE_CLASS(CCollisionProperty)
 
 	SCHEMA_FIELD(VPhysicsCollisionAttribute_t, m_collisionAttribute)
-		//SCHEMA_FIELD(SolidType_t, m_nSolidType)
-		SCHEMA_FIELD(uint8_t, m_usSolidFlags)
-		SCHEMA_FIELD(uint8_t, m_CollisionGroup)
+	//SCHEMA_FIELD(SolidType_t, m_nSolidType)
+	SCHEMA_FIELD(uint8_t, m_usSolidFlags)
+	SCHEMA_FIELD(uint8_t, m_CollisionGroup)
 };
 
 class CHandle
@@ -290,6 +362,92 @@ public:
     SCHEMA_FIELD(const char*, m_szClanName)
 };
 
+class CEconItemDefinition {
+public:
+	bool IsWeapon();
+	bool IsKnife(bool excludeDefault);
+	bool IsGlove(bool excludeDefault);
+
+	auto GetModelName() {
+		return *reinterpret_cast<const char**>((uintptr_t)(this) + 0xD8);
+	}
+
+	auto GetStickersSupportedCount() {
+		return *reinterpret_cast<int*>((uintptr_t)(this) + 0x100);
+	}
+
+	auto GetSimpleWeaponName() {
+		return *reinterpret_cast<const char**>((uintptr_t)(this) + 0x210);
+	}
+
+	auto GetLoadoutSlot() {
+		return *reinterpret_cast<int*>((uintptr_t)(this) + 0x2E8);
+	}
+
+	char pad0[0x8];  // vtable
+	void* m_pKVItem;
+	uint16_t m_nDefIndex;
+	CUtlVector_NativeSdk<uint16_t> m_nAssociatedItemsDefIndexes;
+	bool m_bEnabled;
+	const char* m_szPrefab;
+	uint8_t m_unMinItemLevel;
+	uint8_t m_unMaxItemLevel;
+	uint8_t m_nItemRarity;
+	uint8_t m_nItemQuality;
+	uint8_t m_nForcedItemQuality;
+	uint8_t m_nDefaultDropItemQuality;
+	uint8_t m_nDefaultDropQuantity;
+	CUtlVector_NativeSdk<void*> m_vecStaticAttributes;
+	uint8_t m_nPopularitySeed;
+	void* m_pPortraitsKV;
+	const char* m_pszItemBaseName;
+	bool m_bProperName;
+	const char* m_pszItemTypeName;
+	uint32_t m_unItemTypeID;
+	const char* m_pszItemDesc;
+};
+
+class CEconItemView {
+public:
+	DECLARE_CLASS(CEconItemView);
+	auto GetCustomPaintKitIndex() { return CALL_VIRTUAL(int, 2, this); }
+	auto GetStaticData() {
+		return CALL_VIRTUAL(CEconItemDefinition*, 13, this);
+	}
+};
+class CAttributeContainer
+{
+public:
+	DECLARE_CLASS(CAttributeContainer);
+
+	PSCHEMA_FIELD(CEconItemView, m_Item);
+};
+class CEconEntity {
+public:
+	DECLARE_CLASS(CEconEntity);
+
+	PSCHEMA_FIELD(CAttributeContainer, m_AttributeManager);
+};
+
+class CBasePlayerWeapon : public CEconEntity
+{
+public:
+	DECLARE_CLASS(CBasePlayerWeapon);
+
+	SCHEMA_FIELD(int, m_iClip1);
+	SCHEMA_FIELD(int, m_iClip2);
+	SCHEMA_FIELD(int, m_pReserveAmmo);
+};
+
+class CPlayer_WeaponServices {
+public:
+	DECLARE_CLASS(CPlayer_WeaponServices)
+
+	SCHEMA_FIELD(CHandle, m_hActiveWeapon);
+	SCHEMA_FIELD(uint16_t, m_iAmmo);
+
+};
+
 
 class CBasePlayer {
 public:
@@ -312,7 +470,7 @@ public:
 	DECLARE_CLASS(CBasePlayerPawn);
 
 	SCHEMA_FIELD(CPlayer_MovementServices*, m_pMovementServices)
-	SCHEMA_FIELD(uint8_t*, m_pWeaponServices)
+	SCHEMA_FIELD(CPlayer_WeaponServices*, m_pWeaponServices)
 	SCHEMA_FIELD(uint8_t**, m_pItemServices)
 };
 class CCSPlayerPawn : public CBasePlayerPawn {
@@ -331,4 +489,23 @@ public:
 	{
 		return *reinterpret_cast<CGameEntitySystem**>((uintptr_t)(this) + 0x58);
 	}
+};
+
+class CLocalize {
+public:
+	auto FindSafe(const char* tokenName) -> const char*;
+};
+
+class Z_CBaseEntity : public CBaseEntity
+{
+public:
+	DECLARE_CLASS(CBaseEntity)
+
+	SCHEMA_FIELD(CBitVec<64>, m_isSteadyState)
+	SCHEMA_FIELD(float, m_lastNetworkChange)
+	PSCHEMA_FIELD(void*, m_NetworkTransmitComponent)
+	SCHEMA_FIELD(int, m_iHealth)
+	SCHEMA_FIELD(int, m_iTeamNum)
+	SCHEMA_FIELD(Vector, m_vecBaseVelocity)
+	SCHEMA_FIELD(CCollisionProperty*, m_pCollision)
 };

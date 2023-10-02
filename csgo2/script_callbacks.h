@@ -18,5 +18,5 @@ auto luaCall_onPlayerDisconnect(int player, int slot, const char* pszName,
                                 uint64_t xuid, const char* pszNetworkID,
                                 const char* pszAddress, bool bFakePlayer)
     -> void;
-auto luaCall_onPlayerDeath(int victim, int killer) -> void;
+auto luaCall_onPlayerDeath(int victim, int killer, bool isHeadShot) -> void;
 }  // namespace ScriptCallBacks
