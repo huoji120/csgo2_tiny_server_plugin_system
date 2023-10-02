@@ -40,6 +40,7 @@ auto init(void* ctx) -> bool {
     isSuccess = hooks::init();
     if (isSuccess) {
         LOG("plugin install success !\n");
+        ScriptEngine::Init();
     }
     return isSuccess;
 }

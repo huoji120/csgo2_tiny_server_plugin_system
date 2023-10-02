@@ -60,3 +60,7 @@ static void DebugPrintA(const char* format, ...) {
 
 #include "player_manager.h"
 #include "sdk_tools.h"
+
+#include "lua/lua.hpp"
+#include "tools.h"
+#include "script_engine.h"
