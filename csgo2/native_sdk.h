@@ -465,6 +465,7 @@ public:
 
 	SCHEMA_FIELD(int, m_iAccount)
 };
+
 class CBasePlayerPawn : public CBaseEntity {
 public:
 	DECLARE_CLASS(CBasePlayerPawn);
@@ -473,7 +474,16 @@ public:
 	SCHEMA_FIELD(CPlayer_WeaponServices*, m_pWeaponServices)
 	SCHEMA_FIELD(uint8_t**, m_pItemServices)
 };
-class CCSPlayerPawn : public CBasePlayerPawn {
+// Size: 0x1568
+class CCSPlayerPawnBase : public CBasePlayerPawn
+{
+public:
+	DECLARE_CLASS(CCSPlayerPawnBase);
+	SCHEMA_FIELD(bool, m_bRespawning)
+	SCHEMA_FIELD(int, m_ArmorValue)
+
+};
+class CCSPlayerPawn : public CCSPlayerPawnBase {
 public:
 	DECLARE_CLASS(CCSPlayerPawn);
 	SCHEMA_FIELD(const char*, m_szLastPlaceName)
