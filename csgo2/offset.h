@@ -1,5 +1,7 @@
 #pragma once
 #include "head.h"
+#define SERVER_HASH_FUCNTION_KEY 0x31415926
+typedef uint64_t(__fastcall* HashFunction_t)(const char*, unsigned int, unsigned int);
 
 class CSchemaSystem;
 class CGameResourceService;
@@ -28,6 +30,8 @@ static const auto pattern_fnGetLocalPlayerController =
 //"\"Console<0>\" say \"%s\"\n"
 static const auto pattern_fnHost_SayPtr =
     THE_GAME_SIG("44 89 4C 24 ?? 44 88 44 24 ?? 55 53 56 57 41 54 41 55");
+static const auto pattern_ServerHashFunctionPtr =
+    THE_GAME_SIG("48 89 ?? ?? ?? 57 48 ?? ?? ?? ?? ?? ?? 33 C0 8B DA 41 8B F8 48 89 ?? ?? ?? 4C 8B C1 C7 44 ?? ?? ?? ?? ?? ?? 44 8B CA 89 44 ?? ?? 48 8D ?? ?? ?? 88 44 ?? ?? 33 D2");
 static const auto pattern_MaxPlayerNumsPtr = 
     THE_GAME_SIG("41 3B 87 ?? ?? ?? ?? 0F 8E ?? ?? ?? ?? 8B 0D ?? ?? ?? ??");
 extern uint64_t GameResourceServicePtr;
@@ -36,5 +40,6 @@ extern uint64_t Module_tier0;
 extern uint64_t NetworkStateChangedPtr;
 extern uint64_t Host_SayPtr;
 extern uint64_t MaxPlayerNumsPtr;
+extern HashFunction_t FnServerHashFunction;
 auto Init() -> bool;
 };  // namespace Offset

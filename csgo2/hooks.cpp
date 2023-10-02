@@ -11,10 +11,14 @@ VMTHook* VMT_IServerGameClient;
 void __fastcall hook_ClientDisconnect(void* rcx, CPlayerSlot slot, int reason,
                                       const char* pszName, uint64_t xuid,
                                       const char* pszNetworkID) {
+    bool isFakePlayer = true;
     if (pszNetworkID != NULL && *pszNetworkID == '[') {
         ExtendPlayerManager::RemovePlayerSlotBySteamId(
             ExtendPlayerManager::SteamIDStringToUInt64(pszNetworkID));
+        isFakePlayer = false;
     }
+    events::OnPlayerDisconnect(slot.Get(), pszName, xuid, pszNetworkID,
+                               pszNetworkID, isFakePlayer);
     return original_OnClientDisconnect(rcx, slot, reason, pszName, xuid,
                                        pszNetworkID);
 }
@@ -28,7 +32,8 @@ void __fastcall hook_OnClientConnected(void* rcx, CPlayerSlot slot,
             ExtendPlayerManager::SteamIDStringToUInt64(pszNetworkID),
             slot.Get());
     }
-
+    events::OnPlayerConnect(slot.Get(), pszName, xuid, pszNetworkID, pszAddress,
+                            bFakePlayer);
     return original_OnClientConnected(rcx, slot, pszName, xuid, pszNetworkID,
                                       pszAddress, bFakePlayer);
 }
@@ -42,7 +47,7 @@ void __fastcall hook_Host_Say(void* pEntity, void* args, bool teamonly,
     do {
         if (theArgs == nullptr || theEntity == nullptr) {
             break;
-        }        
+        }
         const auto message = std::string(theArgs->GetCommandString());
 
         if (events::OnPlayerChat(theEntity, message) == true) {
@@ -57,8 +62,9 @@ void __fastcall hook_Host_Say(void* pEntity, void* args, bool teamonly,
     if (*pMessage == '/')
         return;
      */
-    if (blockMsg) { return; }
-    else {
+    if (blockMsg) {
+        return;
+    } else {
         return original_Host_Say(pEntity, args, teamonly, unk1, unk2);
     }
 }
@@ -77,6 +83,7 @@ bool __fastcall hook_FireEventServerSide(CGameEventManager* rcx,
         static constexpr auto player_death =
             hash_32_fnv1a_const("player_death");
         static constexpr auto player_chat = hash_32_fnv1a_const("player_chat");
+
         switch (hash_32_fnv1a_const(eventName)) {
             case player_death:
                 events::OnPlayerDeathEvent(event);

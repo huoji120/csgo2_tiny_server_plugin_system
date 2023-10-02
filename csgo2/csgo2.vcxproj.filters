@@ -285,6 +285,12 @@
     <ClInclude Include="lua\lzio.h">
       <Filter>头文件\lua</Filter>
     </ClInclude>
+    <ClInclude Include="script_apis.h">
+      <Filter>头文件\script_engine</Filter>
+    </ClInclude>
+    <ClInclude Include="script_callbacks.h">
+      <Filter>头文件\script_engine</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -451,6 +457,12 @@
     </ClCompile>
     <ClCompile Include="lua\lzio.c">
       <Filter>头文件\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="script_apis.cpp">
+      <Filter>源文件\script_engine</Filter>
+    </ClCompile>
+    <ClCompile Include="script_callbacks.cpp">
+      <Filter>源文件\script_engine</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

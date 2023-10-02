@@ -8,7 +8,7 @@ uint64_t CGameEventManagerPtr;
 uint64_t Host_SayPtr;
 uint64_t Module_tier0;
 uint64_t MaxPlayerNumsPtr;
-
+HashFunction_t FnServerHashFunction;
 namespace InterFaces {
 CSchemaSystem* SchemaSystem;
 IGameEventManager2* GameEventManager;
@@ -16,6 +16,7 @@ CGameEventManager* CGameEventManger;
 CGameResourceService* GameResourceServiceServer;
 IServerGameClients* IServerGameClient;
 IVEngineServer2* IVEngineServer;
+ISource2Server* ISource2ServerInterFace;
 };  // namespace InterFaces
 auto Init() -> bool {
     CModule server("server.dll");
@@ -32,13 +33,16 @@ auto Init() -> bool {
         .ToAbsolute(3, 0)
         .Get(CGameEventManagerPtr);
     server.FindPattern(pattern_fnHost_SayPtr).Get(Host_SayPtr);
+    server.FindPattern(pattern_ServerHashFunctionPtr).Get(FnServerHashFunction);
 
     // schemasystem
     InterFaces::SchemaSystem = reinterpret_cast<CSchemaSystem*>(
         schemasystem.FindInterface("SchemaSystem_001").Get());
+
     // engine.dll
-    InterFaces::GameEventManager = reinterpret_cast<IGameEventManager2*>(
-        engine.FindInterface("GameEventSystemServerV001").Get());
+    //InterFaces::GameEventManager = reinterpret_cast<IGameEventManager2*>(
+    //    engine.FindInterface("GameEventSystemServerV001").Get());
+    //InterFaces::GameEventManager = reinterpret_cast<IGameEventManager2*>(engine.FindInterface("GameEventSystemServerV001").Get());
     InterFaces::GameResourceServiceServer =
         reinterpret_cast<CGameResourceService*>(
             engine.FindInterface("GameResourceServiceServerV001").Get());
@@ -48,17 +52,22 @@ auto Init() -> bool {
     // server.dll
     InterFaces::IServerGameClient = reinterpret_cast<IServerGameClients*>(
         server.FindInterface("Source2GameClients001").Get());
-
-    // only init in console server
+    InterFaces::ISource2ServerInterFace = reinterpret_cast<ISource2Server*>(
+        server.FindInterface("Source2Server001").Get());
+    if (InterFaces::ISource2ServerInterFace) {
+        InterFaces::GameEventManager = (IGameEventManager2*)(CALL_VIRTUAL(uintptr_t, 91, InterFaces::ISource2ServerInterFace) - 8);
+    }
     InterFaces::CGameEventManger =
         reinterpret_cast<CGameEventManager*>(CGameEventManagerPtr);
 
     //global::MaxPlayers = *(int*)((char*)MaxPlayerNumsPtr + 2);
     // client.FindPattern(pattern_FireEventServerSide).Get(FireEventServerSidePtr);
+    global::MaxPlayers = 64;
+
     LOG("[huoji]FireEventServerSidePtr : %llx \n", FireEventServerSidePtr);
     LOG("[huoji]NetworkStateChangedPtr : %llx \n", NetworkStateChangedPtr);
     LOG("[huoji]Host_SayPtr : %llx \n", Host_SayPtr);
-    LOG("[huoji]Host_SayPtr : %llx \n", MaxPlayerNumsPtr);
+    LOG("[huoji]FnServerHashFunction : %llx \n", FnServerHashFunction);
     LOG("[huoji]MaxGlobals : %d \n", global::MaxPlayers);
 
     LOG("[huoji]InterFaces::SchemaSystem : %llx \n", InterFaces::SchemaSystem);
@@ -72,10 +81,13 @@ auto Init() -> bool {
         InterFaces::IServerGameClient);
     LOG("[huoji]InterFaces::IVEngineServer : %llx \n",
         InterFaces::IVEngineServer);
+    LOG("[huoji]InterFaces::ISource2ServerInterFace : %llx \n",
+        InterFaces::ISource2ServerInterFace);
 
     // GetOffsets();
     LOG("init offset success !\n");
-    return Host_SayPtr && InterFaces::IVEngineServer &&
+    LOG("FnServerHashFunction: %llx \n", FnServerHashFunction("here", sizeof("here") - 1, 0x31415926));
+    return FnServerHashFunction && Host_SayPtr && InterFaces::IVEngineServer &&
            InterFaces::GameResourceServiceServer &&
            InterFaces::IServerGameClient && InterFaces::GameEventManager &&
            InterFaces::SchemaSystem && FireEventServerSidePtr &&

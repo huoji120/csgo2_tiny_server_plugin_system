@@ -21,6 +21,11 @@ class CGlobalVars;
 class CSharedEdictChangeInfo;
 class IAchievementMgr;
 class CCommandContext;
+class EconControlPointInfo_t;
+struct EconItemInfo_t {
+
+};
+class bf_write;
 typedef uint32_t SpawnGroupHandle_t;
 typedef uint32_t SwapChainHandle_t;
 struct CEntityIndex
@@ -78,7 +83,98 @@ public:
 	virtual void* UnknownFunc1(const char* pszFilename, void* pUnknown1, void* pUnknown2, void* pUnknown3) = 0;
 	virtual void		UnknownFunc2() = 0;
 };
+class ISource2Server : public IAppSystem
+{
+public:
+	virtual bool			Unknown0() const = 0;
 
+	virtual void			SetGlobals(CGlobalVars* pGlobals) = 0;
+
+	// Let the game .dll allocate it's own network/shared string tables
+	virtual void			GameCreateNetworkStringTables(void) = 0;
+
+	virtual void			WriteSignonMessages(const bf_write& buf) = 0;
+
+	virtual void			PreWorldUpdate(bool simulating) = 0;
+
+	virtual void* GetEntity2Networkables(void) const = 0;
+
+	virtual void* GetEntityInfo() = 0;
+
+	// Called to apply lobby settings to a dedicated server
+	virtual void			ApplyGameSettings(KeyValues* pKV) = 0;
+
+	// The server should run physics/think on all edicts
+	// One of these bools is 'simulating'... probably
+	virtual void			GameFrame(bool simulating, bool bFirstTick, bool bLastTick) = 0;
+
+	// Returns true if the game DLL wants the server not to be made public.
+	// Used by commentary system to hide multiplayer commentary servers from the master.
+	virtual bool			ShouldHideFromMasterServer(bool bServerHasPassword) = 0;
+
+	virtual void			GetMatchmakingTags(char* buf, size_t bufSize) = 0;
+
+	virtual void			ServerHibernationUpdate(bool bHibernating) = 0;
+
+	virtual void*			GetServerGCLobby() = 0;
+
+	virtual void			GetMatchmakingGameData(CBufferString& buf) = 0;
+
+	// return true to disconnect client due to timeout (used to do stricter timeouts when the game is sure the client isn't loading a map)
+	virtual bool			ShouldTimeoutClient(int nUserID, float flTimeSinceLastReceived) = 0;
+
+	virtual void			PrintStatus(CEntityIndex nPlayerEntityIndex, CBufferString& output) = 0;
+
+	virtual int				GetServerGameDLLFlags(void) const = 0;
+
+	// Get the list of cvars that require tags to show differently in the server browser
+	virtual void			GetTaggedConVarList(KeyValues* pCvarTagList) = 0;
+
+	// Give the list of datatable classes to the engine.  The engine matches class names from here with
+	//  edict_t::classname to figure out how to encode a class's data for networking
+	virtual void*			GetAllServerClasses(void) = 0;
+
+	virtual const char* GetActiveWorldName(void) const = 0;
+
+	virtual bool			IsPaused(void) const = 0;
+
+	virtual bool			GetNavMeshData(void* pNavMeshData) = 0;
+	virtual void			SetNavMeshData(const void* navMeshData) = 0;
+	virtual void			RegisterNavListener(void* pNavListener) = 0;
+	virtual void			UnregisterNavListener(void* pNavListener) = 0;
+	virtual void* GetSpawnDebugInterface(void) = 0;
+	virtual void* Unknown1(void) = 0;
+	virtual void* GetToolGameSimulationAPI(void) = 0;
+	virtual void			GetAnimationActivityList(void* activityList) = 0;
+	virtual void			GetAnimationEventList(void* eventList) = 0;
+	virtual void			FilterPlayerCounts(int* pInOutHumans, int* pInOutHumansSlots, int* pInOutBots) = 0;
+
+	// Called after the steam API has been activated post-level startup
+	virtual void			GameServerSteamAPIActivated(void) = 0;
+
+	virtual void			GameServerSteamAPIDeactivated(void) = 0;
+
+	virtual void			OnHostNameChanged(const char* pHostname) = 0;
+	virtual void			PreFatalShutdown(void) const = 0;
+	virtual void			UpdateWhenNotInGame(float flFrameTime) = 0;
+
+	virtual void			GetEconItemNamesForModel(const char* pModelName, bool bExcludeItemSets, bool bExcludeIndividualItems, void* econItemNames) = 0;
+	virtual void			GetEconItemNamesForCharacter(const char* pCharacterName, bool bExcludeItemSets, bool bExcludeIndividualItems, void* econItemNames) = 0;
+	virtual void			GetEconItemsInfoForModel(const char* pModelName, const char* pEconItemName, bool bExcludeItemSets, bool bExcludeIndividualItems, bool bExcludeStockItemSet, void* econInfo) = 0;
+	virtual void			GetEconItemsInfoForCharacter(const char* pCharacterName, const char* pEconItemName, bool bExcludeItemSets, bool bExcludeIndividualItems, bool bExcludeStockItemSet, void* econInfo) = 0;
+
+	virtual void			GetDefaultScaleForModel(const char* pModelName, bool bCheckLoadoutScale) = 0;
+	virtual void			GetDefaultScaleForCharacter(const char* pCharacterName, bool bCheckLoadoutScale) = 0;
+	virtual void			GetDefaultControlPointAutoUpdates(const char* pParticleSystemName, void* autoUpdates) = 0;
+	virtual void			GetCharacterNameForModel(const char* pModelName, bool bCheckItemModifiers, CUtlString& characterName) = 0;
+	virtual void			GetModelNameForCharacter(const char* pCharacterNamel, int nIndex, CBufferString& modelName) = 0;
+	virtual void			GetCharacterList(void* characterNames) = 0;
+	virtual void			GetDefaultChoreoDirForModel(const char* pModelName, CBufferString& defaultVCDDir) = 0;
+
+	virtual void* GetEconItemSystem(void) = 0;
+
+	virtual void			ServerConVarChanged(const char* pVarName, const char* pValue) = 0;
+};
 //-----------------------------------------------------------------------------
 // Purpose: Interface the engine exposes to the game DLL
 //-----------------------------------------------------------------------------

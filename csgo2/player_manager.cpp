@@ -24,13 +24,13 @@ auto SteamIDStringToUInt64(const std::string& steamID) -> uint64_t {
 
 auto AddSteamIdToPlayerSteamIdWithNameTable(uint64_t SteamId,
                                             uint64_t PlayerSlot) -> void {
-    std::unique_lock<std::shared_mutex> lock(mutex_Table_PlayerSteamIdPlayerSlot);
-    LOG("steamid: %llu playername: %ld \n", SteamId, PlayerSlot);
+    std::unique_lock<std::shared_mutex> lock(
+        mutex_Table_PlayerSteamIdPlayerSlot);
     Table_PlayerSteamIdPlayerSlot.insert(std::make_pair(SteamId, PlayerSlot));
 }
 auto GetPlayerSlotBySteamId(uint64_t SteamId) -> uint64_t {
-    std::shared_lock<std::shared_mutex> lock(mutex_Table_PlayerSteamIdPlayerSlot);
-    LOG("steamid: %llu \n", SteamId);
+    std::shared_lock<std::shared_mutex> lock(
+        mutex_Table_PlayerSteamIdPlayerSlot);
 
     auto it = Table_PlayerSteamIdPlayerSlot.find(SteamId);
     if (it != Table_PlayerSteamIdPlayerSlot.end()) {
@@ -38,12 +38,43 @@ auto GetPlayerSlotBySteamId(uint64_t SteamId) -> uint64_t {
     }
     return -1;
 }
+auto GetPlayerSteamIdByPlayerSlot(uint64_t playerSlot) -> uint64_t {
+    std::shared_lock<std::shared_mutex> lock(
+        mutex_Table_PlayerSteamIdPlayerSlot);
+    for (auto& [SteamId, PlayerSlot] : Table_PlayerSteamIdPlayerSlot) {
+        if (PlayerSlot == playerSlot) {
+            return SteamId;
+        }
+    }
+    return -1;
+}
 auto RemovePlayerSlotBySteamId(uint64_t SteamId) -> void {
-    std::unique_lock<std::shared_mutex> lock(mutex_Table_PlayerSteamIdPlayerSlot);
-    LOG("steamid: %llu \n", SteamId);
+    std::unique_lock<std::shared_mutex> lock(
+        mutex_Table_PlayerSteamIdPlayerSlot);
     if (Table_PlayerSteamIdPlayerSlot.find(SteamId) !=
         Table_PlayerSteamIdPlayerSlot.end()) {
         Table_PlayerSteamIdPlayerSlot.erase(SteamId);
     }
+}
+auto GetPlayerByPlayerSlot(uint64_t playerSlot) -> CCSPlayerController* {
+    auto PlayerSteamId = GetPlayerSteamIdByPlayerSlot(playerSlot);
+    if (PlayerSteamId == -1) {
+        return nullptr;
+    }
+    CGameEntitySystem* pEntitySystem = CGameEntitySystem::GetInstance();
+    if (!pEntitySystem) {
+        return nullptr;
+    }
+    for (int i = 1; i <= global::MaxPlayers; ++i) {
+        CBaseEntity* pEntity = pEntitySystem->GetBaseEntity(i);
+        if (!pEntity) continue;
+        if (pEntity->IsBasePlayerController()) {
+            const auto player = reinterpret_cast<CCSPlayerController*>(pEntity);
+            if (player->m_steamID() == PlayerSteamId) {
+                return player;
+            }
+        }
+    }
+    return nullptr;
 }
 };  // namespace ExtendPlayerManager

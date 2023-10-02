@@ -8,28 +8,30 @@
 #include <map>
 #include <shared_mutex>
 #include <sstream>
+#include <filesystem>
+
 #include "framework.h"
 #include "stb.hh"
 // #define LOG DebugPrintA
 static void DebugPrintA(const char* format, ...) {
     std::string temp;
-    va_list marker = { 0 };
+    va_list marker = {0};
     va_start(marker, format);
     size_t num_of_chars = _vscprintf(format, marker);
     if (num_of_chars > temp.capacity()) {
         temp.reserve(num_of_chars + 1);
     }
     vsprintf_s(const_cast<char*>(temp.c_str()), num_of_chars + 1, format,
-        marker);
+               marker);
     OutputDebugStringA(temp.c_str());
 }
 #define LOG(...) printf(__VA_ARGS__)
 #define THE_GAME_SIG(sig) \
     stb::simple_conversion::build<stb::fixed_string{sig}>::value
-//第三方库
+// 第三方库
 #include "./MinHook/include/MinHook.h"
 #include "hash_fnv1a_constexpr.h"
-//工具库
+// 工具库
 
 #include "vmt.h"
 #include "memory.h"
@@ -38,7 +40,7 @@ static void DebugPrintA(const char* format, ...) {
 #include "sdk/public/eiface.h"
 #include "sdk/player/playerslot.h"
 
-//sdk
+// sdk
 #include "sdk/sdk.h"
 #include "sdk/tier1/UtlString.hpp"
 #include "sdk/interfaces/interfaces.h"
@@ -64,3 +66,5 @@ static void DebugPrintA(const char* format, ...) {
 #include "lua/lua.hpp"
 #include "tools.h"
 #include "script_engine.h"
+#include "script_apis.h"
+#include "script_callbacks.h"

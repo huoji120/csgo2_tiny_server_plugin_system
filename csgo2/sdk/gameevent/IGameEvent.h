@@ -10,7 +10,6 @@ class IToolGameEventAPI
 {
 	virtual void unk001(void*) = 0;
 };
-
 struct UnkGameEventStruct_t {
 	UnkGameEventStruct_t(const char* keyName) {
 		m_Unk = 0;
@@ -24,6 +23,7 @@ struct UnkGameEventStruct_t {
 class IGameEvent
 {
 public:
+	// 0
 	virtual ~IGameEvent() {};
 	virtual const char* GetName() const = 0;	// get event name
 	virtual int GetID() const = 0;
@@ -32,8 +32,8 @@ public:
 	virtual bool  IsLocal() const = 0; // if event is never networked
 	virtual bool  IsEmpty(const char* keyName = NULL) = 0; // check if data field exists
 
-	// Data access
-	virtual bool  GetBool(const char* keyName = NULL, bool defaultValue = false) = 0;
+	// Data access index 6
+	virtual bool  GetBool(UnkGameEventStruct_t* keyName = NULL, bool defaultValue = false) = 0;
 	virtual int   GetInt(const char* keyName = NULL, int defaultValue = 0) = 0;
 	virtual uint64_t GetUint64(const char* keyName = NULL, uint64_t defaultValue = 0) = 0;
 	virtual float GetFloat(const char* keyName = NULL, float defaultValue = 0.0f) = 0;

@@ -4,24 +4,59 @@ namespace events {
 auto OnPlayerDeathEvent(IGameEvent* event) -> void {
     UnkGameEventStruct_t userIdNameParams{"userid"};
     UnkGameEventStruct_t attackerNameParams{"attacker"};
-
-    const auto victim = reinterpret_cast<CCSPlayerPawn*>(
+    UnkGameEventStruct_t headshotNameParams{ 0 };
+    static const auto headShotStr = "headshot";
+    headshotNameParams.m_Unk = Offset::FnServerHashFunction(headShotStr, sizeof headShotStr, SERVER_HASH_FUCNTION_KEY);
+    headshotNameParams.m_Key = headShotStr;
+    const auto victimPawn = reinterpret_cast<CCSPlayerPawn*>(
         event->GetPlayerPawn(&userIdNameParams));
-    const auto attacker = reinterpret_cast<CCSPlayerPawn*>(
+    const auto attackerPawn = reinterpret_cast<CCSPlayerPawn*>(
         event->GetPlayerPawn(&attackerNameParams));
-
-    //printf("player[%p] %s kill[%p] %llu\n", attacker, &attacker->m_iszPlayerName(), victim,  &victim->m_steamID());
+    const auto isHeadShot = event->GetBool(&headshotNameParams);
+    if (victimPawn == nullptr || attackerPawn == nullptr) {
+        return;
+    }
+    if (victimPawn->IsBasePlayerController() == false ||
+        attackerPawn->IsBasePlayerController() == false) {
+        return;
+    }
+    const auto victim = victimPawn->GetPlayerController();
+    const auto attacker = attackerPawn->GetPlayerController();
+    if (victim == nullptr || attacker == nullptr) {
+        return;
+    }
+    const auto victimIndex = victim->GetRefEHandle().m_Index;
+    const auto attackerIndex = attacker->GetRefEHandle().m_Index;
+    LOG("is head shot: %d \n", isHeadShot);
+    ScriptCallBacks::luaCall_onPlayerDeath(victimIndex, attackerIndex);
+    // printf("player[%p] %s kill[%p] %llu\n", attacker,
+    // &attacker->m_iszPlayerName(), victim,  &victim->m_steamID());
 }
 auto OnPlayerChat(CCSPlayerController* player, std::string message) -> bool {
-    auto [procesChatSuccess, chatType, chatCtx] = SdkTools::ProcessChatString(message);
+    auto [procesChatSuccess, chatType, chatCtx] =
+        SdkTools::ProcessChatString(message);
     if (procesChatSuccess == false) {
         return false;
     }
-
-    LOG("player %s say[%d]: %s steamid: %llu\n", &player->m_iszPlayerName(), chatType ,chatCtx.c_str(), player->m_steamID());
     if (chatCtx.at(0) == '/' || chatCtx.at(0) == '!') {
         return true;
     }
     return false;
+}
+auto OnPlayerConnect(int slot, const char* pszName, uint64_t xuid,
+                     const char* pszNetworkID, const char* pszAddress,
+                     bool bFakePlayer) -> void {
+    const auto PlayerIndex = PlayerSlot_to_EntityIndex(slot);
+    ScriptCallBacks::luaCall_onPlayerConnect(PlayerIndex, slot, pszName, xuid,
+                                             pszNetworkID, pszAddress,
+                                             bFakePlayer);
+}
+auto OnPlayerDisconnect(int slot, const char* pszName, uint64_t xuid,
+                        const char* pszNetworkID, const char* pszAddress,
+                        bool bFakePlayer) -> void {
+    const auto PlayerIndex = PlayerSlot_to_EntityIndex(slot);
+    ScriptCallBacks::luaCall_onPlayerDisconnect(PlayerIndex, slot, pszName,
+                                                xuid, pszNetworkID, pszAddress,
+                                                bFakePlayer);
 }
 }  // namespace events
