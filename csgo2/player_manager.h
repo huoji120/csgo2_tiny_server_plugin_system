@@ -1,6 +1,5 @@
 #pragma once
-#include "pch.h"
-#include "sdk/player/playerslot.h"
+#include "head.h"
 namespace ExtendPlayerManager {
 auto AddSteamIdToPlayerSteamIdWithNameTable(uint64_t SteamId,
                                             uint64_t PlayerSlot) -> void;

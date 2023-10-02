@@ -1,7 +1,5 @@
 #pragma once
-#include "pch.h"
-#include "sdk/gameevent/IGameEvent.h"
-#include "sdk/tier1/bufferstring.h"
+#include "head.h"
 
 typedef bool(__fastcall* FireEventServerSide_t)(CGameEventManager*, IGameEvent*, bool);
 typedef void(__fastcall* Host_Say_t)(void*, void*, bool, int, const char*);

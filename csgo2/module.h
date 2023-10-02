@@ -1,5 +1,5 @@
 #pragma once
-#include "pch.h"
+#include "head.h"
 #define IS_WINDOWS 1
 class InterfaceReg;
 // Pointer arithmetic utility class.

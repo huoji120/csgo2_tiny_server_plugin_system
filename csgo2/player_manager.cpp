@@ -1,5 +1,4 @@
 #include "player_manager.h"
-#include "native_sdk/cgameentitysystem.h"
 namespace ExtendPlayerManager {
 std::shared_mutex mutex_Table_PlayerSteamIdPlayerSlot;
 

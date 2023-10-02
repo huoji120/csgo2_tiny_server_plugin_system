@@ -1,8 +1,7 @@
 #pragma once
 //form https://www.unknowncheats.me/forum/c-and-c-/188449-vmt-hooking-class.html
-
-#include "pch.h"
-
+#include <map>
+#include <Windows.h>
 class VMTHook
 {
 public:
@@ -10,7 +9,6 @@ public:
 	void** vmt = nullptr; // Pointer to the VMT, we're using it more as an array of void*
 
 	VMTHook(void* vmt); // Hook original VMT by it's address
-	VMTHook(DWORD64* vmt_ptr); // Create Shadow VMT from VMT pointer ( Not implemented here )
 	~VMTHook(); // Destructor, removes all hooks
 
 	void* Hook(int index, void* hk);

@@ -1,8 +1,4 @@
-#pragma once
-#include "head.h"
-
-#define CALL_VIRTUAL(retType, idx, ...) \
-    vmt::CallVirtual<retType>(idx, __VA_ARGS__)
+#include "vmt.h"
 namespace vmt {
     template <typename T = void*>
     inline T GetVMethod(uint32_t uIndex, void* pClass) {
@@ -16,4 +12,3 @@ namespace vmt {
         return pFunc(pClass, args...);
     }
 }  // namespace vmt
-

@@ -3,14 +3,12 @@
 VMTHook::VMTHook(void* vmt_addy)
 {
 	vmt = (void**)vmt_addy;
-	LOG("vmt: %p \n", vmt);
 }
 
 void* VMTHook::Hook(int index, void* hk)
 {
 	// Store the index and original function address
 	hooked_funcs.insert(std::make_pair(index, vmt[index]));
-	LOG("%s vmt[index]: %p \n", __FUNCTION__ ,vmt[index]);
 
 	// Change the memory's access rights, patch the address to our hook, restore original rights
 	DWORD old;

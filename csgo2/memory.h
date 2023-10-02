@@ -1,5 +1,5 @@
 #pragma once
-#include "pch.h"
+#include "head.h"
 namespace Memory {
 	template<class T>
 	void write(uintptr_t address, T value)

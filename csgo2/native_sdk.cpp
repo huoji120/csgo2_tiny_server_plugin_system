@@ -1,6 +1,58 @@
-#include "schema.h"
-#include "native_sdk/cgameentitysystem.h"
-#include "native_sdk/cschemasystem.h"
+#include "native_sdk.h"
+
+CBaseEntity* CHandle::GetBaseEntity() const
+{
+    CGameEntitySystem* pEntitySystem = CGameEntitySystem::GetInstance();
+    if (!pEntitySystem)
+        return nullptr;
+
+    return pEntitySystem->GetBaseEntity(GetEntryIndex());
+}
+CGameEntitySystem* CGameEntitySystem::GetInstance() {
+    return Offset::InterFaces::GameResourceServiceServer->GetGameEntitySystem();
+}
+
+auto CSchemaSystemTypeScope::FindDeclaredClass(const char* pClass) -> SchemaClassInfoData_t*
+{
+    SchemaClassInfoData_t* rv = nullptr;
+    CALL_VIRTUAL(void, 2, this, &rv, pClass);
+    return rv;
+}
+
+auto CSchemaSystem::FindTypeScopeForModule(const char* module) -> CSchemaSystemTypeScope*
+{
+    return CALL_VIRTUAL(CSchemaSystemTypeScope*, 13, this, module, nullptr);
+}
+
+bool CBaseEntity::IsBasePlayerController() {
+    return CALL_VIRTUAL(bool, 144, this);
+}
+
+auto CBasePlayer::ForceRespawn() -> void
+{
+    return CALL_VIRTUAL(void, 26, this);
+}
+
+auto CCSPlayerPawn::GetPlayerController() -> CCSPlayerController*
+{
+    CGameEntitySystem* pEntitySystem = CGameEntitySystem::GetInstance();
+    if (!pEntitySystem) {
+        return nullptr;
+    }
+    for (int i = 1; i <= global::MaxPlayers; ++i) {
+        CBaseEntity* pEntity = pEntitySystem->GetBaseEntity(i);
+        if (!pEntity) continue;
+        if (pEntity->IsBasePlayerController()) {
+            const auto player = reinterpret_cast<CCSPlayerController*>(pEntity);
+            if (player->m_hPawn().Get() == this) {
+                //printf("Found Pawn Player: %d %s \n", player->GetRefEHandle().GetEntryIndex(), &player->m_iszPlayerName());
+                return player;
+            }
+        }
+    }
+    return nullptr;
+}
+
 using SchemaKeyValueMap_t = std::unordered_map<uint32_t, int16_t>;
 using SchemaTableMap_t = std::unordered_map<uint32_t, SchemaKeyValueMap_t>;
 

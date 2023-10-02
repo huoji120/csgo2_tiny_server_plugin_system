@@ -49,26 +49,8 @@
     <Filter Include="源文件\native_sdk">
       <UniqueIdentifier>{c28f9f29-7571-4821-9cbd-11f27692566a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="源文件\native_sdk\interfaces">
-      <UniqueIdentifier>{e26bdf5e-ad8d-4ed2-965c-1fdb958a6098}</UniqueIdentifier>
-    </Filter>
     <Filter Include="头文件\native_sdk">
       <UniqueIdentifier>{c5938a38-9035-4f7a-952c-156a8549bb54}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="头文件\native_sdk\interfaces">
-      <UniqueIdentifier>{ec02337e-1abc-42a9-b29c-355278bf4bf2}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="源文件\native_sdk\entity">
-      <UniqueIdentifier>{6c9da4be-92c5-4504-8c46-ab0cc612bfe5}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="头文件\native_sdk\entity">
-      <UniqueIdentifier>{f1101bd0-b17e-4c9e-87f1-e34d97979e77}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="头文件\native_sdk\handle">
-      <UniqueIdentifier>{63beb427-0b96-4062-83e0-752efb2ed5f0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="源文件\native_sdk\handle">
-      <UniqueIdentifier>{68556c7c-97c0-4e1e-82f0-e4b45b9ad40d}</UniqueIdentifier>
     </Filter>
     <Filter Include="头文件\sdk\convar">
       <UniqueIdentifier>{befb97b4-a3ba-48a8-84a8-c36a74d2d48c}</UniqueIdentifier>
@@ -168,32 +150,8 @@
     <ClInclude Include="sdk\interfaces\interfaces.h">
       <Filter>头文件\sdk\interfaces</Filter>
     </ClInclude>
-    <ClInclude Include="schema.h">
-      <Filter>头文件\native_sdk\interfaces</Filter>
-    </ClInclude>
-    <ClInclude Include="native_sdk\cschemasystem.h">
-      <Filter>头文件\native_sdk\interfaces</Filter>
-    </ClInclude>
-    <ClInclude Include="native_sdk\cgameentitysystem.h">
-      <Filter>头文件\native_sdk\interfaces</Filter>
-    </ClInclude>
-    <ClInclude Include="native_sdk\entity\cbaseentity.h">
-      <Filter>头文件\native_sdk\entity</Filter>
-    </ClInclude>
     <ClInclude Include="vmthook.h">
       <Filter>头文件\memory</Filter>
-    </ClInclude>
-    <ClInclude Include="native_sdk\entity\cbaseplayercontroller.h">
-      <Filter>头文件\native_sdk\entity</Filter>
-    </ClInclude>
-    <ClInclude Include="native_sdk\handle\handle.h">
-      <Filter>头文件\native_sdk\handle</Filter>
-    </ClInclude>
-    <ClInclude Include="player.h">
-      <Filter>头文件\native_sdk\entity</Filter>
-    </ClInclude>
-    <ClInclude Include="native_sdk\cgameresourceserviceserver.h">
-      <Filter>头文件\native_sdk\interfaces</Filter>
     </ClInclude>
     <ClInclude Include="sdk\convar\convar.hpp">
       <Filter>头文件\sdk\convar</Filter>
@@ -218,6 +176,15 @@
     </ClInclude>
     <ClInclude Include="player_manager.h">
       <Filter>头文件\players</Filter>
+    </ClInclude>
+    <ClInclude Include="head.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="native_sdk.h">
+      <Filter>头文件\native_sdk</Filter>
+    </ClInclude>
+    <ClInclude Include="sdk_tools.h">
+      <Filter>头文件\native_sdk</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -260,23 +227,8 @@
     <ClCompile Include="events.cpp">
       <Filter>源文件\events</Filter>
     </ClCompile>
-    <ClCompile Include="schema.cpp">
-      <Filter>源文件\native_sdk\interfaces</Filter>
-    </ClCompile>
-    <ClCompile Include="VTHook.cpp">
+    <ClCompile Include="vmthook.cpp">
       <Filter>源文件\memory</Filter>
-    </ClCompile>
-    <ClCompile Include="native_sdk\cschemasystem.cpp">
-      <Filter>源文件\native_sdk\interfaces</Filter>
-    </ClCompile>
-    <ClCompile Include="native_sdk\cgameentitysystem.cpp">
-      <Filter>源文件\native_sdk\interfaces</Filter>
-    </ClCompile>
-    <ClCompile Include="player.cpp">
-      <Filter>源文件\native_sdk\entity</Filter>
-    </ClCompile>
-    <ClCompile Include="native_sdk\handle\handle.cpp">
-      <Filter>源文件\native_sdk\handle</Filter>
     </ClCompile>
     <ClCompile Include="sdk\convar\convar.cpp">
       <Filter>头文件\sdk\convar</Filter>
@@ -287,8 +239,11 @@
     <ClCompile Include="player_manager.cpp">
       <Filter>源文件\players</Filter>
     </ClCompile>
-    <ClCompile Include="native_sdk\entity\cbaseentity.cpp">
-      <Filter>源文件\native_sdk\entity</Filter>
+    <ClCompile Include="native_sdk.cpp">
+      <Filter>源文件\native_sdk</Filter>
+    </ClCompile>
+    <ClCompile Include="sdk_tools.cpp">
+      <Filter>源文件\native_sdk</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

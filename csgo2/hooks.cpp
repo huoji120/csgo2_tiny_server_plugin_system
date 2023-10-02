@@ -1,8 +1,5 @@
 #include "hooks.h"
-#include "native_sdk/entity/cbaseentity.h"
-#include "sdk/convar/convar.hpp"
-#include "player_manager.h"
-#include "native_sdk/entity/cbaseplayercontroller.h"
+
 FireEventServerSide_t original_FireEventServerSide = NULL;
 OnClientConnect_t original_OnClientConnected = NULL;
 OnClientDisconnect_t original_OnClientDisconnect = NULL;
@@ -41,13 +38,17 @@ void __fastcall hook_Host_Say(void* pEntity, void* args, bool teamonly,
     const auto theEntity = reinterpret_cast<CCSPlayerController*>(pEntity);
 
     char* pos = nullptr;
+    bool blockMsg = false;
     do {
         if (theArgs == nullptr || theEntity == nullptr) {
             break;
+        }        
+        const auto message = std::string(theArgs->GetCommandString());
+
+        if (events::OnPlayerChat(theEntity, message) == true) {
+            blockMsg = true;
+            break;
         }
-        auto message = std::string(theArgs->GetCommandString());
-        printf("player[%d][%p] %s : %s \n", theEntity->GetRefEHandle().GetEntryIndex(),theEntity, &theEntity->m_iszPlayerName(),
-               message.c_str());
     } while (false);
     /*
     if (*pMessage == '!' || *pMessage == '/')
@@ -56,7 +57,10 @@ void __fastcall hook_Host_Say(void* pEntity, void* args, bool teamonly,
     if (*pMessage == '/')
         return;
      */
-    return original_Host_Say(pEntity, args, teamonly, unk1, unk2);
+    if (blockMsg) { return; }
+    else {
+        return original_Host_Say(pEntity, args, teamonly, unk1, unk2);
+    }
 }
 
 bool __fastcall hook_FireEventServerSide(CGameEventManager* rcx,

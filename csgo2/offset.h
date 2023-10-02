@@ -1,10 +1,8 @@
 #pragma once
-#include "pch.h"
-#include "native_sdk/cschemasystem.h"
-#include "native_sdk/cgameresourceserviceserver.h"
-#include "sdk/public/eiface.h"
-class CSchemaSystem;
+#include "head.h"
 
+class CSchemaSystem;
+class CGameResourceService;
 namespace Offset {
 namespace InterFaces {
     extern CSchemaSystem* SchemaSystem;

@@ -1,5 +1,5 @@
 #pragma once
-#include "pch.h"
+#include "head.h"
 namespace global {
 	extern bool Exit;
 	extern int MaxPlayers;
