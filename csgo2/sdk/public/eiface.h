@@ -193,6 +193,7 @@ public:
 class ISource2Server : public IAppSystem
 {
 public:
+	//vmt index 11
 	virtual bool			Unknown0() const = 0;
 
 	virtual void			SetGlobals(CGlobalVars* pGlobals) = 0;
@@ -213,6 +214,7 @@ public:
 
 	// The server should run physics/think on all edicts
 	// One of these bools is 'simulating'... probably
+	// index 19
 	virtual void			GameFrame(bool simulating, bool bFirstTick, bool bLastTick) = 0;
 
 	// Returns true if the game DLL wants the server not to be made public.

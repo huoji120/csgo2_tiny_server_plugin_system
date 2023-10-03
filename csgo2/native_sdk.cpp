@@ -1,10 +1,8 @@
 #include "native_sdk.h"
 
-CBaseEntity* CHandle::GetBaseEntity() const
-{
+CBaseEntity* CHandle::GetBaseEntity() const {
     CGameEntitySystem* pEntitySystem = CGameEntitySystem::GetInstance();
-    if (!pEntitySystem)
-        return nullptr;
+    if (!pEntitySystem) return nullptr;
 
     return pEntitySystem->GetBaseEntity(GetEntryIndex());
 }
@@ -12,29 +10,27 @@ CGameEntitySystem* CGameEntitySystem::GetInstance() {
     return Offset::InterFaces::GameResourceServiceServer->GetGameEntitySystem();
 }
 
-auto CSchemaSystemTypeScope::FindDeclaredClass(const char* pClass) -> SchemaClassInfoData_t*
-{
+auto CSchemaSystemTypeScope::FindDeclaredClass(const char* pClass)
+    -> SchemaClassInfoData_t* {
     SchemaClassInfoData_t* rv = nullptr;
     CALL_VIRTUAL(void, 2, this, &rv, pClass);
     return rv;
 }
 
-auto CSchemaSystem::FindTypeScopeForModule(const char* module) -> CSchemaSystemTypeScope*
-{
+auto CSchemaSystem::FindTypeScopeForModule(const char* module)
+    -> CSchemaSystemTypeScope* {
     return CALL_VIRTUAL(CSchemaSystemTypeScope*, 13, this, module, nullptr);
 }
 
-bool CBaseEntity::IsBasePlayerController() {
+auto CBaseEntity::IsBasePlayerController() -> bool {
     return CALL_VIRTUAL(bool, 144, this);
 }
-
-auto CBasePlayer::ForceRespawn() -> void
-{
+auto CBaseEntity::SpawnClientEntity() -> void { CALL_VIRTUAL(void, 19, this); }
+auto CBasePlayer::ForceRespawn() -> void {
     return CALL_VIRTUAL(void, 26, this);
 }
 
-auto CCSPlayerPawn::GetPlayerController() -> CCSPlayerController*
-{
+auto CCSPlayerPawn::GetPlayerController() -> CCSPlayerController* {
     CGameEntitySystem* pEntitySystem = CGameEntitySystem::GetInstance();
     if (!pEntitySystem) {
         return nullptr;
@@ -45,7 +41,9 @@ auto CCSPlayerPawn::GetPlayerController() -> CCSPlayerController*
         if (pEntity->IsBasePlayerController()) {
             const auto player = reinterpret_cast<CCSPlayerController*>(pEntity);
             if (player->m_hPawn().Get() == this) {
-                //printf("Found Pawn Player: %d %s \n", player->GetRefEHandle().GetEntryIndex(), &player->m_iszPlayerName());
+                // printf("Found Pawn Player: %d %s \n",
+                // player->GetRefEHandle().GetEntryIndex(),
+                // &player->m_iszPlayerName());
                 return player;
             }
         }
@@ -56,11 +54,8 @@ auto CCSPlayerPawn::GetPlayerController() -> CCSPlayerController*
 using SchemaKeyValueMap_t = CUtlMap<uint32_t, SchemaKey>;
 using SchemaTableMap_t = CUtlMap<uint32_t, SchemaKeyValueMap_t*>;
 
-
-static bool IsFieldNetworked(SchemaClassFieldData_t& field)
-{
-    for (int i = 0; i < field.m_metadata_size; i++)
-    {
+static bool IsFieldNetworked(SchemaClassFieldData_t& field) {
+    for (int i = 0; i < field.m_metadata_size; i++) {
         static auto networkEnabled = hash_32_fnv1a_const("MNetworkEnable");
         if (networkEnabled == hash_32_fnv1a_const(field.m_metadata[i].m_name))
             return true;
@@ -69,18 +64,18 @@ static bool IsFieldNetworked(SchemaClassFieldData_t& field)
     return false;
 }
 
-static bool InitSchemaFieldsForClass(SchemaTableMap_t* tableMap, const char* className, uint32_t classKey)
-{
-    CSchemaSystemTypeScope* pType = Offset::InterFaces::SchemaSystem->FindTypeScopeForModule("server.dll");
+static bool InitSchemaFieldsForClass(SchemaTableMap_t* tableMap,
+                                     const char* className, uint32_t classKey) {
+    CSchemaSystemTypeScope* pType =
+        Offset::InterFaces::SchemaSystem->FindTypeScopeForModule("server.dll");
 
-    if (!pType)
-        return false;
+    if (!pType) return false;
 
     SchemaClassInfoData_t* pClassInfo = pType->FindDeclaredClass(className);
 
-    if (!pClassInfo)
-    {
-        SchemaKeyValueMap_t* map = new SchemaKeyValueMap_t(0, 0, DefLessFunc(uint32_t));
+    if (!pClassInfo) {
+        SchemaKeyValueMap_t* map =
+            new SchemaKeyValueMap_t(0, 0, DefLessFunc(uint32_t));
         tableMap->Insert(classKey, map);
 
         LOG("InitSchemaFieldsForClass(): '%s' was not found!\n", className);
@@ -90,40 +85,38 @@ static bool InitSchemaFieldsForClass(SchemaTableMap_t* tableMap, const char* cla
     short fieldsSize = pClassInfo->GetFieldsSize();
     SchemaClassFieldData_t* pFields = pClassInfo->GetFields();
 
-    SchemaKeyValueMap_t* keyValueMap = new SchemaKeyValueMap_t(0, 0, DefLessFunc(uint32_t));
+    SchemaKeyValueMap_t* keyValueMap =
+        new SchemaKeyValueMap_t(0, 0, DefLessFunc(uint32_t));
     keyValueMap->EnsureCapacity(fieldsSize);
     tableMap->Insert(classKey, keyValueMap);
 
-    for (int i = 0; i < fieldsSize; ++i)
-    {
+    for (int i = 0; i < fieldsSize; ++i) {
         SchemaClassFieldData_t& field = pFields[i];
+        // LOG("%s::%s found at -> 0x%X - %llx\n", className, field.m_name,
+        // field.m_offset, &field);
 
-        keyValueMap->Insert(hash_32_fnv1a_const(field.m_name), { field.m_offset, IsFieldNetworked(field) });
+        keyValueMap->Insert(hash_32_fnv1a_const(field.m_name),
+                            {field.m_offset, IsFieldNetworked(field)});
     }
 
     return true;
 }
 
-int16_t schema::FindChainOffset(const char* className)
-{
-    
-    CSchemaSystemTypeScope* pType = Offset::InterFaces::SchemaSystem->FindTypeScopeForModule("server.dll");
+int16_t schema::FindChainOffset(const char* className) {
+    CSchemaSystemTypeScope* pType =
+        Offset::InterFaces::SchemaSystem->FindTypeScopeForModule("server.dll");
 
-    if (!pType)
-        return false;
+    if (!pType) return false;
 
     SchemaClassInfoData_t* pClassInfo = pType->FindDeclaredClass(className);
 
-    do
-    {
+    do {
         SchemaClassFieldData_t* pFields = pClassInfo->GetFields();
         short fieldsSize = pClassInfo->GetFieldsSize();
-        for (int i = 0; i < fieldsSize; ++i)
-        {
+        for (int i = 0; i < fieldsSize; ++i) {
             SchemaClassFieldData_t& field = pFields[i];
 
-            if (strcmp(field.m_name, "__m_pChainEntity") == 0)
-            {
+            if (strcmp(field.m_name, "__m_pChainEntity") == 0) {
                 return field.m_offset;
             }
         }
@@ -132,24 +125,23 @@ int16_t schema::FindChainOffset(const char* className)
     return 0;
 }
 
-SchemaKey schema::GetOffset(const char* className, uint32_t classKey, const char* memberName, uint32_t memberKey)
-{
+SchemaKey schema::GetOffset(const char* className, uint32_t classKey,
+                            const char* memberName, uint32_t memberKey) {
     static SchemaTableMap_t schemaTableMap(0, 0, DefLessFunc(uint32_t));
     int16_t tableMapIndex = schemaTableMap.Find(classKey);
-    if (!schemaTableMap.IsValidIndex(tableMapIndex))
-    {
+    if (!schemaTableMap.IsValidIndex(tableMapIndex)) {
         if (InitSchemaFieldsForClass(&schemaTableMap, className, classKey))
             return GetOffset(className, classKey, memberName, memberKey);
 
-        return { 0, 0 };
+        return {0, 0};
     }
 
     SchemaKeyValueMap_t* tableMap = schemaTableMap[tableMapIndex];
     int16_t memberIndex = tableMap->Find(memberKey);
-    if (!tableMap->IsValidIndex(memberIndex))
-    {
-        LOG("schema::GetOffset(): '%s' was not found in '%s'!\n", memberName, className);
-        return { 0, 0 };
+    if (!tableMap->IsValidIndex(memberIndex)) {
+        LOG("schema::GetOffset(): '%s' was not found in '%s'!\n", memberName,
+            className);
+        return {0, 0};
     }
 
     return tableMap->Element(memberIndex);
@@ -177,27 +169,26 @@ bool CEconItemDefinition::IsGlove(bool excludeDefault) {
     return excludeDefault ? !defaultGlove : true;
 }
 
-auto CLocalize::FindSafe(const char* tokenName) -> const char*
-{
+auto CLocalize::FindSafe(const char* tokenName) -> const char* {
     return CALL_VIRTUAL(const char*, 17, this, tokenName);
 }
-auto GetGameGlobals() -> CGlobalVars*
-{
-    INetworkGameServer* server = Offset::InterFaces::INetworkServerServiceInteFace->GetIGameServer();
+auto GetGameGlobals() -> CGlobalVars* {
+    INetworkGameServer* server =
+        Offset::InterFaces::INetworkServerServiceInteFace->GetIGameServer();
 
-    if (!server)
-        return nullptr;
+    if (!server) return nullptr;
 
-    return Offset::InterFaces::INetworkServerServiceInteFace->GetIGameServer()->GetGlobals();
+    return Offset::InterFaces::INetworkServerServiceInteFace->GetIGameServer()
+        ->GetGlobals();
 }
 
-auto SetStateChanged(Z_CBaseEntity* pEntity, int offset) -> void
-{
-    Offset::FnStateChanged(pEntity->m_NetworkTransmitComponent(), pEntity, offset, -1, -1);
-    auto vars = GetGameGlobals();
+auto SetStateChanged(Z_CBaseEntity* pEntity, int offset) -> void {
+    Offset::FnStateChanged(pEntity->m_NetworkTransmitComponent(), pEntity,
+                           offset, -1, -1);
+    // auto vars = GetGameGlobals();
+    auto vars = global::GlobalVars;
 
-    if (vars)
-        pEntity->m_lastNetworkChange(vars->curtime);
+    if (vars) pEntity->m_lastNetworkChange(vars->curtime);
 
     pEntity->m_isSteadyState(0);
 };

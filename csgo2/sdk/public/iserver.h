@@ -91,6 +91,7 @@ public:
 class IEngineService : public IAppSystem
 {
 public:
+	//vmt index 11
 	virtual void* GetServiceDependencies(void) = 0;
 	virtual const char* GetName(void) const = 0;
 	virtual bool		ShouldActivate(const char*) = 0;
@@ -107,10 +108,12 @@ public:
 class INetworkServerService : public IEngineService
 {
 public:
+	//vmt index 22
 	virtual ~INetworkServerService() {}
 	virtual INetworkGameServer * GetIGameServer(void) = 0;
 	virtual bool	IsActiveInGame(void) const = 0;
 	virtual bool	IsMultiplayer(void) const = 0;
+	//vmt index 26
 	virtual void	StartupServer(const GameSessionConfiguration_t& config, ISource2WorldSession* pWorldSession, const char*) = 0;
 	virtual void	SetGameSpawnGroupMgr(IGameSpawnGroupMgr* pMgr) = 0;
 	virtual void	AddServerPrerequisites(const GameSessionConfiguration_t&, const char*, void*, bool) = 0;

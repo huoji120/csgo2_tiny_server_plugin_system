@@ -79,3 +79,4 @@ static void DebugPrintA(const char* format, ...) {
 #include "script_engine.h"
 #include "script_apis.h"
 #include "script_callbacks.h"
+#include "timer.h"

@@ -28,7 +28,8 @@ auto OnPlayerDeathEvent(IGameEvent* event) -> void {
     }
     const auto victimIndex = victim->GetRefEHandle().GetEntryIndex();
     const auto attackerIndex = attacker->GetRefEHandle().GetEntryIndex();
-    ScriptCallBacks::luaCall_onPlayerDeath(victimIndex, attackerIndex, isHeadShot);
+    ScriptCallBacks::luaCall_onPlayerDeath(victimIndex, attackerIndex,
+                                           isHeadShot);
     // printf("player[%p] %s kill[%p] %llu\n", attacker,
     // &attacker->m_iszPlayerName(), victim,  &victim->m_steamID());
 }
@@ -38,10 +39,8 @@ auto OnPlayerChat(CCSPlayerController* player, std::string message) -> bool {
     if (procesChatSuccess == false) {
         return false;
     }
-    if (chatCtx.at(0) == '/' || chatCtx.at(0) == '!') {
-        return true;
-    }
-    return false;
+    return ScriptCallBacks::luaCall_onPlayerSpeak(
+        player->GetRefEHandle().GetEntryIndex(), chatType, chatCtx);
 }
 auto OnPlayerConnect(int slot, const char* pszName, uint64_t xuid,
                      const char* pszNetworkID, const char* pszAddress,

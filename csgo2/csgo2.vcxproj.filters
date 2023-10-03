@@ -76,6 +76,12 @@
     <Filter Include="头文件\lua">
       <UniqueIdentifier>{d58fcaf6-b1d7-484d-9ec4-d6b67ff46cf5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="源文件\game_time_system">
+      <UniqueIdentifier>{ccc753a5-6730-455d-b12b-9fa7e9a4cf03}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\game_time_system">
+      <UniqueIdentifier>{f26913ae-881a-43da-a215-8c0c7a9173cd}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -318,6 +324,9 @@
     <ClInclude Include="vector.h">
       <Filter>头文件\native_sdk</Filter>
     </ClInclude>
+    <ClInclude Include="timer.h">
+      <Filter>头文件\game_time_system</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -490,6 +499,9 @@
     </ClCompile>
     <ClCompile Include="script_callbacks.cpp">
       <Filter>源文件\script_engine</Filter>
+    </ClCompile>
+    <ClCompile Include="timer.cpp">
+      <Filter>源文件\game_time_system</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

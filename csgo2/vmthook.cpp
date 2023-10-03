@@ -9,13 +9,13 @@ void* VMTHook::Hook(int index, void* hk)
 {
 	// Store the index and original function address
 	hooked_funcs.insert(std::make_pair(index, vmt[index]));
+	printf("vmt hook at: %p \n", vmt[index]);
 
 	// Change the memory's access rights, patch the address to our hook, restore original rights
 	DWORD old;
 	VirtualProtect(&vmt[index], sizeof(void*), PAGE_EXECUTE_READWRITE, &old);
 	vmt[index] = hk;
 	VirtualProtect(&vmt[index], sizeof(void*), old, NULL);
-
 	return hooked_funcs[index];
 }
 

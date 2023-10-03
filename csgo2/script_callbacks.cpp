@@ -8,7 +8,9 @@ std::unordered_map<uint32_t, _CallbackNames> callbackNameWithEnumMap{
     {hash_32_fnv1a_const("player_connect"), _CallbackNames::kOnPlayerConnect},
     {hash_32_fnv1a_const("player_disconnect"),
      _CallbackNames::kOnPlayerDisconnect},
-    {hash_32_fnv1a_const("player_death"), _CallbackNames::kOnPlayerDeath}};
+    {hash_32_fnv1a_const("player_death"), _CallbackNames::kOnPlayerDeath},
+    {hash_32_fnv1a_const("player_chat"), _CallbackNames::kOnPlayerSpeak},
+};
 auto CallBackNameToEnum(const char* name) -> _CallbackNames {
     if (name == nullptr) {
         return _CallbackNames::kError;
@@ -103,5 +105,28 @@ auto luaCall_onPlayerDeath(int victim, int killer, bool isHeadShot) -> void {
                                      }
                                  }
                              });
+}
+auto luaCall_onPlayerSpeak(int speaker, int chatType, std::string message)
+    -> bool {
+    bool result = false;
+    ExcuteCallbackInAllLuaVm(_CallbackNames::kOnPlayerSpeak,
+                             [&](lua_State* luaVm, int refIndex) -> void {
+                                 lua_rawgeti(luaVm, LUA_REGISTRYINDEX,
+                                             refIndex);
+                                 if (lua_isfunction(luaVm, -1)) {
+                                     lua_pushinteger(luaVm, speaker);
+                                     lua_pushinteger(luaVm, chatType);
+                                     lua_pushstring(luaVm, message.c_str());
+                                     if (lua_pcall(luaVm, 3, 1, 0) != LUA_OK) {
+                                         LOG("Error calling Lua callback: %s\n",
+                                             lua_tostring(luaVm, -1));
+                                         lua_pop(luaVm, 1);
+                                     }
+                                     if (lua_isboolean(luaVm, -1)) {
+                                         result = lua_toboolean(luaVm, -1);
+                                     }
+                                 }
+                             });
+    return result;
 }
 }  // namespace ScriptCallBacks

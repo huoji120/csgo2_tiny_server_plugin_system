@@ -2,27 +2,38 @@
 #include "head.h"
 #define SERVER_HASH_FUCNTION_KEY 0x31415926
 class CEntityInstance;
-typedef uint64_t(__fastcall* HashFunction_t)(const char*, unsigned int, unsigned int);
-typedef void(__fastcall* StateChanged_t)(void* networkTransmitComponent, CEntityInstance* ent, uint64_t offset, int a4, int a5);
-typedef void(__fastcall* NetworkStateChanged_t)(uintptr_t chainEntity, uintptr_t offset, uintptr_t a3);
-
+typedef uint64_t(__fastcall* HashFunction_t)(const char*, unsigned int,
+                                             unsigned int);
+typedef void(__fastcall* StateChanged_t)(void* networkTransmitComponent,
+                                         CEntityInstance* ent, uint64_t offset,
+                                         int a4, int a5);
+typedef void(__fastcall* NetworkStateChanged_t)(uintptr_t chainEntity,
+                                                uintptr_t offset, uintptr_t a3);
+typedef void*(__fastcall* CreateGameRuleInterFace_t)();
 class CSchemaSystem;
 class CGameResourceService;
 class CLocalize;
+class CCSGameRules;
 namespace Offset {
 namespace InterFaces {
-    extern CSchemaSystem* SchemaSystem;
-    extern IGameEventManager2* GameEventManager;
-    extern CGameEventManager* CGameEventManger;
-    extern CGameResourceService* GameResourceServiceServer;
-    extern IServerGameClients* IServerGameClient;
-    extern IVEngineServer2* IVEngineServer;
-    extern CLocalize* ILocalize;
-    extern INetworkServerService* INetworkServerServiceInteFace;
-};
-static const auto pattern_CGameEventManager = THE_GAME_SIG("48 ?? ?? ?? ?? ?? ?? 48 89 ?? ?? ?? 48 89 01 48 8B D9 48 ?? ?? ?? ?? ?? ?? 48 89 ?? ?? E8 ?? ?? ?? ?? 48 ?? ?? ?? ?? ?? ??");
-static const auto pattern_NetworkStateChanged = THE_GAME_SIG("4C 8B C9 48 8B 09 48 85 C9 74 ? 48 8B 41 10");
-static const auto pattern_FnStateChangedPtr = THE_GAME_SIG("48 89 54 24 10 55 53 57 41 55");
+extern CSchemaSystem* SchemaSystem;
+extern IGameEventManager2* GameEventManager;
+extern CGameEventManager* CGameEventManger;
+extern CGameResourceService* GameResourceServiceServer;
+extern IServerGameClients* IServerGameClient;
+extern IVEngineServer2* IVEngineServer;
+extern CLocalize* ILocalize;
+extern INetworkServerService* INetworkServerServiceInteFace;
+extern ISource2Server* ISource2ServerInterFace;
+extern CCSGameRules* CCSGameRulesInterFace;
+};  // namespace InterFaces
+static const auto pattern_CGameEventManager = THE_GAME_SIG(
+    "48 ?? ?? ?? ?? ?? ?? 48 89 ?? ?? ?? 48 89 01 48 8B D9 48 ?? ?? ?? ?? ?? "
+    "?? 48 89 ?? ?? E8 ?? ?? ?? ?? 48 ?? ?? ?? ?? ?? ??");
+static const auto pattern_NetworkStateChanged =
+    THE_GAME_SIG("4C 8B C9 48 8B 09 48 85 C9 74 ? 48 8B 41 10");
+static const auto pattern_FnStateChangedPtr =
+    THE_GAME_SIG("48 89 54 24 10 55 53 57 41 55");
 static const auto pattern_FireEventServerSide = THE_GAME_SIG(
     "40 53 57 41 54 41 55 41 56 48 ?? ?? ?? 4C 8B F2 4C 8B E1 BA ?? ?? ?? "
     "?? 48 ?? ?? ?? ?? ?? ?? 45 0F B6 E8 E8 ?? ?? ?? ?? 48 85 C0 75 ?? 48 "
@@ -37,10 +48,16 @@ static const auto pattern_fnGetLocalPlayerController =
 //"\"Console<0>\" say \"%s\"\n"
 static const auto pattern_fnHost_SayPtr =
     THE_GAME_SIG("44 89 4C 24 ?? 44 88 44 24 ?? 55 53 56 57 41 54 41 55");
-static const auto pattern_ServerHashFunctionPtr =
-    THE_GAME_SIG("48 89 ?? ?? ?? 57 48 ?? ?? ?? ?? ?? ?? 33 C0 8B DA 41 8B F8 48 89 ?? ?? ?? 4C 8B C1 C7 44 ?? ?? ?? ?? ?? ?? 44 8B CA 89 44 ?? ?? 48 8D ?? ?? ?? 88 44 ?? ?? 33 D2");
-static const auto pattern_MaxPlayerNumsPtr = 
+static const auto pattern_ServerHashFunctionPtr = THE_GAME_SIG(
+    "48 89 ?? ?? ?? 57 48 ?? ?? ?? ?? ?? ?? 33 C0 8B DA 41 8B F8 48 89 ?? ?? "
+    "?? 4C 8B C1 C7 44 ?? ?? ?? ?? ?? ?? 44 8B CA 89 44 ?? ?? 48 8D ?? ?? ?? "
+    "88 44 ?? ?? 33 D2");
+static const auto pattern_MaxPlayerNumsPtr =
     THE_GAME_SIG("41 3B 87 ?? ?? ?? ?? 0F 8E ?? ?? ?? ?? 8B 0D ?? ?? ?? ??");
+static const auto pattern_CreateCCSGameRulesInterFacePtr = THE_GAME_SIG(
+    "40 53 48 ?? ?? ?? B9 ?? ?? ?? ?? E8 ?? ?? ?? ?? 33 D2 41 ?? ?? ?? ?? ?? "
+    "48 8B C8 48 8B D8 E8 ?? ?? ?? ?? 48 85 DB");
+
 extern uint64_t GameResourceServicePtr;
 extern uint64_t FireEventServerSidePtr;
 extern uint64_t Module_tier0;
@@ -49,7 +66,6 @@ extern uint64_t MaxPlayerNumsPtr;
 extern HashFunction_t FnServerHashFunction;
 extern StateChanged_t FnStateChanged;
 extern NetworkStateChanged_t FnNetworkStateChanged;
-
 
 auto Init() -> bool;
 };  // namespace Offset

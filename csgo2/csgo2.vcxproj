@@ -230,6 +230,7 @@
     <ClInclude Include="sdk\tier1\UtlVector.hpp" />
     <ClInclude Include="sdk_tools.h" />
     <ClInclude Include="stb.hh" />
+    <ClInclude Include="timer.h" />
     <ClInclude Include="tools.h" />
     <ClInclude Include="vector.h" />
     <ClInclude Include="vmt.h" />
@@ -297,6 +298,7 @@
     <ClCompile Include="sdk\convar\convar.cpp" />
     <ClCompile Include="sdk\tier1\UtlString.cpp" />
     <ClCompile Include="sdk_tools.cpp" />
+    <ClCompile Include="timer.cpp" />
     <ClCompile Include="tools.cpp" />
     <ClCompile Include="vmthook.cpp" />
   </ItemGroup>

@@ -4,12 +4,15 @@ namespace Offset {
 uint64_t GameResourceServicePtr;
 uint64_t FireEventServerSidePtr;
 uint64_t CGameEventManagerPtr;
+uint64_t CCSGameRulesInterFacePtr;
 uint64_t Host_SayPtr;
 uint64_t Module_tier0;
 uint64_t MaxPlayerNumsPtr;
 HashFunction_t FnServerHashFunction;
 StateChanged_t FnStateChanged;
 NetworkStateChanged_t FnNetworkStateChanged;
+//CreateGameRuleInterFace_t FnCreateCCSGameRulesInterFace;
+
 namespace InterFaces {
 CSchemaSystem* SchemaSystem;
 IGameEventManager2* GameEventManager;
@@ -20,7 +23,9 @@ IVEngineServer2* IVEngineServer;
 ISource2Server* ISource2ServerInterFace;
 CLocalize* ILocalize;
 INetworkServerService* INetworkServerServiceInteFace;
+CCSGameRules* CCSGameRulesInterFace;
 };  // namespace InterFaces
+
 auto Init() -> bool {
     CModule server("server.dll");
     CModule schemasystem("schemasystem.dll");
@@ -28,43 +33,55 @@ auto Init() -> bool {
     CModule localize("localize.dll");
 
     // engine.dll
-    engine.FindPattern(pattern_MaxPlayerNumsPtr).ToAbsolute(3, 0).Get(MaxPlayerNumsPtr);
+    engine.FindPattern(pattern_MaxPlayerNumsPtr)
+        .ToAbsolute(3, 0)
+        .Get(MaxPlayerNumsPtr);
 
     // server.dll
     server.FindPattern(pattern_FireEventServerSide).Get(FireEventServerSidePtr);
     server.FindPattern(pattern_NetworkStateChanged).Get(FnNetworkStateChanged);
     server.FindPattern(pattern_FnStateChangedPtr).Get(FnStateChanged);
 
-    // 48 8D 05 4A 30 82 00    lea     rax, ??_7CGameEventManager@@6B@
     server.FindPattern(pattern_CGameEventManager)
         .ToAbsolute(3, 0)
         .Get(CGameEventManagerPtr);
+    server.FindPattern(pattern_CreateCCSGameRulesInterFacePtr)
+        .ToAbsolute(10, 0)
+        .Get(CCSGameRulesInterFacePtr);
+
     server.FindPattern(pattern_fnHost_SayPtr).Get(Host_SayPtr);
     server.FindPattern(pattern_ServerHashFunctionPtr).Get(FnServerHashFunction);
     InterFaces::SchemaSystem = reinterpret_cast<CSchemaSystem*>(
         schemasystem.FindInterface("SchemaSystem_001").Get());
-    //InterFaces::GameEventManager = reinterpret_cast<IGameEventManager2*>(
-    //    engine.FindInterface("GameEventSystemServerV001").Get());
-    InterFaces::ILocalize = reinterpret_cast<CLocalize*>(localize.FindInterface("Localize_001").Get());
+    // InterFaces::GameEventManager = reinterpret_cast<IGameEventManager2*>(
+    //     engine.FindInterface("GameEventSystemServerV001").Get());
+    InterFaces::ILocalize = reinterpret_cast<CLocalize*>(
+        localize.FindInterface("Localize_001").Get());
     InterFaces::GameResourceServiceServer =
         reinterpret_cast<CGameResourceService*>(
             engine.FindInterface("GameResourceServiceServerV001").Get());
     InterFaces::IVEngineServer = reinterpret_cast<IVEngineServer2*>(
         engine.FindInterface("Source2EngineToServer001").Get());
-    InterFaces::INetworkServerServiceInteFace = reinterpret_cast<INetworkServerService*>(
-        engine.FindInterface("NetworkServerService_001").Get());
+    InterFaces::INetworkServerServiceInteFace =
+        reinterpret_cast<INetworkServerService*>(
+            engine.FindInterface("NetworkServerService_001").Get());
     InterFaces::IServerGameClient = reinterpret_cast<IServerGameClients*>(
         server.FindInterface("Source2GameClients001").Get());
     InterFaces::ISource2ServerInterFace = reinterpret_cast<ISource2Server*>(
         server.FindInterface("Source2Server001").Get());
     if (InterFaces::ISource2ServerInterFace) {
-        InterFaces::GameEventManager = (IGameEventManager2*)(CALL_VIRTUAL(uintptr_t, 91, InterFaces::ISource2ServerInterFace) - 8);
+        InterFaces::GameEventManager =
+            (IGameEventManager2*)(CALL_VIRTUAL(
+                                      uintptr_t, 91,
+                                      InterFaces::ISource2ServerInterFace) -
+                                  8);
     }
     InterFaces::CGameEventManger =
         reinterpret_cast<CGameEventManager*>(CGameEventManagerPtr);
-
-    //global::MaxPlayers = *(int*)((char*)MaxPlayerNumsPtr + 2);
-    // client.FindPattern(pattern_FireEventServerSide).Get(FireEventServerSidePtr);
+    InterFaces::CCSGameRulesInterFace =
+        reinterpret_cast<CCSGameRules*>(CCSGameRulesInterFacePtr + (8 * 2));
+    // global::MaxPlayers = *(int*)((char*)MaxPlayerNumsPtr + 2);
+    //  client.FindPattern(pattern_FireEventServerSide).Get(FireEventServerSidePtr);
     global::MaxPlayers = 64;
 
     LOG("[huoji]FireEventServerSidePtr : %llx \n", FireEventServerSidePtr);
@@ -87,14 +104,17 @@ auto Init() -> bool {
         InterFaces::IVEngineServer);
     LOG("[huoji]InterFaces::ISource2ServerInterFace : %llx \n",
         InterFaces::ISource2ServerInterFace);
+    LOG("[huoji]InterFaces::CCSGameRulesInterFace : %llx \n", InterFaces::CCSGameRulesInterFace);
 
-    // GetOffsets();
+    //LOG("m_bForceTeamChangeSilent: %d \n", InterFaces::CCSGameRulesInterFace->m_bForceTeamChangeSilent());
+
     LOG("init offset success !\n");
-    //LOG("FnServerHashFunction: %llx \n", FnServerHashFunction("here", sizeof("here") - 1, 0x31415926));
+
+    //  LOG("FnServerHashFunction: %llx \n", FnServerHashFunction("here",
+    //  sizeof("here") - 1, 0x31415926));
     return FnServerHashFunction && Host_SayPtr && InterFaces::IVEngineServer &&
            InterFaces::GameResourceServiceServer &&
            InterFaces::IServerGameClient && InterFaces::GameEventManager &&
-           InterFaces::SchemaSystem && FireEventServerSidePtr &&
-           FnNetworkStateChanged;
+           InterFaces::SchemaSystem && FireEventServerSidePtr && FnNetworkStateChanged;
 }
 }  // namespace Offset

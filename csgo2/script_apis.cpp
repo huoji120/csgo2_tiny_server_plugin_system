@@ -12,6 +12,16 @@ struct _luaApi_WeaponInfo {
     int weaponType;
 };
 namespace ScriptApis {
+auto TimerCallBack(_GameTimer* timer) -> void {
+    LOG("excute timer: %d %d m_bRepeat: %d\n", timer->m_iLuaCallBackFn, timer->m_iParamIndex, timer->m_bRepeat);
+    lua_rawgeti(timer->m_luaVm, LUA_REGISTRYINDEX, timer->m_iLuaCallBackFn);
+    lua_rawgeti(timer->m_luaVm, LUA_REGISTRYINDEX, timer->m_iParamIndex);
+    lua_pcall(timer->m_luaVm, 1, 0, 0);
+    if (timer->m_bRepeat == false) {
+        luaL_unref(timer->m_luaVm, LUA_REGISTRYINDEX, timer->m_iLuaCallBackFn);
+        luaL_unref(timer->m_luaVm, LUA_REGISTRYINDEX, timer->m_iParamIndex);
+    }
+}
 // 返回是返回值数量,返回值内容要自己push到stack上
 auto luaApi_ListenToGameEvent(lua_State* luaVm) -> int {
     const auto eventName = lua_tostring(luaVm, 1);
@@ -99,6 +109,7 @@ auto luaApi_RespawnPlayer(lua_State* luaVm) -> int {
         }
         auto playerController = reinterpret_cast<CCSPlayerController*>(player);
         auto playerPawn = playerController->m_hPawn().Get<CCSPlayerPawn>();
+
         playerPawn->m_bRespawning(false);
     } while (false);
     lua_pop(luaVm, 1);
@@ -256,8 +267,127 @@ auto luaApi_GetPlayerCurrentWeaponInfo(lua_State* luaVm) -> _luaApi_WeaponInfo {
                 : (itemStaticData->IsWeapon() ? _luaApi_WeaponType::kGun
                                               : _luaApi_WeaponType::kOther));
     } while (false);
-
     return info;
+}
+auto luaApi_CreateTimer(lua_State* luaVm) -> int {
+    // param: time:float, callback:function, params:lua_table
+    const auto time = lua_tonumber(luaVm, 1);
+    const auto repeat = lua_toboolean(luaVm, 2);
+    const auto preserveMapChange = lua_toboolean(luaVm, 3);
+    auto timerHandle = 0;
+    do {
+        const auto params = lua_gettable(luaVm, 4);
+        const auto callback = luaL_ref(luaVm, LUA_REGISTRYINDEX);
+        LOG("luaApi_CreateTimer: params: %d callback: %d \n", params, callback);
+        timerHandle = GameTimer::AddTimer(new _GameTimer{
+            .m_flTime = (float)time,
+            .m_bRepeat = (bool)repeat,
+            .m_bPreserveMapChange = (bool)preserveMapChange,
+            .m_luaVm = luaVm,
+            .m_iParamIndex = params,
+            .m_iLuaCallBackFn = callback
+        });
+    } while (false);
+    lua_pop(luaVm, 5);
+    lua_pushinteger(luaVm, timerHandle);
+    return 1;
+}
+auto luaApi_CheckPlayerIsAlive(lua_State* luaVm) -> int {
+    // param: playerIndex:int
+    const auto playerIndex = lua_tointeger(luaVm, 1);
+    auto isAlive = false;
+
+    CGameEntitySystem* EntitySystem = CGameEntitySystem::GetInstance();
+    do {
+        if (EntitySystem == nullptr || playerIndex == 0) {
+            break;
+        }
+        auto player = EntitySystem->GetBaseEntity(playerIndex);
+        if (player == nullptr) {
+            break;
+        }
+        if (player->IsBasePlayerController() == false) {
+            break;
+        }
+        auto playerController = reinterpret_cast<CCSPlayerController*>(player);
+        isAlive = playerController->m_bPawnIsAlive();
+    } while (false);
+    lua_pop(luaVm, 1);
+    lua_pushboolean(luaVm, isAlive);
+    return 1;
+}
+auto luaApi_GetPlayerTeam(lua_State* luaVm) -> int {
+    // param: playerIndex:int
+    const auto playerIndex = lua_tointeger(luaVm, 1);
+    auto team = 0;
+
+    CGameEntitySystem* EntitySystem = CGameEntitySystem::GetInstance();
+    do {
+        if (EntitySystem == nullptr || playerIndex == 0) {
+            break;
+        }
+        auto player = EntitySystem->GetBaseEntity(playerIndex);
+        if (player == nullptr) {
+            break;
+        }
+        if (player->IsBasePlayerController() == false) {
+            break;
+        }
+        auto playerController = reinterpret_cast<CCSPlayerController*>(player);
+        team = playerController->m_iTeamNum();
+    } while (false);
+    lua_pop(luaVm, 1);
+    lua_pushinteger(luaVm, team);
+    return 1;
+}
+auto luaApi_SetPlayerTeam(lua_State* luaVm) -> int {
+    // param: playerIndex:int, team:int
+    const auto playerIndex = lua_tointeger(luaVm, 1);
+    const auto team = lua_tointeger(luaVm, 2);
+    auto isSuccess = false;
+
+    CGameEntitySystem* EntitySystem = CGameEntitySystem::GetInstance();
+    do {
+        if (EntitySystem == nullptr || playerIndex == 0) {
+            break;
+        }
+        auto player = EntitySystem->GetBaseEntity(playerIndex);
+        if (player == nullptr) {
+            break;
+        }
+        if (player->IsBasePlayerController() == false) {
+            break;
+        }
+        auto playerController = reinterpret_cast<CCSPlayerController*>(player);
+        playerController->m_iTeamNum() = team;
+        isSuccess = true;
+    } while (false);
+    lua_pop(luaVm, 2);
+    lua_pushboolean(luaVm, isSuccess);
+    return 1;
+}
+auto luaApi_CheckPlayerIsInServer(lua_State* luaVm) -> int {
+    // param: playerIndex:int
+    const auto playerIndex = lua_tointeger(luaVm, 1);
+    auto isInServer = false;
+
+    CGameEntitySystem* EntitySystem = CGameEntitySystem::GetInstance();
+    do {
+        if (EntitySystem == nullptr || playerIndex == 0) {
+            break;
+        }
+        auto player = EntitySystem->GetBaseEntity(playerIndex);
+        if (player == nullptr) {
+            break;
+        }
+        if (player->IsBasePlayerController() == false) {
+            break;
+        }
+        isInServer = true;
+    } while (false);
+    lua_pop(luaVm, 1);
+    lua_pushboolean(luaVm, isInServer);
+    return 1;
 }
 auto initFunciton(lua_State* luaVm) -> void {
     lua_register(luaVm, "ListenToGameEvent", luaApi_ListenToGameEvent);
@@ -270,7 +400,12 @@ auto initFunciton(lua_State* luaVm) -> void {
     lua_register(luaVm, "luaApi_SetPlayerArmorValue",
                  luaApi_SetPlayerArmorValue);
     lua_register(luaVm, "luaApi_RespawnPlayer", luaApi_RespawnPlayer);
-
+    lua_register(luaVm, "luaApi_CreateTimer", luaApi_CreateTimer);
+    lua_register(luaVm, "luaApi_CheckPlayerIsAlive", luaApi_CheckPlayerIsAlive);
+    lua_register(luaVm, "luaApi_GetPlayerTeam", luaApi_GetPlayerTeam);
+    lua_register(luaVm, "luaApi_SetPlayerTeam", luaApi_SetPlayerTeam);
+    lua_register(luaVm, "luaApi_CheckPlayerIsInServer",
+                 luaApi_CheckPlayerIsInServer);
     // 我不喜欢他
     luabridge::getGlobalNamespace(luaVm)
         .beginClass<_luaApi_WeaponInfo>("WeaponInfo")

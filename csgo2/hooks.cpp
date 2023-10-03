@@ -1,13 +1,58 @@
 #include "hooks.h"
-
+extern auto GetGameGlobals() -> CGlobalVars*;
 FireEventServerSide_t original_FireEventServerSide = NULL;
 OnClientConnect_t original_OnClientConnected = NULL;
 OnClientDisconnect_t original_OnClientDisconnect = NULL;
 Host_Say_t original_Host_Say = NULL;
-
+StartupServer_t origin_StartServer = NULL;
+GameFrame_t origin_GameFrame = NULL;
 namespace hooks {
 // "player_connect"
 VMTHook* VMT_IServerGameClient;
+VMTHook* VMT_INetworkServerServiceInteFace;
+VMTHook* VMT_ISource2ServerInterFace;
+
+void __fastcall hook_GameFrame(void* rcx, bool simulating, bool bFirstTick,
+                               bool bLastTick) {
+    /**
+     * simulating:
+     * ***********
+     * true  | game is ticking
+     * false | game is not ticking
+     */
+    if (simulating && global::HasTicked) {
+        global::m_flUniversalTime +=
+            global::GlobalVars->curtime - global::m_flLastTickedTime;
+    } else {
+        global::m_flUniversalTime += global::GlobalVars->interval_per_tick;
+    }
+
+    global::m_flLastTickedTime = global::GlobalVars->curtime;
+    global::HasTicked = true;
+
+    if (global::EntitySystem == nullptr) {
+        global::EntitySystem = Offset::InterFaces::GameResourceServiceServer
+                                   ->GetGameEntitySystem();
+    }
+
+    GameTimer::ExcuteTimers();
+    return origin_GameFrame(rcx, simulating, bFirstTick, bLastTick);
+}
+void __fastcall hook_StartServer(void* rcx,
+                                 const GameSessionConfiguration_t& config,
+                                 ISource2WorldSession* pWorldSession,
+                                 const char* a1) {
+    if (global::HasTicked) {
+        GameTimer::CleanUpTimers();
+    }
+
+    global::HasTicked = false;
+    global::GlobalVars = GetGameGlobals();
+    global::EntitySystem =
+        Offset::InterFaces::GameResourceServiceServer->GetGameEntitySystem();
+
+    return origin_StartServer(rcx, config, pWorldSession, a1);
+}
 void __fastcall hook_ClientDisconnect(void* rcx, CPlayerSlot slot, int reason,
                                       const char* pszName, uint64_t xuid,
                                       const char* pszNetworkID) {
@@ -134,11 +179,24 @@ auto initMinHook() -> bool {
 auto initVmtHook() -> bool {
     VMT_IServerGameClient = new VMTHook(Memory::read<void*>(
         reinterpret_cast<uint64_t>(Offset::InterFaces::IServerGameClient)));
+    VMT_INetworkServerServiceInteFace =
+        new VMTHook(Memory::read<void*>(reinterpret_cast<uint64_t>(
+            Offset::InterFaces::INetworkServerServiceInteFace)));
+    VMT_ISource2ServerInterFace =
+        new VMTHook(Memory::read<void*>(reinterpret_cast<uint64_t>(
+            Offset::InterFaces::ISource2ServerInterFace)));
+
     original_OnClientConnected = reinterpret_cast<OnClientConnect_t>(
         VMT_IServerGameClient->Hook(11, hook_OnClientConnected));
     original_OnClientDisconnect = reinterpret_cast<OnClientDisconnect_t>(
         VMT_IServerGameClient->Hook(16, hook_ClientDisconnect));
-    return original_OnClientConnected && original_OnClientDisconnect;
+
+    origin_StartServer = reinterpret_cast<StartupServer_t>(
+        VMT_INetworkServerServiceInteFace->Hook(27, hook_StartServer));
+    origin_GameFrame = reinterpret_cast<GameFrame_t>(
+        VMT_ISource2ServerInterFace->Hook(19, hook_GameFrame));
+    return original_OnClientConnected && original_OnClientDisconnect &&
+           origin_StartServer && origin_GameFrame;
 }
 auto init() -> bool {
     bool isSuccess = initMinHook() && initVmtHook();
