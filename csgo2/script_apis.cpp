@@ -68,7 +68,7 @@ auto luaApi_SetPlayerCurrentWeaponAmmo(lua_State* luaVm) -> int {
     const auto playerAmmoNum = lua_tointeger(luaVm, 2);
     const auto playerReserveAmmoNum = lua_tointeger(luaVm, 3);
 
-    CGameEntitySystem* EntitySystem = CGameEntitySystem::GetInstance();
+    CGameEntitySystem* EntitySystem = global::EntitySystem;
     do {
         if (EntitySystem == nullptr || playerIndex == 0) {
             break;
@@ -87,17 +87,22 @@ auto luaApi_SetPlayerCurrentWeaponAmmo(lua_State* luaVm) -> int {
         if (weaponServices == nullptr) {
             break;
         }
+       
         const auto activeWeapon =
             weaponServices->m_hActiveWeapon().Get<CBasePlayerWeapon>();
         if (activeWeapon == nullptr) {
             break;
         }
+        weaponServices->RemoveWeapon(activeWeapon);
+        Offset::FnEntityRemove(global::EntitySystem, activeWeapon, nullptr, -1);
+        /*
         if (playerAmmoNum != -1) {
             activeWeapon->m_iClip1(playerAmmoNum);
         }
         if (playerReserveAmmoNum != -1) {
             activeWeapon->m_pReserveAmmo(playerReserveAmmoNum);
         }
+        */
     } while (false);
     lua_pop(luaVm, 3);
     return 0;
@@ -105,7 +110,7 @@ auto luaApi_SetPlayerCurrentWeaponAmmo(lua_State* luaVm) -> int {
 auto luaApi_RespawnPlayer(lua_State* luaVm) -> int {
     const auto playerIndex = lua_tointeger(luaVm, 1);
     int playerArmorValue = 0;
-    CGameEntitySystem* EntitySystem = CGameEntitySystem::GetInstance();
+    CGameEntitySystem* EntitySystem = global::EntitySystem;
     do {
         if (EntitySystem == nullptr || playerIndex == 0) {
             break;
@@ -121,7 +126,7 @@ auto luaApi_RespawnPlayer(lua_State* luaVm) -> int {
         auto playerPawn = playerController->m_hPawn().Get<CCSPlayerPawn>();
         LOG("respawn player: %llx \n", playerPawn);
         Offset::FnRespawnPlayer(playerPawn);
-        //playerPawn->ForceRespawnPlayer();
+        // playerPawn->ForceRespawnPlayer();
     } while (false);
     lua_pop(luaVm, 1);
     return 0;
@@ -130,7 +135,7 @@ auto luaApi_SetPlayerArmorValue(lua_State* luaVm) -> int {
     const auto playerIndex = lua_tointeger(luaVm, 1);
     const auto playerArmorValue = lua_tointeger(luaVm, 2);
 
-    CGameEntitySystem* EntitySystem = CGameEntitySystem::GetInstance();
+    CGameEntitySystem* EntitySystem = global::EntitySystem;
     do {
         if (EntitySystem == nullptr || playerIndex == 0) {
             break;
@@ -153,7 +158,7 @@ auto luaApi_GetPlayerArmorValue(lua_State* luaVm) -> int {
     const auto playerIndex = lua_tointeger(luaVm, 1);
     int playerArmorValue = 0;
 
-    CGameEntitySystem* EntitySystem = CGameEntitySystem::GetInstance();
+    CGameEntitySystem* EntitySystem = global::EntitySystem;
     do {
         if (EntitySystem == nullptr || playerIndex == 0) {
             break;
@@ -177,7 +182,7 @@ auto luaApi_GetPlayerHealth(lua_State* luaVm) -> int {
     const auto playerIndex = lua_tointeger(luaVm, 1);
     int playerHealth = 0;
 
-    CGameEntitySystem* EntitySystem = CGameEntitySystem::GetInstance();
+    CGameEntitySystem* EntitySystem = global::EntitySystem;
     do {
         if (EntitySystem == nullptr || playerIndex == 0) {
             break;
@@ -200,7 +205,7 @@ auto luaApi_SetPlayerHealth(lua_State* luaVm) -> int {
     const auto playerIndex = lua_tointeger(luaVm, 1);
     const auto playerHealth = lua_tointeger(luaVm, 2);
 
-    CGameEntitySystem* EntitySystem = CGameEntitySystem::GetInstance();
+    CGameEntitySystem* EntitySystem = global::EntitySystem;
     do {
         if (EntitySystem == nullptr || playerIndex == 0) {
             break;
@@ -214,8 +219,6 @@ auto luaApi_SetPlayerHealth(lua_State* luaVm) -> int {
         if (player->IsBasePlayerController() == false) {
             break;
         }
-        LOG("luaApi_SetPlayerHealth :3 \n");
-
         auto playerController = reinterpret_cast<CCSPlayerController*>(player);
         playerController->m_iHealth(playerHealth);
     } while (false);
@@ -227,7 +230,7 @@ auto luaApi_GetPlayerCurrentWeaponInfo(lua_State* luaVm) -> _luaApi_WeaponInfo {
     const auto playerIndex = lua_tointeger(luaVm, 1);
     _luaApi_WeaponInfo info{0};
 
-    CGameEntitySystem* EntitySystem = CGameEntitySystem::GetInstance();
+    CGameEntitySystem* EntitySystem = global::EntitySystem;
     do {
         if (EntitySystem == nullptr || playerIndex == 0) {
             break;
@@ -339,7 +342,7 @@ auto luaApi_CheckPlayerIsAlive(lua_State* luaVm) -> int {
     const auto playerIndex = lua_tointeger(luaVm, 1);
     auto isAlive = false;
 
-    CGameEntitySystem* EntitySystem = CGameEntitySystem::GetInstance();
+    CGameEntitySystem* EntitySystem = global::EntitySystem;
     do {
         if (EntitySystem == nullptr || playerIndex == 0) {
             break;
@@ -363,7 +366,7 @@ auto luaApi_GetPlayerTeam(lua_State* luaVm) -> int {
     const auto playerIndex = lua_tointeger(luaVm, 1);
     auto team = 0;
 
-    CGameEntitySystem* EntitySystem = CGameEntitySystem::GetInstance();
+    CGameEntitySystem* EntitySystem = global::EntitySystem;
     do {
         if (EntitySystem == nullptr || playerIndex == 0) {
             break;
@@ -388,7 +391,7 @@ auto luaApi_SetPlayerTeam(lua_State* luaVm) -> int {
     const auto team = lua_tointeger(luaVm, 2);
     auto isSuccess = false;
 
-    CGameEntitySystem* EntitySystem = CGameEntitySystem::GetInstance();
+    CGameEntitySystem* EntitySystem = global::EntitySystem;
     do {
         if (EntitySystem == nullptr || playerIndex == 0) {
             break;
@@ -413,7 +416,7 @@ auto luaApi_CheckPlayerIsInServer(lua_State* luaVm) -> int {
     const auto playerIndex = lua_tointeger(luaVm, 1);
     auto isInServer = false;
 
-    CGameEntitySystem* EntitySystem = CGameEntitySystem::GetInstance();
+    CGameEntitySystem* EntitySystem = global::EntitySystem;
     do {
         if (EntitySystem == nullptr || playerIndex == 0) {
             break;
@@ -429,6 +432,57 @@ auto luaApi_CheckPlayerIsInServer(lua_State* luaVm) -> int {
     } while (false);
     lua_pop(luaVm, 1);
     lua_pushboolean(luaVm, isInServer);
+    return 1;
+}
+auto luaApi_GivePlayerWeapon(lua_State* luaVm) -> int {
+    // param: playerIndex:int, itemClass:string
+    const auto playerIndex = lua_tointeger(luaVm, 1);
+    const auto weaponName = lua_tostring(luaVm, 2);
+    auto isSuccess = false;
+
+    CGameEntitySystem* EntitySystem = global::EntitySystem;
+    do {
+        if (EntitySystem == nullptr || playerIndex == 0) {
+            break;
+        }
+        auto player = EntitySystem->GetBaseEntity(playerIndex);
+        if (player == nullptr) {
+            break;
+        }
+        if (player->IsBasePlayerController() == false) {
+            break;
+        }
+        auto playerController = reinterpret_cast<CCSPlayerController*>(player);
+        isSuccess =
+            GameWeapons::ParseWeaponCommand(playerController, weaponName);
+    } while (false);
+    lua_pop(luaVm, 2);
+    lua_pushboolean(luaVm, isSuccess);
+    return 1;
+}
+auto luaApi_RemovePlayerWeapon(lua_State* luaVm) -> int {
+    // param: playerIndex:int, itemClass:string
+    const auto playerIndex = lua_tointeger(luaVm, 1);
+    const auto weaponName = lua_tostring(luaVm, 2);
+    auto isSuccess = false;
+
+    CGameEntitySystem* EntitySystem = global::EntitySystem;
+    do {
+        if (EntitySystem == nullptr || playerIndex == 0) {
+            break;
+        }
+        auto player = EntitySystem->GetBaseEntity(playerIndex);
+        if (player == nullptr) {
+            break;
+        }
+        if (player->IsBasePlayerController() == false) {
+            break;
+        }
+        auto playerController = reinterpret_cast<CCSPlayerController*>(player);
+
+    } while (false);
+    lua_pop(luaVm, 2);
+    lua_pushboolean(luaVm, isSuccess);
     return 1;
 }
 auto initFunciton(lua_State* luaVm) -> void {
@@ -450,6 +504,8 @@ auto initFunciton(lua_State* luaVm) -> void {
     lua_register(luaVm, "luaApi_SetPlayerTeam", luaApi_SetPlayerTeam);
     lua_register(luaVm, "luaApi_CheckPlayerIsInServer",
                  luaApi_CheckPlayerIsInServer);
+    lua_register(luaVm, "luaApi_GivePlayerWeapon", luaApi_GivePlayerWeapon);
+    lua_register(luaVm, "luaApi_GivePlayerWeapon", luaApi_GivePlayerWeapon);
     // ÎÒ²»Ï²»¶Ëû
     luabridge::getGlobalNamespace(luaVm)
         .beginClass<_luaApi_WeaponInfo>("WeaponInfo")

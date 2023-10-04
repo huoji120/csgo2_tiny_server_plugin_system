@@ -80,3 +80,4 @@ static void DebugPrintA(const char* format, ...) {
 #include "script_apis.h"
 #include "script_callbacks.h"
 #include "timer.h"
+#include "weapon.h"

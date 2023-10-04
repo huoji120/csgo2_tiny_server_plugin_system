@@ -327,6 +327,9 @@
     <ClInclude Include="timer.h">
       <Filter>头文件\game_time_system</Filter>
     </ClInclude>
+    <ClInclude Include="weapon.h">
+      <Filter>头文件\native_sdk</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -502,6 +505,9 @@
     </ClCompile>
     <ClCompile Include="tools.cpp">
       <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="weapon.cpp">
+      <Filter>源文件\native_sdk</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

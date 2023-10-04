@@ -12,7 +12,8 @@ HashFunction_t FnServerHashFunction;
 StateChanged_t FnStateChanged;
 NetworkStateChanged_t FnNetworkStateChanged;
 RespawnPlayer_t FnRespawnPlayer;
-
+GiveNamedItem_t FnGiveNamedItem;
+EntityRemove_t FnEntityRemove;
 //CreateGameRuleInterFace_t FnCreateCCSGameRulesInterFace;
 bool InitOffsetSuccess = false;
 namespace InterFaces {
@@ -40,10 +41,7 @@ auto SafeDelayInit(void* ctx) -> void {
     }
     InitOffsetSuccess = true;
     LOG("[huoji]InterFaces::CCSGameRulesInterFace : %llx \n", InterFaces::CCSGameRulesInterFace);
-    LOG("[huoji]InterFaces::CCSGameRulesInterFace->respawnPlayer : %llx \n", ((void**)InterFaces::CCSGameRulesInterFace)[110]);
-
     LOG("m_bForceTeamChangeSilent: %d \n", InterFaces::CCSGameRulesInterFace->m_bForceTeamChangeSilent());
-
 }
 auto Init() -> bool {
     CModule server("server.dll");
@@ -69,7 +67,10 @@ auto Init() -> bool {
         .Get(CCSGameRulesInterFacePtr);
     server.FindPattern(pattern_FnRespawnPlayer)
         .Get(FnRespawnPlayer);
-
+    server.FindPattern(pattern_FnEntityRemove)
+        .Get(FnEntityRemove);
+    server.FindPattern(pattern_FnGiveNamedItemPtr)
+        .Get(FnGiveNamedItem);
     server.FindPattern(pattern_fnHost_SayPtr).Get(Host_SayPtr);
     server.FindPattern(pattern_ServerHashFunctionPtr).Get(FnServerHashFunction);
     InterFaces::SchemaSystem = reinterpret_cast<CSchemaSystem*>(
@@ -109,6 +110,9 @@ auto Init() -> bool {
     LOG("[huoji]FnNetworkStateChanged : %llx \n", FnNetworkStateChanged);
     LOG("[huoji]FnServerHashFunction : %llx \n", FnServerHashFunction);
     LOG("[huoji]FnStateChanged : %llx \n", FnStateChanged);
+    LOG("[huoji]FnRespawnPlayer : %llx \n", FnRespawnPlayer);
+    LOG("[huoji]FnGiveNamedItem : %llx \n", FnGiveNamedItem);
+
     LOG("[huoji]MaxGlobals : %d \n", global::MaxPlayers);
 
     LOG("[huoji]InterFaces::SchemaSystem : %llx \n", InterFaces::SchemaSystem);
@@ -124,14 +128,15 @@ auto Init() -> bool {
         InterFaces::IVEngineServer);
     LOG("[huoji]InterFaces::ISource2ServerInterFace : %llx \n",
         InterFaces::ISource2ServerInterFace);
-
+    LOG("[huoji] CGameEntitySystem::GetInstance : %llx \n",
+        CGameEntitySystem::GetInstance());
     LOG("init offset success !\n");
     CreateThread(NULL, 0,
         reinterpret_cast<LPTHREAD_START_ROUTINE>(SafeDelayInit),
         NULL, 0, NULL);
     //  LOG("FnServerHashFunction: %llx \n", FnServerHashFunction("here",
     //  sizeof("here") - 1, 0x31415926));
-    return FnServerHashFunction && Host_SayPtr && InterFaces::IVEngineServer &&
+    return FnEntityRemove && FnRespawnPlayer && FnGiveNamedItem && FnServerHashFunction && Host_SayPtr && InterFaces::IVEngineServer &&
            InterFaces::GameResourceServiceServer &&
            InterFaces::IServerGameClient && InterFaces::GameEventManager &&
            InterFaces::SchemaSystem && FireEventServerSidePtr && FnNetworkStateChanged;

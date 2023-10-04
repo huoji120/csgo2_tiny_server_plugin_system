@@ -31,8 +31,7 @@ void __fastcall hook_GameFrame(void* rcx, bool simulating, bool bFirstTick,
     global::HasTicked = true;
 
     if (global::EntitySystem == nullptr) {
-        global::EntitySystem = Offset::InterFaces::GameResourceServiceServer
-                                   ->GetGameEntitySystem();
+        global::EntitySystem = CGameEntitySystem::GetInstance();
     }
 
     GameTimer::ExcuteTimers();

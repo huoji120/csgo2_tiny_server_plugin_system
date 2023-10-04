@@ -236,6 +236,7 @@
     <ClInclude Include="vmt.h" />
     <ClInclude Include="vmthook.h" />
     <ClInclude Include="script_callbacks.h" />
+    <ClInclude Include="weapon.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
@@ -301,6 +302,7 @@
     <ClCompile Include="timer.cpp" />
     <ClCompile Include="tools.cpp" />
     <ClCompile Include="vmthook.cpp" />
+    <ClCompile Include="weapon.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

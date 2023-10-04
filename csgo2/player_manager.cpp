@@ -61,7 +61,7 @@ auto GetPlayerByPlayerSlot(uint64_t playerSlot) -> CCSPlayerController* {
     if (PlayerSteamId == -1) {
         return nullptr;
     }
-    CGameEntitySystem* pEntitySystem = CGameEntitySystem::GetInstance();
+    CGameEntitySystem* pEntitySystem = global::EntitySystem;
     if (!pEntitySystem) {
         return nullptr;
     }

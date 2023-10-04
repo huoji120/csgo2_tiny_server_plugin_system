@@ -1,7 +1,7 @@
 #include "native_sdk.h"
 
 CBaseEntity* CHandle::GetBaseEntity() const {
-    CGameEntitySystem* pEntitySystem = CGameEntitySystem::GetInstance();
+    CGameEntitySystem* pEntitySystem = global::EntitySystem;
     if (!pEntitySystem) return nullptr;
 
     return pEntitySystem->GetBaseEntity(GetEntryIndex());
@@ -31,7 +31,7 @@ auto CBasePlayer::ForceRespawn() -> void {
 }
 
 auto CCSPlayerPawn::GetPlayerController() -> CCSPlayerController* {
-    CGameEntitySystem* pEntitySystem = CGameEntitySystem::GetInstance();
+    CGameEntitySystem* pEntitySystem = global::EntitySystem;
     if (!pEntitySystem) {
         return nullptr;
     }

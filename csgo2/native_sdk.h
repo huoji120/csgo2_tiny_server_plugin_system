@@ -1,5 +1,6 @@
 #pragma once
 #include "head.h"
+
 class CEntityInstance;
 typedef void(__fastcall* StateChanged_t)(void* networkTransmitComponent,
                                          CEntityInstance* ent, uint64_t offset,
@@ -263,6 +264,12 @@ class CCollisionProperty {
     SCHEMA_FIELD(uint8_t, m_usSolidFlags)
     SCHEMA_FIELD(uint8_t, m_CollisionGroup)
 };
+class CCSPlayerController_InGameMoneyServices {
+public:
+    DECLARE_CLASS(CCSPlayerController_InGameMoneyServices);
+
+    SCHEMA_FIELD(int, m_iAccount)
+};
 
 class CHandle {
     CBaseEntity* GetBaseEntity() const;
@@ -335,6 +342,8 @@ class CCSPlayerController : public CBasePlayerController {
     SCHEMA_FIELD(uint32_t, m_iPawnHealth)
     SCHEMA_FIELD(bool, m_bPawnIsAlive)
     SCHEMA_FIELD(const char*, m_szClanName)
+    SCHEMA_FIELD(CCSPlayerController_InGameMoneyServices*, m_pInGameMoneyServices)
+
 };
 
 class CEconItemDefinition {
@@ -418,6 +427,9 @@ class CPlayer_WeaponServices {
 
     SCHEMA_FIELD(CHandle, m_hActiveWeapon);
     SCHEMA_FIELD(uint16_t, m_iAmmo);
+    auto RemoveWeapon(CBasePlayerWeapon* weapon) { return CALL_VIRTUAL(void, 20, this, weapon, nullptr, nullptr); }
+    auto Remove() { return CALL_VIRTUAL(void, 13, this); }
+
 };
 
 class CBasePlayer {
@@ -430,12 +442,6 @@ class CPlayer_MovementServices {
     DECLARE_CLASS(CPlayer_MovementServices);
 };
 
-class CCSPlayerController_InGameMoneyServices {
-   public:
-    DECLARE_CLASS(CCSPlayerController_InGameMoneyServices);
-
-    SCHEMA_FIELD(int, m_iAccount)
-};
 
 class CBasePlayerPawn : public CBaseEntity {
    public:
@@ -459,9 +465,7 @@ class CCSPlayerPawn : public CCSPlayerPawnBase {
     DECLARE_CLASS(CCSPlayerPawn);
     SCHEMA_FIELD(const char*, m_szLastPlaceName)
     auto GetPlayerController() -> CCSPlayerController*;
-    auto ForceRespawnPlayer() {
-        return CALL_VIRTUAL(void, 324, this);
-    }
+    auto ForceRespawnPlayer() { return CALL_VIRTUAL(void, 324, this); }
 };
 
 class CGameEntitySystem;
