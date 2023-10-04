@@ -386,9 +386,6 @@
     <ClCompile Include="script_engine.cpp">
       <Filter>源文件\script_engine</Filter>
     </ClCompile>
-    <ClCompile Include="tools.cpp">
-      <Filter>头文件</Filter>
-    </ClCompile>
     <ClCompile Include="interface.cpp">
       <Filter>源文件\native_sdk</Filter>
     </ClCompile>
@@ -502,6 +499,9 @@
     </ClCompile>
     <ClCompile Include="timer.cpp">
       <Filter>源文件\game_time_system</Filter>
+    </ClCompile>
+    <ClCompile Include="tools.cpp">
+      <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

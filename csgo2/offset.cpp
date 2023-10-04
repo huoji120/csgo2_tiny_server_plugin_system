@@ -11,8 +11,10 @@ uint64_t MaxPlayerNumsPtr;
 HashFunction_t FnServerHashFunction;
 StateChanged_t FnStateChanged;
 NetworkStateChanged_t FnNetworkStateChanged;
-//CreateGameRuleInterFace_t FnCreateCCSGameRulesInterFace;
+RespawnPlayer_t FnRespawnPlayer;
 
+//CreateGameRuleInterFace_t FnCreateCCSGameRulesInterFace;
+bool InitOffsetSuccess = false;
 namespace InterFaces {
 CSchemaSystem* SchemaSystem;
 IGameEventManager2* GameEventManager;
@@ -25,7 +27,24 @@ CLocalize* ILocalize;
 INetworkServerService* INetworkServerServiceInteFace;
 CCSGameRules* CCSGameRulesInterFace;
 };  // namespace InterFaces
+auto SafeDelayInit(void* ctx) -> void {
+    // 需要游戏调用函数初始化
+    InterFaces::CCSGameRulesInterFace =
+        reinterpret_cast<CCSGameRules*>(Memory::read<CCSGameRules*>(CCSGameRulesInterFacePtr));
 
+    while (InterFaces::CCSGameRulesInterFace == 0)
+    {
+        InterFaces::CCSGameRulesInterFace =
+            reinterpret_cast<CCSGameRules*>(Memory::read<CCSGameRules*>(CCSGameRulesInterFacePtr));
+        Sleep(100);
+    }
+    InitOffsetSuccess = true;
+    LOG("[huoji]InterFaces::CCSGameRulesInterFace : %llx \n", InterFaces::CCSGameRulesInterFace);
+    LOG("[huoji]InterFaces::CCSGameRulesInterFace->respawnPlayer : %llx \n", ((void**)InterFaces::CCSGameRulesInterFace)[110]);
+
+    LOG("m_bForceTeamChangeSilent: %d \n", InterFaces::CCSGameRulesInterFace->m_bForceTeamChangeSilent());
+
+}
 auto Init() -> bool {
     CModule server("server.dll");
     CModule schemasystem("schemasystem.dll");
@@ -46,8 +65,10 @@ auto Init() -> bool {
         .ToAbsolute(3, 0)
         .Get(CGameEventManagerPtr);
     server.FindPattern(pattern_CreateCCSGameRulesInterFacePtr)
-        .ToAbsolute(10, 0)
+        .ToAbsolute(3, 0)
         .Get(CCSGameRulesInterFacePtr);
+    server.FindPattern(pattern_FnRespawnPlayer)
+        .Get(FnRespawnPlayer);
 
     server.FindPattern(pattern_fnHost_SayPtr).Get(Host_SayPtr);
     server.FindPattern(pattern_ServerHashFunctionPtr).Get(FnServerHashFunction);
@@ -78,8 +99,7 @@ auto Init() -> bool {
     }
     InterFaces::CGameEventManger =
         reinterpret_cast<CGameEventManager*>(CGameEventManagerPtr);
-    InterFaces::CCSGameRulesInterFace =
-        reinterpret_cast<CCSGameRules*>(CCSGameRulesInterFacePtr + (8 * 2));
+
     // global::MaxPlayers = *(int*)((char*)MaxPlayerNumsPtr + 2);
     //  client.FindPattern(pattern_FireEventServerSide).Get(FireEventServerSidePtr);
     global::MaxPlayers = 64;
@@ -104,12 +124,11 @@ auto Init() -> bool {
         InterFaces::IVEngineServer);
     LOG("[huoji]InterFaces::ISource2ServerInterFace : %llx \n",
         InterFaces::ISource2ServerInterFace);
-    LOG("[huoji]InterFaces::CCSGameRulesInterFace : %llx \n", InterFaces::CCSGameRulesInterFace);
-
-    //LOG("m_bForceTeamChangeSilent: %d \n", InterFaces::CCSGameRulesInterFace->m_bForceTeamChangeSilent());
 
     LOG("init offset success !\n");
-
+    CreateThread(NULL, 0,
+        reinterpret_cast<LPTHREAD_START_ROUTINE>(SafeDelayInit),
+        NULL, 0, NULL);
     //  LOG("FnServerHashFunction: %llx \n", FnServerHashFunction("here",
     //  sizeof("here") - 1, 0x31415926));
     return FnServerHashFunction && Host_SayPtr && InterFaces::IVEngineServer &&

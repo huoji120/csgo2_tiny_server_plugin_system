@@ -16,19 +16,25 @@ auto WatchExitThread(void *ctx) -> void {
     unload();
 }
 auto init(void* ctx) -> bool {
+    
     AllocConsole();
     SetConsoleTitleA("huoji debug console");
     freopen_s(reinterpret_cast<FILE**> stdout, "CONOUT$", "w", stdout);
     CreateThread(NULL, 0,
         reinterpret_cast<LPTHREAD_START_ROUTINE>(WatchExitThread),
         NULL, 0, NULL);
+    uint64_t serverHandle{};
+    uint64_t localizeHandle{};
 
-    while (Offset::Module_tier0 == 0)
+    while (Offset::Module_tier0 == 0 || serverHandle == 0 || localizeHandle == 0)
     {
         if (global::Exit) {
             return false;
         }
         Offset::Module_tier0 = reinterpret_cast<uint64_t>(GetModuleHandleA("tier0"));
+        serverHandle = reinterpret_cast<uint64_t>(GetModuleHandleA("server.dll"));
+        localizeHandle = reinterpret_cast<uint64_t>(GetModuleHandleA("localize.dll"));
+
         Sleep(200);
     }
     if (Offset::Init() == false) {
@@ -40,6 +46,10 @@ auto init(void* ctx) -> bool {
     isSuccess = hooks::init();
     if (isSuccess) {
         LOG("plugin install success !\n");
+        while (Offset::InitOffsetSuccess == false)
+        {
+            Sleep(200);
+        }
         ScriptEngine::Init();
     }
     return isSuccess;

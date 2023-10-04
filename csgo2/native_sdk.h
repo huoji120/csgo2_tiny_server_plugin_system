@@ -459,6 +459,9 @@ class CCSPlayerPawn : public CCSPlayerPawnBase {
     DECLARE_CLASS(CCSPlayerPawn);
     SCHEMA_FIELD(const char*, m_szLastPlaceName)
     auto GetPlayerController() -> CCSPlayerController*;
+    auto ForceRespawnPlayer() {
+        return CALL_VIRTUAL(void, 324, this);
+    }
 };
 
 class CGameEntitySystem;
@@ -491,4 +494,7 @@ class CCSGameRules {
    public:
     DECLARE_CLASS(CCSGameRules)
     SCHEMA_FIELD(bool, m_bForceTeamChangeSilent)
+    auto PlayerRespawn(CCSPlayerPawn* PlayerPawn) {
+        return CALL_VIRTUAL(void, 110, this, PlayerPawn);
+    }
 };

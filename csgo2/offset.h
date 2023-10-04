@@ -2,6 +2,7 @@
 #include "head.h"
 #define SERVER_HASH_FUCNTION_KEY 0x31415926
 class CEntityInstance;
+class CCSPlayerPawn;
 typedef uint64_t(__fastcall* HashFunction_t)(const char*, unsigned int,
                                              unsigned int);
 typedef void(__fastcall* StateChanged_t)(void* networkTransmitComponent,
@@ -10,6 +11,8 @@ typedef void(__fastcall* StateChanged_t)(void* networkTransmitComponent,
 typedef void(__fastcall* NetworkStateChanged_t)(uintptr_t chainEntity,
                                                 uintptr_t offset, uintptr_t a3);
 typedef void*(__fastcall* CreateGameRuleInterFace_t)();
+typedef bool(__fastcall* RespawnPlayer_t)(CCSPlayerPawn* player);
+
 class CSchemaSystem;
 class CGameResourceService;
 class CLocalize;
@@ -55,9 +58,8 @@ static const auto pattern_ServerHashFunctionPtr = THE_GAME_SIG(
 static const auto pattern_MaxPlayerNumsPtr =
     THE_GAME_SIG("41 3B 87 ?? ?? ?? ?? 0F 8E ?? ?? ?? ?? 8B 0D ?? ?? ?? ??");
 static const auto pattern_CreateCCSGameRulesInterFacePtr = THE_GAME_SIG(
-    "40 53 48 ?? ?? ?? B9 ?? ?? ?? ?? E8 ?? ?? ?? ?? 33 D2 41 ?? ?? ?? ?? ?? "
-    "48 8B C8 48 8B D8 E8 ?? ?? ?? ?? 48 85 DB");
-
+    "48 ?? ?? ?? ?? ?? ?? 48 8B 01 FF ?? ?? ?? ?? ?? 48 8D ?? ?? ?? E8 ?? ?? ?? ?? 4C 8D ?? ?? ?? 49 8B ?? ?? 49 8B ?? ?? 49 8B ?? ?? 49 8B E3 41 5F 41 5E 5F C3");
+static const auto pattern_FnRespawnPlayer = THE_GAME_SIG("48 89 ?? ?? ?? 57 48 ?? ?? ?? 48 8D ?? ?? ?? 48 8B F9 E8 ?? ?? ?? ?? 83 ?? ?? 74 ?? 48 ?? ?? ?? ?? ?? ?? 48 8B CF 48 8B 10 48 8B ?? ?? ?? ?? ?? 48 8D ?? ?? ?? E8 ?? ?? ?? ?? 48 ?? ?? ?? ?? ?? ??");
 extern uint64_t GameResourceServicePtr;
 extern uint64_t FireEventServerSidePtr;
 extern uint64_t Module_tier0;
@@ -66,6 +68,7 @@ extern uint64_t MaxPlayerNumsPtr;
 extern HashFunction_t FnServerHashFunction;
 extern StateChanged_t FnStateChanged;
 extern NetworkStateChanged_t FnNetworkStateChanged;
-
+extern RespawnPlayer_t FnRespawnPlayer;
+extern bool InitOffsetSuccess;
 auto Init() -> bool;
 };  // namespace Offset

@@ -36,6 +36,7 @@ void __fastcall hook_GameFrame(void* rcx, bool simulating, bool bFirstTick,
     }
 
     GameTimer::ExcuteTimers();
+    GameTickRunTime::ExcuteTickFunctions();
     return origin_GameFrame(rcx, simulating, bFirstTick, bLastTick);
 }
 void __fastcall hook_StartServer(void* rcx,
