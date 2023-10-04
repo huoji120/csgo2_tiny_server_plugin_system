@@ -99,6 +99,16 @@ int16_t FindChainOffset(const char* className);
 SchemaKey GetOffset(const char* className, uint32_t classKey,
                     const char* memberName, uint32_t memberKey);
 }  // namespace schema
+template <typename T>
+class CNetworkUtlVectorBase {
+   public:
+    auto begin() const { return m_data; }
+    auto end() const { return m_data + m_size; }
+
+    int m_size;
+    char pad0[0x4];  // no idea
+    T* m_data;
+};
 
 struct CSchemaNetworkValue {
     union {
@@ -265,7 +275,7 @@ class CCollisionProperty {
     SCHEMA_FIELD(uint8_t, m_CollisionGroup)
 };
 class CCSPlayerController_InGameMoneyServices {
-public:
+   public:
     DECLARE_CLASS(CCSPlayerController_InGameMoneyServices);
 
     SCHEMA_FIELD(int, m_iAccount)
@@ -342,8 +352,8 @@ class CCSPlayerController : public CBasePlayerController {
     SCHEMA_FIELD(uint32_t, m_iPawnHealth)
     SCHEMA_FIELD(bool, m_bPawnIsAlive)
     SCHEMA_FIELD(const char*, m_szClanName)
-    SCHEMA_FIELD(CCSPlayerController_InGameMoneyServices*, m_pInGameMoneyServices)
-
+    SCHEMA_FIELD(CCSPlayerController_InGameMoneyServices*,
+                 m_pInGameMoneyServices)
 };
 
 class CEconItemDefinition {
@@ -426,10 +436,12 @@ class CPlayer_WeaponServices {
     DECLARE_CLASS(CPlayer_WeaponServices)
 
     SCHEMA_FIELD(CHandle, m_hActiveWeapon);
-    SCHEMA_FIELD(uint16_t, m_iAmmo);
-    auto RemoveWeapon(CBasePlayerWeapon* weapon) { return CALL_VIRTUAL(void, 20, this, weapon, nullptr, nullptr); }
-    auto Remove() { return CALL_VIRTUAL(void, 13, this); }
+    SCHEMA_FIELD(CNetworkUtlVectorBase<CHandle>, m_hMyWeapons);
 
+    SCHEMA_FIELD(uint16_t, m_iAmmo);
+    auto RemoveWeapon(CBasePlayerWeapon* weapon) {
+        return CALL_VIRTUAL(void, 20, this, weapon, nullptr, nullptr);
+    }
 };
 
 class CBasePlayer {
@@ -441,7 +453,6 @@ class CPlayer_MovementServices {
    public:
     DECLARE_CLASS(CPlayer_MovementServices);
 };
-
 
 class CBasePlayerPawn : public CBaseEntity {
    public:

@@ -9,7 +9,9 @@ struct _luaApi_WeaponInfo {
     int Ammo;
     int ReserveAmmo;
     std::string weaponName;
+    std::string weaponBaseName;
     int weaponType;
+    int weaponIndex;
 };
 namespace ScriptApis {
 auto RunTickCallBack(_GameTickRunTime* timer) -> void {
@@ -87,22 +89,17 @@ auto luaApi_SetPlayerCurrentWeaponAmmo(lua_State* luaVm) -> int {
         if (weaponServices == nullptr) {
             break;
         }
-       
         const auto activeWeapon =
             weaponServices->m_hActiveWeapon().Get<CBasePlayerWeapon>();
         if (activeWeapon == nullptr) {
             break;
         }
-        weaponServices->RemoveWeapon(activeWeapon);
-        Offset::FnEntityRemove(global::EntitySystem, activeWeapon, nullptr, -1);
-        /*
         if (playerAmmoNum != -1) {
             activeWeapon->m_iClip1(playerAmmoNum);
         }
         if (playerReserveAmmoNum != -1) {
             activeWeapon->m_pReserveAmmo(playerReserveAmmoNum);
         }
-        */
     } while (false);
     lua_pop(luaVm, 3);
     return 0;
@@ -195,7 +192,8 @@ auto luaApi_GetPlayerHealth(lua_State* luaVm) -> int {
             break;
         }
         auto playerController = reinterpret_cast<CCSPlayerController*>(player);
-        playerHealth = playerController->m_iHealth();
+        auto playerPawn = playerController->m_hPawn().Get<CCSPlayerPawn>();
+        playerHealth = playerPawn->m_iHealth();
     } while (false);
     lua_pop(luaVm, 1);
     lua_pushinteger(luaVm, playerHealth);
@@ -220,10 +218,87 @@ auto luaApi_SetPlayerHealth(lua_State* luaVm) -> int {
             break;
         }
         auto playerController = reinterpret_cast<CCSPlayerController*>(player);
-        playerController->m_iHealth(playerHealth);
+        playerController->m_hPawn().Get()->m_iHealth(playerHealth);
     } while (false);
     lua_pop(luaVm, 2);
     return 0;
+}
+auto luaApi_GetPlayerWeaponInfo(lua_State* luaVm) -> _luaApi_WeaponInfo {
+    const auto playerIndex = lua_tointeger(luaVm, 1);
+    const auto weaponIndex = lua_tointeger(luaVm, 2);
+    _luaApi_WeaponInfo info{0};
+
+    CGameEntitySystem* EntitySystem = global::EntitySystem;
+    do {
+        if (EntitySystem == nullptr || playerIndex == 0) {
+            break;
+        }
+        auto player = EntitySystem->GetBaseEntity(playerIndex);
+        if (player == nullptr) {
+            break;
+        }
+        if (player->IsBasePlayerController() == false) {
+            break;
+        }
+        auto playerController = reinterpret_cast<CCSPlayerController*>(player);
+        const auto weaponServices = playerController->m_hPawn()
+                                        .Get<CCSPlayerPawn>()
+                                        ->m_pWeaponServices();
+        if (weaponServices == nullptr) {
+            break;
+        }
+        const auto weapons = weaponServices->m_hMyWeapons();
+
+        // Create a new table on the Lua stack
+        lua_newtable(luaVm);
+
+        int index = 1;  // Lua tables start at index 1
+        CBasePlayerWeapon* activeWeapon = nullptr;
+        for (CHandle* handle = weapons.begin(); handle < weapons.end();
+             ++handle) {
+            const auto weapon = handle->Get();
+            if (weapon == nullptr) {
+                continue;
+            }
+            const auto weaponIndex = weapon->GetRefEHandle().GetEntryIndex();
+            if (weaponIndex != weaponIndex) {
+                continue;
+            }
+            activeWeapon = handle->Get<CBasePlayerWeapon>();
+        }
+        if (activeWeapon == nullptr) {
+            break;
+        }
+        const auto attributeManager = activeWeapon->m_AttributeManager();
+        if (activeWeapon == nullptr) {
+            break;
+        }
+        const auto itemView = attributeManager->m_Item();
+        if (itemView == nullptr) {
+            break;
+        }
+        const auto itemStaticData = itemView->GetStaticData();
+        if (itemView == nullptr) {
+            break;
+        }
+        const char* checkWeaponName = Offset::InterFaces::ILocalize->FindSafe(
+            itemStaticData->m_pszItemBaseName);
+        if (checkWeaponName == nullptr || strlen(checkWeaponName) < 1) {
+            break;
+        }
+        info.isSuccess = true;
+        info.Ammo = activeWeapon->m_iClip1();
+        info.ReserveAmmo = activeWeapon->m_pReserveAmmo();
+        info.weaponName = itemStaticData->GetSimpleWeaponName();
+        info.weaponBaseName = itemStaticData->m_pszItemBaseName;
+        info.weaponType = static_cast<int>(
+            itemStaticData->IsKnife(false)
+                ? _luaApi_WeaponType::kKnife
+                : (itemStaticData->IsWeapon() ? _luaApi_WeaponType::kGun
+                                              : _luaApi_WeaponType::kOther));
+        info.weaponIndex = weaponIndex;
+    } while (false);
+    return info;
 }
 auto luaApi_GetPlayerCurrentWeaponInfo(lua_State* luaVm) -> _luaApi_WeaponInfo {
     // param: playerIndex:int
@@ -275,11 +350,17 @@ auto luaApi_GetPlayerCurrentWeaponInfo(lua_State* luaVm) -> _luaApi_WeaponInfo {
         info.Ammo = activeWeapon->m_iClip1();
         info.ReserveAmmo = activeWeapon->m_pReserveAmmo();
         info.weaponName = itemStaticData->GetSimpleWeaponName();
+        info.weaponBaseName = itemStaticData->m_pszItemBaseName;
+
         info.weaponType = static_cast<int>(
             itemStaticData->IsKnife(false)
                 ? _luaApi_WeaponType::kKnife
                 : (itemStaticData->IsWeapon() ? _luaApi_WeaponType::kGun
                                               : _luaApi_WeaponType::kOther));
+        info.weaponIndex = weaponServices->m_hActiveWeapon()
+                               .Get()
+                               ->GetRefEHandle()
+                               .GetEntryIndex();
     } while (false);
     return info;
 }
@@ -460,10 +541,9 @@ auto luaApi_GivePlayerWeapon(lua_State* luaVm) -> int {
     lua_pushboolean(luaVm, isSuccess);
     return 1;
 }
-auto luaApi_RemovePlayerWeapon(lua_State* luaVm) -> int {
-    // param: playerIndex:int, itemClass:string
+auto luApi_GetPlayerAllWeaponIndex(lua_State* luaVm) -> int {
+    // param: playerIndex:int
     const auto playerIndex = lua_tointeger(luaVm, 1);
-    const auto weaponName = lua_tostring(luaVm, 2);
     auto isSuccess = false;
 
     CGameEntitySystem* EntitySystem = global::EntitySystem;
@@ -479,7 +559,91 @@ auto luaApi_RemovePlayerWeapon(lua_State* luaVm) -> int {
             break;
         }
         auto playerController = reinterpret_cast<CCSPlayerController*>(player);
+        const auto weaponServices = playerController->m_hPawn()
+                                        .Get<CCSPlayerPawn>()
+                                        ->m_pWeaponServices();
+        if (weaponServices == nullptr) {
+            break;
+        }
+        const auto weapons = weaponServices->m_hMyWeapons();
 
+        // Create a new table on the Lua stack
+        lua_newtable(luaVm);
+
+        int index = 1;  // Lua tables start at index 1
+        for (CHandle* handle = weapons.begin(); handle < weapons.end();
+             ++handle) {
+            const auto weapon = handle->Get();
+            if (weapon == nullptr) {
+                continue;
+            }
+            const auto weaponIndex = weapon->GetRefEHandle().GetEntryIndex();
+
+            // Push the index and then the value onto the stack
+            lua_pushinteger(luaVm, index++);
+            lua_pushinteger(luaVm, weaponIndex);
+
+            // The table is now below the key-value pair in the stack,
+            // so we use -3 to indicate its position
+            lua_settable(luaVm, -3);
+        }
+        isSuccess = true;
+    } while (false);
+
+    if (!isSuccess) {
+        // If unsuccessful, remove the table from the stack
+        lua_pop(luaVm, 1);
+        // And push false instead
+        lua_pushboolean(luaVm, isSuccess);
+    }
+
+    // Return the number of results (either the table or false)
+    return 1;
+}
+auto luaApi_RemovePlayerWeapon(lua_State* luaVm) -> int {
+    // param: playerIndex:int, itemClass:string
+    const auto playerIndex = lua_tointeger(luaVm, 1);
+    const auto weaponIndex = lua_tointeger(luaVm, 2);
+    auto isSuccess = false;
+
+    CGameEntitySystem* EntitySystem = global::EntitySystem;
+    do {
+        if (EntitySystem == nullptr || playerIndex == 0) {
+            break;
+        }
+        auto player = EntitySystem->GetBaseEntity(playerIndex);
+        if (player == nullptr) {
+            break;
+        }
+        if (player->IsBasePlayerController() == false) {
+            break;
+        }
+        auto playerController = reinterpret_cast<CCSPlayerController*>(player);
+        const auto weaponServices = playerController->m_hPawn()
+                                        .Get<CCSPlayerPawn>()
+                                        ->m_pWeaponServices();
+        if (weaponServices == nullptr) {
+            break;
+        }
+        const auto weapons = weaponServices->m_hMyWeapons();
+        CBasePlayerWeapon* activeWeapon = 0;
+        for (CHandle* handle = weapons.begin(); handle < weapons.end();
+             ++handle) {
+            if (handle->GetEntryIndex() != weaponIndex) {
+                continue;
+            }
+            const auto weapon = handle->Get<CBasePlayerWeapon>();
+            if (weapon == nullptr) {
+                continue;
+            }
+            activeWeapon = weapon;
+        }
+        if (activeWeapon == nullptr) {
+            break;
+        }
+        weaponServices->RemoveWeapon(activeWeapon);
+        Offset::FnEntityRemove(global::EntitySystem, activeWeapon, nullptr, -1);
+        isSuccess = true;
     } while (false);
     lua_pop(luaVm, 2);
     lua_pushboolean(luaVm, isSuccess);
@@ -505,8 +669,9 @@ auto initFunciton(lua_State* luaVm) -> void {
     lua_register(luaVm, "luaApi_CheckPlayerIsInServer",
                  luaApi_CheckPlayerIsInServer);
     lua_register(luaVm, "luaApi_GivePlayerWeapon", luaApi_GivePlayerWeapon);
-    lua_register(luaVm, "luaApi_GivePlayerWeapon", luaApi_GivePlayerWeapon);
-    // 我不喜欢他
+    lua_register(luaVm, "luApi_GetPlayerAllWeaponIndex",
+                 luApi_GetPlayerAllWeaponIndex);
+    lua_register(luaVm, "luaApi_RemovePlayerWeapon", luaApi_RemovePlayerWeapon);
     luabridge::getGlobalNamespace(luaVm)
         .beginClass<_luaApi_WeaponInfo>("WeaponInfo")
         .addConstructor<void (*)(void)>()
@@ -514,7 +679,22 @@ auto initFunciton(lua_State* luaVm) -> void {
         .addData("Ammo", &_luaApi_WeaponInfo::Ammo)
         .addData("ReserveAmmo", &_luaApi_WeaponInfo::ReserveAmmo)
         .addData("weaponName", &_luaApi_WeaponInfo::weaponName)
+        .addData("weaponBaseName", &_luaApi_WeaponInfo::weaponBaseName)
         .addData("weaponType", &_luaApi_WeaponInfo::weaponType)
+        .addData("weaponIndex", &_luaApi_WeaponInfo::weaponIndex)
+        .endClass()
+        .addFunction("luaApi_GetPlayerWeaponInfo", &luaApi_GetPlayerWeaponInfo);
+    //  我不喜欢他
+    luabridge::getGlobalNamespace(luaVm)
+        .beginClass<_luaApi_WeaponInfo>("WeaponInfo")
+        .addConstructor<void (*)(void)>()
+        .addData("isSuccess", &_luaApi_WeaponInfo::isSuccess)
+        .addData("Ammo", &_luaApi_WeaponInfo::Ammo)
+        .addData("ReserveAmmo", &_luaApi_WeaponInfo::ReserveAmmo)
+        .addData("weaponName", &_luaApi_WeaponInfo::weaponName)
+        .addData("weaponBaseName", &_luaApi_WeaponInfo::weaponBaseName)
+        .addData("weaponType", &_luaApi_WeaponInfo::weaponType)
+        .addData("weaponIndex", &_luaApi_WeaponInfo::weaponIndex)
         .endClass()
         .addFunction("luaApi_GetPlayerCurrentWeaponInfo",
                      &luaApi_GetPlayerCurrentWeaponInfo);
