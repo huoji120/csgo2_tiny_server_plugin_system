@@ -23,7 +23,8 @@ auto CSchemaSystem::FindTypeScopeForModule(const char* module)
 }
 
 auto CBaseEntity::IsBasePlayerController() -> bool {
-    return CALL_VIRTUAL(bool, 144, this);
+    return true;
+    //return CALL_VIRTUAL(bool, 146, this);
 }
 auto CBaseEntity::SpawnClientEntity() -> void { CALL_VIRTUAL(void, 19, this); }
 auto CBasePlayer::ForceRespawn() -> void {

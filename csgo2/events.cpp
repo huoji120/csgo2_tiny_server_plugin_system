@@ -1,6 +1,20 @@
 #include "events.h"
 
 namespace events {
+auto OnPlayerSpawnEvent(IGameEvent* event) -> void {
+    UnkGameEventStruct_t userIdNameParams{"userid"};
+    const auto playerPawn = reinterpret_cast<CCSPlayerPawn*>(
+        event->GetPlayerPawn(&userIdNameParams));
+    if (playerPawn == nullptr) {
+        return;
+    }
+    const auto player = playerPawn->GetPlayerController();
+    if (player == nullptr) {
+        return;
+    }
+    const auto playerIndex = player->GetRefEHandle().GetEntryIndex();
+    ScriptCallBacks::luaCall_onPlayerSpawn(playerIndex);
+}
 auto OnPlayerDeathEvent(IGameEvent* event) -> void {
     UnkGameEventStruct_t userIdNameParams{"userid"};
     UnkGameEventStruct_t attackerNameParams{"attacker"};

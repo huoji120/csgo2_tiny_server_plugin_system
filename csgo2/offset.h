@@ -4,6 +4,7 @@
 class CEntityInstance;
 class CCSPlayerPawn;
 class CGameEntitySystem;
+class CCSPlayerController;
 typedef uint64_t(__fastcall* HashFunction_t)(const char*, unsigned int,
                                              unsigned int);
 typedef void(__fastcall* StateChanged_t)(void* networkTransmitComponent,
@@ -17,7 +18,13 @@ typedef void(__fastcall* GiveNamedItem_t)(void* itemService,
                                           const char* pchName, void* iSubType,
                                           void* pScriptItem, void* a5,
                                           void* a6);
-typedef void* (__fastcall* EntityRemove_t)(CGameEntitySystem*, void*, void*, uint64_t);
+typedef void*(__fastcall* EntityRemove_t)(CGameEntitySystem*, void*, void*,
+                                          uint64_t);
+typedef void*(__fastcall* UTIL_SayTextFilter_t)(IRecipientFilter&, const char*,
+                                                CCSPlayerController*, uint64_t);
+typedef void(__fastcall* UTIL_ClientPrintAll_t)(int msg_dest, const char* msg_name, const char* param1, const char* param2, const char* param3, const char* param4);
+typedef void(__fastcall* ClientPrint_t)(CCSPlayerController* player, int msg_dest, const char* msg_name, const char* param1, const char* param2, const char* param3, const char* param4);
+
 class CSchemaSystem;
 class CGameResourceService;
 class CLocalize;
@@ -73,7 +80,16 @@ static const auto pattern_FnRespawnPlayer = THE_GAME_SIG(
     "?? ?? 74 ?? 48 ?? ?? ?? ?? ?? ?? 48 8B CF 48 8B 10 48 8B ?? ?? ?? ?? ?? "
     "48 8D ?? ?? ?? E8 ?? ?? ?? ?? 48 ?? ?? ?? ?? ?? ??");
 static const auto pattern_FnEntityRemove = THE_GAME_SIG(
-    "48 85 D2 0F ?? ?? ?? ?? ?? 57 48 ?? ?? ?? 48 89 ?? ?? ?? 48 8B F9 48 8B ?? ?? 48 85 DB 0F ?? ?? ?? ?? ?? 48 ?? ?? ?? 75 ?? 33 D2 48 8B CB E8 ?? ?? ?? ?? 48 8D ?? ?? 41 ?? ?? 48 8B D3 48 8B ?? ?? ?? 48 ?? ?? ?? 5F E9 ?? ?? ?? ??");
+    "48 85 D2 0F ?? ?? ?? ?? ?? 57 48 ?? ?? ?? 48 89 ?? ?? ?? 48 8B F9 48 8B "
+    "?? ?? 48 85 DB 0F ?? ?? ?? ?? ?? 48 ?? ?? ?? 75 ?? 33 D2 48 8B CB E8 ?? "
+    "?? ?? ?? 48 8D ?? ?? 41 ?? ?? 48 8B D3 48 8B ?? ?? ?? 48 ?? ?? ?? 5F E9 "
+    "?? ?? ?? ??");
+static const auto pattern_FnUTIL_SayTextFilter = THE_GAME_SIG(
+    "48 89 5C 24 ?? 55 56 57 48 8D 6C 24 ?? 48 81 EC ?? ?? ?? ?? 49 8B D8");
+static const auto pattern_UTIL_ClientPrintAll = THE_GAME_SIG(
+    "48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 48 81 EC 70 01 ?? ?? 8B E9");
+static const auto pattern_FnClientPrint = THE_GAME_SIG(
+    "48 85 C9 0F 84 ?? ?? ?? ?? 48 8B C4 48 89 58 18");
 extern uint64_t GameResourceServicePtr;
 extern uint64_t FireEventServerSidePtr;
 extern uint64_t Module_tier0;
@@ -85,6 +101,9 @@ extern NetworkStateChanged_t FnNetworkStateChanged;
 extern RespawnPlayer_t FnRespawnPlayer;
 extern GiveNamedItem_t FnGiveNamedItem;
 extern EntityRemove_t FnEntityRemove;
+extern UTIL_SayTextFilter_t FnUTIL_SayTextFilter;
+extern UTIL_ClientPrintAll_t FnUTIL_ClientPrintAll;
+extern ClientPrint_t FnClientPrint;
 extern bool InitOffsetSuccess;
 auto Init() -> bool;
 };  // namespace Offset

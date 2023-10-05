@@ -14,7 +14,10 @@ NetworkStateChanged_t FnNetworkStateChanged;
 RespawnPlayer_t FnRespawnPlayer;
 GiveNamedItem_t FnGiveNamedItem;
 EntityRemove_t FnEntityRemove;
-//CreateGameRuleInterFace_t FnCreateCCSGameRulesInterFace;
+UTIL_SayTextFilter_t FnUTIL_SayTextFilter;
+UTIL_ClientPrintAll_t FnUTIL_ClientPrintAll;
+ClientPrint_t FnClientPrint;
+// CreateGameRuleInterFace_t FnCreateCCSGameRulesInterFace;
 bool InitOffsetSuccess = false;
 namespace InterFaces {
 CSchemaSystem* SchemaSystem;
@@ -30,18 +33,19 @@ CCSGameRules* CCSGameRulesInterFace;
 };  // namespace InterFaces
 auto SafeDelayInit(void* ctx) -> void {
     // 需要游戏调用函数初始化
-    InterFaces::CCSGameRulesInterFace =
-        reinterpret_cast<CCSGameRules*>(Memory::read<CCSGameRules*>(CCSGameRulesInterFacePtr));
+    InterFaces::CCSGameRulesInterFace = reinterpret_cast<CCSGameRules*>(
+        Memory::read<CCSGameRules*>(CCSGameRulesInterFacePtr));
 
-    while (InterFaces::CCSGameRulesInterFace == 0)
-    {
-        InterFaces::CCSGameRulesInterFace =
-            reinterpret_cast<CCSGameRules*>(Memory::read<CCSGameRules*>(CCSGameRulesInterFacePtr));
+    while (InterFaces::CCSGameRulesInterFace == 0) {
+        InterFaces::CCSGameRulesInterFace = reinterpret_cast<CCSGameRules*>(
+            Memory::read<CCSGameRules*>(CCSGameRulesInterFacePtr));
         Sleep(100);
     }
     InitOffsetSuccess = true;
-    LOG("[huoji]InterFaces::CCSGameRulesInterFace : %llx \n", InterFaces::CCSGameRulesInterFace);
-    LOG("m_bForceTeamChangeSilent: %d \n", InterFaces::CCSGameRulesInterFace->m_bForceTeamChangeSilent());
+    LOG("[huoji]InterFaces::CCSGameRulesInterFace : %llx \n",
+        InterFaces::CCSGameRulesInterFace);
+    LOG("m_bForceTeamChangeSilent: %d \n",
+        InterFaces::CCSGameRulesInterFace->m_bForceTeamChangeSilent());
 }
 auto Init() -> bool {
     CModule server("server.dll");
@@ -65,14 +69,15 @@ auto Init() -> bool {
     server.FindPattern(pattern_CreateCCSGameRulesInterFacePtr)
         .ToAbsolute(3, 0)
         .Get(CCSGameRulesInterFacePtr);
-    server.FindPattern(pattern_FnRespawnPlayer)
-        .Get(FnRespawnPlayer);
-    server.FindPattern(pattern_FnEntityRemove)
-        .Get(FnEntityRemove);
-    server.FindPattern(pattern_FnGiveNamedItemPtr)
-        .Get(FnGiveNamedItem);
+    server.FindPattern(pattern_FnRespawnPlayer).Get(FnRespawnPlayer);
+    server.FindPattern(pattern_FnEntityRemove).Get(FnEntityRemove);
+    server.FindPattern(pattern_FnGiveNamedItemPtr).Get(FnGiveNamedItem);
     server.FindPattern(pattern_fnHost_SayPtr).Get(Host_SayPtr);
     server.FindPattern(pattern_ServerHashFunctionPtr).Get(FnServerHashFunction);
+    server.FindPattern(pattern_UTIL_ClientPrintAll).Get(FnUTIL_ClientPrintAll);
+    server.FindPattern(pattern_FnClientPrint).Get(FnClientPrint);
+
+    server.FindPattern(pattern_FnUTIL_SayTextFilter).Get(FnUTIL_SayTextFilter);
     InterFaces::SchemaSystem = reinterpret_cast<CSchemaSystem*>(
         schemasystem.FindInterface("SchemaSystem_001").Get());
     // InterFaces::GameEventManager = reinterpret_cast<IGameEventManager2*>(
@@ -112,6 +117,8 @@ auto Init() -> bool {
     LOG("[huoji]FnStateChanged : %llx \n", FnStateChanged);
     LOG("[huoji]FnRespawnPlayer : %llx \n", FnRespawnPlayer);
     LOG("[huoji]FnGiveNamedItem : %llx \n", FnGiveNamedItem);
+    LOG("[huoji]FnClientPrint : %llx \n", FnClientPrint);
+    LOG("[huoji]FnUTIL_ClientPrintAll : %llx \n", FnUTIL_ClientPrintAll);
 
     LOG("[huoji]MaxGlobals : %d \n", global::MaxPlayers);
 
@@ -132,13 +139,15 @@ auto Init() -> bool {
         CGameEntitySystem::GetInstance());
     LOG("init offset success !\n");
     CreateThread(NULL, 0,
-        reinterpret_cast<LPTHREAD_START_ROUTINE>(SafeDelayInit),
-        NULL, 0, NULL);
+                 reinterpret_cast<LPTHREAD_START_ROUTINE>(SafeDelayInit), NULL,
+                 0, NULL);
     //  LOG("FnServerHashFunction: %llx \n", FnServerHashFunction("here",
     //  sizeof("here") - 1, 0x31415926));
-    return FnEntityRemove && FnRespawnPlayer && FnGiveNamedItem && FnServerHashFunction && Host_SayPtr && InterFaces::IVEngineServer &&
+    return FnEntityRemove && FnRespawnPlayer && FnGiveNamedItem &&
+           FnServerHashFunction && Host_SayPtr && InterFaces::IVEngineServer &&
            InterFaces::GameResourceServiceServer &&
            InterFaces::IServerGameClient && InterFaces::GameEventManager &&
-           InterFaces::SchemaSystem && FireEventServerSidePtr && FnNetworkStateChanged;
+           InterFaces::SchemaSystem && FireEventServerSidePtr &&
+           FnNetworkStateChanged;
 }
 }  // namespace Offset

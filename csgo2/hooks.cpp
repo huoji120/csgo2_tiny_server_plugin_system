@@ -1,17 +1,17 @@
 #include "hooks.h"
 extern auto GetGameGlobals() -> CGlobalVars*;
+
+namespace hooks {
+// "player_connect"
+VMTHook* VMT_IServerGameClient;
+VMTHook* VMT_INetworkServerServiceInteFace;
+VMTHook* VMT_ISource2ServerInterFace;
 FireEventServerSide_t original_FireEventServerSide = NULL;
 OnClientConnect_t original_OnClientConnected = NULL;
 OnClientDisconnect_t original_OnClientDisconnect = NULL;
 Host_Say_t original_Host_Say = NULL;
 StartupServer_t origin_StartServer = NULL;
 GameFrame_t origin_GameFrame = NULL;
-namespace hooks {
-// "player_connect"
-VMTHook* VMT_IServerGameClient;
-VMTHook* VMT_INetworkServerServiceInteFace;
-VMTHook* VMT_ISource2ServerInterFace;
-
 void __fastcall hook_GameFrame(void* rcx, bool simulating, bool bFirstTick,
                                bool bLastTick) {
     /**
@@ -128,10 +128,15 @@ bool __fastcall hook_FireEventServerSide(CGameEventManager* rcx,
         static constexpr auto player_death =
             hash_32_fnv1a_const("player_death");
         static constexpr auto player_chat = hash_32_fnv1a_const("player_chat");
+        static constexpr auto player_spawn =
+            hash_32_fnv1a_const("player_spawn");
 
         switch (hash_32_fnv1a_const(eventName)) {
             case player_death:
                 events::OnPlayerDeathEvent(event);
+                break;
+            case player_spawn:
+                events::OnPlayerSpawnEvent(event);
                 break;
                 // V社bug,这不会有用
                 /*

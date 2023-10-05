@@ -7,10 +7,8 @@ typedef void(__fastcall* OnClientConnect_t)(void*, CPlayerSlot, const char*, uin
 typedef void(__fastcall* OnClientDisconnect_t)(void*, CPlayerSlot, int, const char*, uint64_t, const char*);
 typedef void(__fastcall* StartupServer_t)(void*, const GameSessionConfiguration_t&, ISource2WorldSession*, const char*);
 typedef void(__fastcall* GameFrame_t)(void*, bool, bool, bool);
-
-extern FireEventServerSide_t original_FireEventServerSide;
-extern Host_Say_t original_Host_Say;
 namespace hooks {
+	extern Host_Say_t original_Host_Say;
 	auto init() -> bool;
 	auto unload() -> void;
 }

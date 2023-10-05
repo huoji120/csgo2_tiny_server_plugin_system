@@ -330,6 +330,18 @@
     <ClInclude Include="weapon.h">
       <Filter>头文件\native_sdk</Filter>
     </ClInclude>
+    <ClInclude Include="sdk\public\irecipientfilter.h">
+      <Filter>头文件\sdk\public</Filter>
+    </ClInclude>
+    <ClInclude Include="sdk\public\recipientfilters.h">
+      <Filter>头文件\sdk\public</Filter>
+    </ClInclude>
+    <ClInclude Include="sdk\tier1\utlbuffer.h">
+      <Filter>头文件\sdk\tier1</Filter>
+    </ClInclude>
+    <ClInclude Include="sdk\tier1\cbyteswap.h">
+      <Filter>头文件\sdk\tier1</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">

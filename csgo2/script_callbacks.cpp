@@ -10,6 +10,8 @@ std::unordered_map<uint32_t, _CallbackNames> callbackNameWithEnumMap{
      _CallbackNames::kOnPlayerDisconnect},
     {hash_32_fnv1a_const("player_death"), _CallbackNames::kOnPlayerDeath},
     {hash_32_fnv1a_const("player_chat"), _CallbackNames::kOnPlayerSpeak},
+    {hash_32_fnv1a_const("player_spawn"), _CallbackNames::kOnPlayerSpawn},
+
 };
 auto CallBackNameToEnum(const char* name) -> _CallbackNames {
     if (name == nullptr) {
@@ -35,7 +37,7 @@ auto ExcuteCallbackInAllLuaVm(_CallbackNames cbType,
         if (luaVMCallbackLists.find(cbType) == luaVMCallbackLists.end()) {
             continue;
         }
-        LOG("excute callback %d in %s \n", cbType, pluginName.c_str());
+        // LOG("excute callback %d in %s \n", cbType, pluginName.c_str());
         const auto luaRefIndex = luaVMCallbackLists.at(cbType);
         cb(luaVm, luaRefIndex);
     }
@@ -128,5 +130,20 @@ auto luaCall_onPlayerSpeak(int speaker, int chatType, std::string message)
                                  }
                              });
     return result;
+}
+auto luaCall_onPlayerSpawn(int player) -> void {
+    ExcuteCallbackInAllLuaVm(_CallbackNames::kOnPlayerSpawn,
+                             [&](lua_State* luaVm, int refIndex) -> void {
+                                 lua_rawgeti(luaVm, LUA_REGISTRYINDEX,
+                                             refIndex);
+                                 if (lua_isfunction(luaVm, -1)) {
+                                     lua_pushinteger(luaVm, player);
+                                     if (lua_pcall(luaVm, 1, 0, 0) != LUA_OK) {
+                                         LOG("Error calling Lua callback: %s\n",
+                                             lua_tostring(luaVm, -1));
+                                         lua_pop(luaVm, 1);
+                                     }
+                                 }
+                             });
 }
 }  // namespace ScriptCallBacks
