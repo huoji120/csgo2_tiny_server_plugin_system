@@ -54,6 +54,7 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.props" />
   </ImportGroup>
   <ImportGroup Label="Shared">
   </ImportGroup>
@@ -79,10 +80,14 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(MSBuildProjectDirectory)\sdk\protobuf-2.6.1\src;$(MSBuildProjectDirectory)\LuaBridge;$(IncludePath)</IncludePath>
+    <TargetName>$(ProjectName)</TargetName>
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>$(MSBuildProjectDirectory)\sdk\protobuf-2.6.1\src;$(MSBuildProjectDirectory)\LuaBridge;$(IncludePath)</IncludePath>
+    <TargetName>$(ProjectName)</TargetName>
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -214,8 +219,10 @@
     <ClInclude Include="sdk\player\player.h" />
     <ClInclude Include="sdk\player\playerslot.h" />
     <ClInclude Include="sdk\public\bitvec.h" />
+    <ClInclude Include="sdk\public\color.h" />
     <ClInclude Include="sdk\public\eiface.h" />
     <ClInclude Include="sdk\public\IAppSystem.h" />
+    <ClInclude Include="sdk\public\icvar.h" />
     <ClInclude Include="sdk\public\irecipientfilter.h" />
     <ClInclude Include="sdk\public\iserver.h" />
     <ClInclude Include="sdk\public\mathlib.h" />
@@ -223,6 +230,7 @@
     <ClInclude Include="sdk\public\string_t.h" />
     <ClInclude Include="sdk\public\utlmap.h" />
     <ClInclude Include="sdk\public\utlrbtree.h" />
+    <ClInclude Include="sdk\public\Vector_Sdk.h" />
     <ClInclude Include="sdk\sdk.h" />
     <ClInclude Include="sdk\tier1\bufferstring.h" />
     <ClInclude Include="sdk\tier1\cbyteswap.h" />
@@ -305,14 +313,19 @@
     <ClCompile Include="sdk_tools.cpp" />
     <ClCompile Include="timer.cpp" />
     <ClCompile Include="tools.cpp" />
+    <ClCompile Include="version_hijack.cpp" />
     <ClCompile Include="vmthook.cpp" />
     <ClCompile Include="weapon.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
     <None Include="lua\Makefile" />
+    <MASM Include="version_jump.asm">
+      <FileType>Document</FileType>
+    </MASM>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.targets" />
   </ImportGroup>
 </Project>

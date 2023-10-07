@@ -41,6 +41,7 @@ extern CLocalize* ILocalize;
 extern INetworkServerService* INetworkServerServiceInteFace;
 extern ISource2Server* ISource2ServerInterFace;
 extern CCSGameRules* CCSGameRulesInterFace;
+extern ICvar* IVEngineCvar;
 };  // namespace InterFaces
 static const auto pattern_CGameEventManager = THE_GAME_SIG(
     "48 ?? ?? ?? ?? ?? ?? 48 89 ?? ?? ?? 48 89 01 48 8B D9 48 ?? ?? ?? ?? ?? "

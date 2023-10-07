@@ -16,6 +16,7 @@
 #define INCORRECT_PATH_SEPARATOR '/'
 #define INCORRECT_PATH_SEPARATOR_S "/"
 #define FMTFUNCTION(a, b)
+
 enum EStringConvertErrorPolicy {
     _STRINGCONVERTFLAG_SKIP = 1,
     _STRINGCONVERTFLAG_FAIL = 2,
@@ -79,6 +80,10 @@ inline T AlignValue(T val, uintptr_t alignment) {
     return (T)(((uintptr_t)val + alignment - 1) & ~(alignment - 1));
 }
 
+
+#include "public/Vector_Sdk.h"
+#include "public/color.h"
+
 #include "player/playerslot.h"
 
 #include "public/mathlib.h"
@@ -103,7 +108,7 @@ inline T AlignValue(T val, uintptr_t alignment) {
 #include "interfaces/interfaces.h"
 #include "gameevent/IGameEvent.h"
 #include "convar/convar.hpp"
-
+#include "public/icvar.h"
 #include "gameevent/IGameEvent.h"
 #include "tier1/bufferstring.h"
 #include "public/eiface.h"

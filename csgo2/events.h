@@ -11,4 +11,6 @@ auto OnPlayerDisconnect(int slot, const char* pszName, uint64_t xuid,
                         const char* pszNetworkID, const char* pszAddress,
                         bool bFakePlayer) -> void;
 auto OnPlayerSpawnEvent(IGameEvent* event) -> void;
+auto OnRoundStartEvent(IGameEvent* event) -> void;
+auto OnRoundEndEvent(IGameEvent* event) -> void;
 }  // namespace events

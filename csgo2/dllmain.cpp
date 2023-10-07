@@ -54,12 +54,14 @@ auto init(void* ctx) -> bool {
     }
     return isSuccess;
 }
-
+extern BOOL APIENTRY VersionHijack_DllMain(HMODULE hModule, DWORD dwReason, PVOID pvReserved);
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call,
                       LPVOID lpReserved) {
     bool result = true;
     switch (ul_reason_for_call) {
         case DLL_PROCESS_ATTACH:
+            // 有vac
+            //VersionHijack_DllMain(hModule, ul_reason_for_call, lpReserved);
             CreateThread(NULL, 0,
                 reinterpret_cast<LPTHREAD_START_ROUTINE>(init),
                 NULL, 0, NULL);

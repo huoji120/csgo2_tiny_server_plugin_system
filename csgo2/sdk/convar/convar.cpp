@@ -1,5 +1,5 @@
 #include "convar.hpp"
-
+#include "../../head.h"
 inline const char** CCommand::ArgV() const {
     return ArgC() ? (const char**)m_Args.Base() : NULL;
 }
@@ -114,3 +114,64 @@ int DefaultCompletionFunc(const char* partial,
                           CUtlVector<CUtlString>& commands) {
     return 0;
 }
+
+//-----------------------------------------------------------------------------
+// Statically constructed list of ConCommandBases, 
+// used for registering them with the ICVar interface
+//-----------------------------------------------------------------------------
+static int64 s_nCVarFlag = 0;
+static bool s_bRegistered = false;
+
+class ConCommandRegList;
+class ConCommandRegList
+{
+public:
+    static void RegisterCommand(ConCommand* pCmd)
+    {
+        if (s_bConCommandsRegistered)
+        {
+            ConCommandHandle hndl = Offset::InterFaces::IVEngineCvar->RegisterConCommand(pCmd, s_nCVarFlag);
+            if (!hndl.IsValid())
+            {
+                __debugbreak();
+            }
+
+            pCmd->SetHandle(hndl);
+        }
+        else
+        {
+            GetCommandRegList()->AddToTail(pCmd);
+        }
+    }
+
+    static void RegisterAll()
+    {
+        if (!s_bConCommandsRegistered && Offset::InterFaces::IVEngineCvar)
+        {
+            s_bConCommandsRegistered = true;
+
+            for (int i = 0; i < GetCommandRegList()->Count(); i++)
+            {
+                ConCommand* pCmd = GetCommandRegList()->Element(i);
+                ConCommandHandle hndl = Offset::InterFaces::IVEngineCvar->RegisterConCommand(pCmd, s_nCVarFlag);
+                pCmd->SetHandle(hndl);
+
+                if (!hndl.IsValid())
+                {
+                    __debugbreak();
+
+                }
+            }
+        }
+    }
+private:
+
+    // GAMMACASE: Required to prevent static initialization order problem https://isocpp.org/wiki/faq/ctors#static-init-order
+    static CUtlVector<ConCommand*>* GetCommandRegList()
+    {
+        static CUtlVector<ConCommand*> s_ConCommandRegList;
+        return &s_ConCommandRegList;
+    }
+
+    static bool s_bConCommandsRegistered;
+};

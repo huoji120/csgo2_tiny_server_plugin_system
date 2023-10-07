@@ -47,11 +47,14 @@ auto initLuaScripts() -> void {
         ScriptApis::initFunciton(L);
 
         pluginEnvs[dirName] = L;
-
+        if (dirPath.starts_with("disable_")) {
+            continue;
+        }
         std::string file = dirPath + "\\main.lua";
         if (std::filesystem::exists(file) == false) {
             continue;
         }
+
         LOG("execute: %s\n", file.c_str());
 
         std::string scriptDir = dirPath;
@@ -87,8 +90,8 @@ auto reloadLuaScripts() -> void {
     initLuaScripts();
 }
 auto Init() -> void {
-    // luaPath = Tools::GetExePath() + "\\huoji_scripts\\";
-    luaPath = "F:\\source2\\huoji_scripts\\";
+    luaPath = Tools::GetExePath() + "\\huoji_scripts\\";
+    // luaPath = "F:\\source2\\huoji_scripts\\";
     initLuaScripts();
 }
 }  // namespace ScriptEngine

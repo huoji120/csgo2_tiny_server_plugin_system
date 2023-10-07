@@ -82,6 +82,9 @@
     <Filter Include="头文件\game_time_system">
       <UniqueIdentifier>{f26913ae-881a-43da-a215-8c0c7a9173cd}</UniqueIdentifier>
     </Filter>
+    <Filter Include="源文件\hijack">
+      <UniqueIdentifier>{23cedcbc-aa1d-444b-baf2-0f55c87c525e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -342,6 +345,15 @@
     <ClInclude Include="sdk\tier1\cbyteswap.h">
       <Filter>头文件\sdk\tier1</Filter>
     </ClInclude>
+    <ClInclude Include="sdk\public\icvar.h">
+      <Filter>头文件\sdk\public</Filter>
+    </ClInclude>
+    <ClInclude Include="sdk\public\color.h">
+      <Filter>头文件\sdk\public</Filter>
+    </ClInclude>
+    <ClInclude Include="sdk\public\Vector_Sdk.h">
+      <Filter>头文件\sdk\public</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -521,11 +533,19 @@
     <ClCompile Include="weapon.cpp">
       <Filter>源文件\native_sdk</Filter>
     </ClCompile>
+    <ClCompile Include="version_hijack.cpp">
+      <Filter>源文件\hijack</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
     <None Include="lua\Makefile">
       <Filter>头文件\lua</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <MASM Include="version_jump.asm">
+      <Filter>源文件\hijack</Filter>
+    </MASM>
   </ItemGroup>
 </Project>

@@ -130,6 +130,8 @@ bool __fastcall hook_FireEventServerSide(CGameEventManager* rcx,
         static constexpr auto player_chat = hash_32_fnv1a_const("player_chat");
         static constexpr auto player_spawn =
             hash_32_fnv1a_const("player_spawn");
+        static constexpr auto round_start = hash_32_fnv1a_const("round_start");
+        static constexpr auto round_end = hash_32_fnv1a_const("round_end");
 
         switch (hash_32_fnv1a_const(eventName)) {
             case player_death:
@@ -137,6 +139,12 @@ bool __fastcall hook_FireEventServerSide(CGameEventManager* rcx,
                 break;
             case player_spawn:
                 events::OnPlayerSpawnEvent(event);
+                break;
+            case round_start:
+                events::OnRoundStartEvent(event);
+                break;
+            case round_end:
+                events::OnRoundEndEvent(event);
                 break;
                 // V社bug,这不会有用
                 /*

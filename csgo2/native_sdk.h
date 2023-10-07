@@ -152,7 +152,6 @@ class SchemaClassInfoData_t {
 
         return m_schema_parent->m_class;
     }
-
    private:
     char pad_0x0000[0x8];  // 0x0000
 

@@ -11,6 +11,8 @@ std::unordered_map<uint32_t, _CallbackNames> callbackNameWithEnumMap{
     {hash_32_fnv1a_const("player_death"), _CallbackNames::kOnPlayerDeath},
     {hash_32_fnv1a_const("player_chat"), _CallbackNames::kOnPlayerSpeak},
     {hash_32_fnv1a_const("player_spawn"), _CallbackNames::kOnPlayerSpawn},
+    {hash_32_fnv1a_const("round_start"), _CallbackNames::kOnRoundStart},
+    {hash_32_fnv1a_const("round_end"), _CallbackNames::kOnRoundEnd},
 
 };
 auto CallBackNameToEnum(const char* name) -> _CallbackNames {
@@ -139,6 +141,39 @@ auto luaCall_onPlayerSpawn(int player) -> void {
                                  if (lua_isfunction(luaVm, -1)) {
                                      lua_pushinteger(luaVm, player);
                                      if (lua_pcall(luaVm, 1, 0, 0) != LUA_OK) {
+                                         LOG("Error calling Lua callback: %s\n",
+                                             lua_tostring(luaVm, -1));
+                                         lua_pop(luaVm, 1);
+                                     }
+                                 }
+                             });
+}
+auto luaCall_onRoundStart(int timeLimit) -> void {
+    ExcuteCallbackInAllLuaVm(_CallbackNames::kOnRoundStart,
+                             [&](lua_State* luaVm, int refIndex) -> void {
+                                 lua_rawgeti(luaVm, LUA_REGISTRYINDEX,
+                                             refIndex);
+                                 if (lua_isfunction(luaVm, -1)) {
+                                     lua_pushinteger(luaVm, timeLimit);
+                                     if (lua_pcall(luaVm, 1, 0, 0) != LUA_OK) {
+                                         LOG("Error calling Lua callback: %s\n",
+                                             lua_tostring(luaVm, -1));
+                                         lua_pop(luaVm, 1);
+                                     }
+                                 }
+                             });
+}
+auto luaCall_onRoundEnd(int winnerTeam, int reason, const char* message)
+    -> void {
+    ExcuteCallbackInAllLuaVm(_CallbackNames::kOnRoundEnd,
+                             [&](lua_State* luaVm, int refIndex) -> void {
+                                 lua_rawgeti(luaVm, LUA_REGISTRYINDEX,
+                                             refIndex);
+                                 if (lua_isfunction(luaVm, -1)) {
+                                     lua_pushinteger(luaVm, winnerTeam);
+                                     lua_pushinteger(luaVm, reason);
+                                     lua_pushstring(luaVm, message);
+                                     if (lua_pcall(luaVm, 3, 0, 0) != LUA_OK) {
                                          LOG("Error calling Lua callback: %s\n",
                                              lua_tostring(luaVm, -1));
                                          lua_pop(luaVm, 1);

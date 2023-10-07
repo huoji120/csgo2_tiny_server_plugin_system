@@ -30,6 +30,7 @@ ISource2Server* ISource2ServerInterFace;
 CLocalize* ILocalize;
 INetworkServerService* INetworkServerServiceInteFace;
 CCSGameRules* CCSGameRulesInterFace;
+ICvar* IVEngineCvar;
 };  // namespace InterFaces
 auto SafeDelayInit(void* ctx) -> void {
     // 需要游戏调用函数初始化
@@ -84,6 +85,9 @@ auto Init() -> bool {
     //     engine.FindInterface("GameEventSystemServerV001").Get());
     InterFaces::ILocalize = reinterpret_cast<CLocalize*>(
         localize.FindInterface("Localize_001").Get());
+    InterFaces::IVEngineCvar = reinterpret_cast<ICvar*>(
+        engine.FindInterface("VEngineCvar007").Get());
+
     InterFaces::GameResourceServiceServer =
         reinterpret_cast<CGameResourceService*>(
             engine.FindInterface("GameResourceServiceServerV001").Get());
@@ -96,6 +100,7 @@ auto Init() -> bool {
         server.FindInterface("Source2GameClients001").Get());
     InterFaces::ISource2ServerInterFace = reinterpret_cast<ISource2Server*>(
         server.FindInterface("Source2Server001").Get());
+
     if (InterFaces::ISource2ServerInterFace) {
         InterFaces::GameEventManager =
             (IGameEventManager2*)(CALL_VIRTUAL(
@@ -135,6 +140,8 @@ auto Init() -> bool {
         InterFaces::IVEngineServer);
     LOG("[huoji]InterFaces::ISource2ServerInterFace : %llx \n",
         InterFaces::ISource2ServerInterFace);
+    LOG("[huoji]InterFaces::IVEngineCvar : %llx \n",
+        InterFaces::IVEngineCvar);
     LOG("[huoji] CGameEntitySystem::GetInstance : %llx \n",
         CGameEntitySystem::GetInstance());
     LOG("init offset success !\n");

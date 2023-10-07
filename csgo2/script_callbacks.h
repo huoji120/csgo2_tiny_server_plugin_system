@@ -8,7 +8,9 @@ enum class _CallbackNames {
     kOnPlayerDisconnect,
     kOnPlayerDeath,
     kOnPlayerSpeak,
-    kOnPlayerSpawn
+    kOnPlayerSpawn,
+    kOnRoundStart,
+    kOnRoundEnd
 };
 extern std::unordered_map<lua_State*, std::unordered_map<_CallbackNames, int>>
     callbackList;
@@ -24,4 +26,7 @@ auto luaCall_onPlayerDeath(int victim, int killer, bool isHeadShot) -> void;
 auto luaCall_onPlayerSpeak(int speaker, int chatType, std::string message)
     -> bool;
 auto luaCall_onPlayerSpawn(int player) -> void;
+auto luaCall_onRoundStart(int timeLimit) -> void;
+auto luaCall_onRoundEnd(int winnerTeam, int reason, const char* message)
+    -> void;
 }  // namespace ScriptCallBacks

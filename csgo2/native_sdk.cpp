@@ -23,8 +23,15 @@ auto CSchemaSystem::FindTypeScopeForModule(const char* module)
 }
 
 auto CBaseEntity::IsBasePlayerController() -> bool {
-    return true;
-    //return CALL_VIRTUAL(bool, 146, this);
+    SchemaClassInfoData_t* pClassInfo = Schema_DynamicBinding();
+    if (!pClassInfo) return false;
+
+    const char* className = pClassInfo->GetName();
+    if (!className) return false;
+    static constexpr auto C_CCSPlayerController = hash_32_fnv1a_const("CCSPlayerController");
+    static constexpr auto C_CCSPlayerPawn = hash_32_fnv1a_const("CCSPlayerPawn");
+
+    return hash_32_fnv1a_const(className) == C_CCSPlayerController || hash_32_fnv1a_const(className) == C_CCSPlayerPawn;
 }
 auto CBaseEntity::SpawnClientEntity() -> void { CALL_VIRTUAL(void, 19, this); }
 auto CBasePlayer::ForceRespawn() -> void {

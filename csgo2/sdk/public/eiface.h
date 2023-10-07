@@ -127,7 +127,36 @@ inline CGlobalVars::CGlobalVars() :
 }
 class CSharedEdictChangeInfo;
 class IAchievementMgr;
-class CCommandContext;
+enum CommandTarget_t
+{
+	CT_NO_TARGET = -1,
+	CT_FIRST_SPLITSCREEN_CLIENT = 0,
+	CT_LAST_SPLITSCREEN_CLIENT = 3,
+};
+
+class CCommandContext
+{
+public:
+	CCommandContext(CommandTarget_t nTarget, CPlayerSlot nSlot) :
+		m_nTarget(nTarget), m_nPlayerSlot(nSlot)
+	{
+	}
+
+	CommandTarget_t GetTarget() const
+	{
+		return m_nTarget;
+	}
+
+	CPlayerSlot GetPlayerSlot() const
+	{
+		return m_nPlayerSlot;
+	}
+
+private:
+	CommandTarget_t m_nTarget;
+	CPlayerSlot m_nPlayerSlot;
+};
+
 class EconControlPointInfo_t;
 struct EconItemInfo_t {
 

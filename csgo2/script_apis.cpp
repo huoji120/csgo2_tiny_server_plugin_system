@@ -24,8 +24,8 @@ auto RunTickCallBack(_GameTickRunTime* timer) -> void {
     luaL_unref(timer->m_luaVm, LUA_REGISTRYINDEX, timer->m_iParamIndex);
 }
 auto TimerCallBack(_GameTimer* timer) -> void {
-    LOG("excute timer: %d %d m_bRepeat: %d\n", timer->m_iLuaCallBackFn,
-        timer->m_iParamIndex, timer->m_bRepeat);
+    // LOG("excute timer: %d %d m_bRepeat: %d\n", timer->m_iLuaCallBackFn,
+    //     timer->m_iParamIndex, timer->m_bRepeat);
     lua_rawgeti(timer->m_luaVm, LUA_REGISTRYINDEX, timer->m_iLuaCallBackFn);
     lua_rawgeti(timer->m_luaVm, LUA_REGISTRYINDEX, timer->m_iParamIndex);
     lua_pcall(timer->m_luaVm, 1, 0, 0);
@@ -231,7 +231,9 @@ auto luaApi_GetPlayerWeaponInfo(lua_State* luaVm) -> _luaApi_WeaponInfo {
                                             ? _luaApi_WeaponType::kGun
                                             : _luaApi_WeaponType::kOther));
             info.weaponIndex = weaponIndex;
-            //LOG("luaApi_GetPlayerWeaponInfo: %s %s %s %d \n", info.weaponName.c_str(), info.weaponBaseName.c_str(), checkWeaponName, weaponIndex);
+            // LOG("luaApi_GetPlayerWeaponInfo: %s %s %s %d \n",
+            // info.weaponName.c_str(), info.weaponBaseName.c_str(),
+            // checkWeaponName, weaponIndex);
         } while (false);
     });
     return info;
@@ -399,6 +401,9 @@ auto luaApi_GivePlayerWeapon(lua_State* luaVm) -> int {
     const auto weaponName = lua_tostring(luaVm, 2);
     auto isSuccess = false;
     ExcutePlayerAction(playerIndex, [&](CCSPlayerController* playerController) {
+        if (playerController->m_bPawnIsAlive() == false) {
+            return;
+        }
         isSuccess =
             GameWeapons::ParseWeaponCommand(playerController, weaponName);
     });
@@ -430,7 +435,8 @@ auto luApi_GetPlayerAllWeaponIndex(lua_State* luaVm) -> int {
                     continue;
                 }
                 const auto activeWeapon = handle->Get<CBasePlayerWeapon>();
-                const auto attributeManager = activeWeapon->m_AttributeManager();
+                const auto attributeManager =
+                    activeWeapon->m_AttributeManager();
                 if (activeWeapon == nullptr) {
                     break;
                 }
@@ -448,7 +454,8 @@ auto luApi_GetPlayerAllWeaponIndex(lua_State* luaVm) -> int {
                 if (checkWeaponName == nullptr || strlen(checkWeaponName) < 1) {
                     break;
                 }
-                //printf("weapon name: %s \n", itemStaticData->GetSimpleWeaponName());
+                // printf("weapon name: %s \n",
+                // itemStaticData->GetSimpleWeaponName());
                 const auto weaponIndex =
                     weapon->GetRefEHandle().GetEntryIndex();
 
