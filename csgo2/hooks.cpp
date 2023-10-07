@@ -12,6 +12,39 @@ OnClientDisconnect_t original_OnClientDisconnect = NULL;
 Host_Say_t original_Host_Say = NULL;
 StartupServer_t origin_StartServer = NULL;
 GameFrame_t origin_GameFrame = NULL;
+CCSWeaponBase_Spawn_t origin_CCSWeaponBase_Spawn = NULL;
+
+void __fastcall hook_CCSWeaponBase_Spawn(CBaseEntity* pThis, void* a2) {
+    const char* pszClassName = pThis->m_pEntity()->m_designerName;
+    LOG("Weapon spawn: %s\n", pszClassName);
+
+    origin_CCSWeaponBase_Spawn(pThis, a2);
+
+    do {
+        auto pWeapon = reinterpret_cast<CCSWeaponBase*>(pThis);
+        // Weapon could be already initialized with the correct data from
+        // GiveNamedItem, in that case we don't need to do anything
+        if (!pWeapon ||
+            pWeapon->m_AttributeManager()->m_Item()->m_bInitialized()) {
+            break;
+        }
+        if (GameWeapons::WeaponMap.find(pszClassName) ==
+            GameWeapons::WeaponMap.end()) {
+            break;
+        }
+        const auto [fullWeaponName, weaponiItemDefIndex] =
+            GameWeapons::WeaponMap.at(pszClassName);
+
+        LOG("Fixing a %s with index = %d and initialized = %d\n", pszClassName,
+            pWeapon->m_AttributeManager()->m_Item()->m_iItemDefinitionIndex(),
+            pWeapon->m_AttributeManager()->m_Item()->m_bInitialized());
+
+        pWeapon->m_AttributeManager()->m_Item()->m_bInitialized(true);
+        pWeapon->m_AttributeManager()->m_Item()->m_iItemDefinitionIndex(
+            weaponiItemDefIndex);
+    } while (false);
+}
+
 void __fastcall hook_GameFrame(void* rcx, bool simulating, bool bFirstTick,
                                bool bLastTick) {
     /**
@@ -178,6 +211,13 @@ auto initMinHook() -> bool {
                           reinterpret_cast<LPVOID*>(&original_Host_Say)) !=
             MH_OK) {
             LOG("MH_CreateHook original_Host_Say\n");
+            break;
+        }
+        if (MH_CreateHook((LPVOID)Offset::FnCCSWeaponBase_Spawn,
+                          &hook_CCSWeaponBase_Spawn,
+                          reinterpret_cast<LPVOID*>(
+                              &origin_CCSWeaponBase_Spawn)) != MH_OK) {
+            LOG("MH_CreateHook origin_CCSWeaponBase_Spawn\n");
             break;
         }
         // ÆôÓÃ¹³×Ó

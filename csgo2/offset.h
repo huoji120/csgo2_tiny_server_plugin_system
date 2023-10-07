@@ -5,6 +5,7 @@ class CEntityInstance;
 class CCSPlayerPawn;
 class CGameEntitySystem;
 class CCSPlayerController;
+class CBaseEntity;
 typedef uint64_t(__fastcall* HashFunction_t)(const char*, unsigned int,
                                              unsigned int);
 typedef void(__fastcall* StateChanged_t)(void* networkTransmitComponent,
@@ -24,6 +25,7 @@ typedef void*(__fastcall* UTIL_SayTextFilter_t)(IRecipientFilter&, const char*,
                                                 CCSPlayerController*, uint64_t);
 typedef void(__fastcall* UTIL_ClientPrintAll_t)(int msg_dest, const char* msg_name, const char* param1, const char* param2, const char* param3, const char* param4);
 typedef void(__fastcall* ClientPrint_t)(CCSPlayerController* player, int msg_dest, const char* msg_name, const char* param1, const char* param2, const char* param3, const char* param4);
+typedef void(__fastcall* CCSWeaponBase_Spawn_t)(CBaseEntity*, void*);
 
 class CSchemaSystem;
 class CGameResourceService;
@@ -91,6 +93,7 @@ static const auto pattern_UTIL_ClientPrintAll = THE_GAME_SIG(
     "48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 48 81 EC 70 01 ?? ?? 8B E9");
 static const auto pattern_FnClientPrint = THE_GAME_SIG(
     "48 85 C9 0F 84 ?? ?? ?? ?? 48 8B C4 48 89 58 18");
+static const auto pattern_CCSWeaponBase_Spawn = THE_GAME_SIG("48 89 5C 24 08 48 89 6C 24 18 48 89 74 24 20 57 48 83 EC 30 48 8B DA 48 8B E9 E8 ?? ?? ?? ??");
 extern uint64_t GameResourceServicePtr;
 extern uint64_t FireEventServerSidePtr;
 extern uint64_t Module_tier0;
@@ -105,6 +108,7 @@ extern EntityRemove_t FnEntityRemove;
 extern UTIL_SayTextFilter_t FnUTIL_SayTextFilter;
 extern UTIL_ClientPrintAll_t FnUTIL_ClientPrintAll;
 extern ClientPrint_t FnClientPrint;
+extern CCSWeaponBase_Spawn_t FnCCSWeaponBase_Spawn;
 extern bool InitOffsetSuccess;
 auto Init() -> bool;
 };  // namespace Offset

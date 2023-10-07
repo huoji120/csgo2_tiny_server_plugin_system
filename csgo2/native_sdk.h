@@ -205,14 +205,16 @@ class CUtlVector_NativeSdk {
 };
 
 class CBaseEntity;
+
+
 class CEntityIdentity {
    public:
     CBaseEntity* entity;  // 0
     void* dunno;          // 8
     int64_t unk0;         // 12
     int64_t unk1;         // 16
-    const char* internalName;
-    const char* entityName;
+    const char* m_name;
+    const char* m_designerName;
     void* unk2;
     void* unk3;
     void* unk4;
@@ -407,6 +409,8 @@ class CEconItemView {
     auto GetStaticData() {
         return CALL_VIRTUAL(CEconItemDefinition*, 13, this);
     }
+    SCHEMA_FIELD(uint16_t, m_iItemDefinitionIndex)
+    SCHEMA_FIELD(bool, m_bInitialized)
 };
 class CAttributeContainer {
    public:
@@ -421,6 +425,11 @@ class CEconEntity {
     PSCHEMA_FIELD(CAttributeContainer, m_AttributeManager);
 };
 
+class CCSWeaponBase : public CEconEntity
+{
+public:
+    DECLARE_CLASS(CCSWeaponBase)
+};
 class CBasePlayerWeapon : public CEconEntity {
    public:
     DECLARE_CLASS(CBasePlayerWeapon);

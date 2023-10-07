@@ -17,6 +17,7 @@ EntityRemove_t FnEntityRemove;
 UTIL_SayTextFilter_t FnUTIL_SayTextFilter;
 UTIL_ClientPrintAll_t FnUTIL_ClientPrintAll;
 ClientPrint_t FnClientPrint;
+CCSWeaponBase_Spawn_t FnCCSWeaponBase_Spawn;
 // CreateGameRuleInterFace_t FnCreateCCSGameRulesInterFace;
 bool InitOffsetSuccess = false;
 namespace InterFaces {
@@ -79,6 +80,8 @@ auto Init() -> bool {
     server.FindPattern(pattern_FnClientPrint).Get(FnClientPrint);
 
     server.FindPattern(pattern_FnUTIL_SayTextFilter).Get(FnUTIL_SayTextFilter);
+    server.FindPattern(pattern_CCSWeaponBase_Spawn).Get(FnCCSWeaponBase_Spawn);
+
     InterFaces::SchemaSystem = reinterpret_cast<CSchemaSystem*>(
         schemasystem.FindInterface("SchemaSystem_001").Get());
     // InterFaces::GameEventManager = reinterpret_cast<IGameEventManager2*>(
@@ -124,6 +127,7 @@ auto Init() -> bool {
     LOG("[huoji]FnGiveNamedItem : %llx \n", FnGiveNamedItem);
     LOG("[huoji]FnClientPrint : %llx \n", FnClientPrint);
     LOG("[huoji]FnUTIL_ClientPrintAll : %llx \n", FnUTIL_ClientPrintAll);
+    LOG("[huoji]FnCCSWeaponBase_Spawn : %llx \n", FnCCSWeaponBase_Spawn);
 
     LOG("[huoji]MaxGlobals : %d \n", global::MaxPlayers);
 
@@ -150,7 +154,7 @@ auto Init() -> bool {
                  0, NULL);
     //  LOG("FnServerHashFunction: %llx \n", FnServerHashFunction("here",
     //  sizeof("here") - 1, 0x31415926));
-    return FnEntityRemove && FnRespawnPlayer && FnGiveNamedItem &&
+    return FnCCSWeaponBase_Spawn && FnEntityRemove && FnRespawnPlayer && FnGiveNamedItem &&
            FnServerHashFunction && Host_SayPtr && InterFaces::IVEngineServer &&
            InterFaces::GameResourceServiceServer &&
            InterFaces::IServerGameClient && InterFaces::GameEventManager &&
