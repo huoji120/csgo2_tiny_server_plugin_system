@@ -13,7 +13,7 @@ std::unordered_map<uint32_t, _CallbackNames> callbackNameWithEnumMap{
     {hash_32_fnv1a_const("player_spawn"), _CallbackNames::kOnPlayerSpawn},
     {hash_32_fnv1a_const("round_start"), _CallbackNames::kOnRoundStart},
     {hash_32_fnv1a_const("round_end"), _CallbackNames::kOnRoundEnd},
-
+    {hash_32_fnv1a_const("player_hurt"), _CallbackNames::kOnPlayerHurt},
 };
 auto CallBackNameToEnum(const char* name) -> _CallbackNames {
     if (name == nullptr) {
@@ -174,6 +174,30 @@ auto luaCall_onRoundEnd(int winnerTeam, int reason, const char* message)
                                      lua_pushinteger(luaVm, reason);
                                      lua_pushstring(luaVm, message);
                                      if (lua_pcall(luaVm, 3, 0, 0) != LUA_OK) {
+                                         LOG("Error calling Lua callback: %s\n",
+                                             lua_tostring(luaVm, -1));
+                                         lua_pop(luaVm, 1);
+                                     }
+                                 }
+                             });
+}
+auto luaCall_onPlayerHurt(int userid, int attacker, int health, int armor,
+                          const char* weapon, int dmg_health, int dmg_armor,
+                          int hitgroup) -> void {
+    ExcuteCallbackInAllLuaVm(_CallbackNames::kOnPlayerHurt,
+                             [&](lua_State* luaVm, int refIndex) -> void {
+                                 lua_rawgeti(luaVm, LUA_REGISTRYINDEX,
+                                             refIndex);
+                                 if (lua_isfunction(luaVm, -1)) {
+                                     lua_pushinteger(luaVm, userid);
+                                     lua_pushinteger(luaVm, attacker);
+                                     lua_pushinteger(luaVm, health);
+                                     lua_pushinteger(luaVm, armor);
+                                     lua_pushstring(luaVm, weapon);
+                                     lua_pushinteger(luaVm, dmg_health);
+                                     lua_pushinteger(luaVm, dmg_armor);
+                                     lua_pushinteger(luaVm, hitgroup);
+                                     if (lua_pcall(luaVm, 8, 0, 0) != LUA_OK) {
                                          LOG("Error calling Lua callback: %s\n",
                                              lua_tostring(luaVm, -1));
                                          lua_pop(luaVm, 1);

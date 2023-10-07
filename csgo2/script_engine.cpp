@@ -47,7 +47,7 @@ auto initLuaScripts() -> void {
         ScriptApis::initFunciton(L);
 
         pluginEnvs[dirName] = L;
-        if (dirPath.starts_with("disable_")) {
+        if (dirPath.find("disable_") != std::string::npos) {
             continue;
         }
         std::string file = dirPath + "\\main.lua";

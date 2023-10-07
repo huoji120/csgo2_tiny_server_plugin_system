@@ -16,9 +16,12 @@ CCSWeaponBase_Spawn_t origin_CCSWeaponBase_Spawn = NULL;
 
 void __fastcall hook_CCSWeaponBase_Spawn(CBaseEntity* pThis, void* a2) {
     const char* pszClassName = pThis->m_pEntity()->m_designerName;
-    LOG("Weapon spawn: %s\n", pszClassName);
 
     origin_CCSWeaponBase_Spawn(pThis, a2);
+    if (pszClassName == nullptr) {
+        return;
+    }
+    LOG("Weapon spawn: %s\n", pszClassName);
 
     do {
         auto pWeapon = reinterpret_cast<CCSWeaponBase*>(pThis);
@@ -165,6 +168,7 @@ bool __fastcall hook_FireEventServerSide(CGameEventManager* rcx,
             hash_32_fnv1a_const("player_spawn");
         static constexpr auto round_start = hash_32_fnv1a_const("round_start");
         static constexpr auto round_end = hash_32_fnv1a_const("round_end");
+        static constexpr auto player_hurt = hash_32_fnv1a_const("player_hurt");
 
         switch (hash_32_fnv1a_const(eventName)) {
             case player_death:
@@ -178,6 +182,9 @@ bool __fastcall hook_FireEventServerSide(CGameEventManager* rcx,
                 break;
             case round_end:
                 events::OnRoundEndEvent(event);
+                break;
+            case player_hurt:
+                events::OnPlayerHurtEvent(event);
                 break;
                 // V社bug,这不会有用
                 /*

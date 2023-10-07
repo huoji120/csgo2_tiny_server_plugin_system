@@ -13,4 +13,5 @@ auto OnPlayerDisconnect(int slot, const char* pszName, uint64_t xuid,
 auto OnPlayerSpawnEvent(IGameEvent* event) -> void;
 auto OnRoundStartEvent(IGameEvent* event) -> void;
 auto OnRoundEndEvent(IGameEvent* event) -> void;
+auto OnPlayerHurtEvent(IGameEvent* event) -> void;
 }  // namespace events

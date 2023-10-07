@@ -149,7 +149,7 @@ auto luaApi_GetPlayerHealth(lua_State* luaVm) -> int {
     const auto playerIndex = lua_tointeger(luaVm, 1);
     int playerHealth = 0;
     ExcutePlayerAction(playerIndex, [&](CCSPlayerController* playerController) {
-        auto playerPawn = playerController->m_hPawn().Get<CCSPlayerPawn>();
+        auto playerPawn = playerController->m_hPawn().Get<CCSPlayerPawnBase>();
         playerHealth = playerPawn->m_iHealth();
     });
     lua_pop(luaVm, 1);
@@ -509,6 +509,31 @@ auto luaApi_MakePlayerWeaponDrop(lua_State* luaVm) -> int {
     lua_pushboolean(luaVm, isSuccess);
     return 1;
 }
+auto luaApi_MakePlayerCurrentWeaponDrop(lua_State* luaVm) -> int {
+    // param: playerIndex:int, itemClass:string
+    const auto playerIndex = lua_tointeger(luaVm, 1);
+    auto isSuccess = false;
+    ExcutePlayerAction(playerIndex, [&](CCSPlayerController* playerController) {
+        do {
+            const auto weaponServices = playerController->m_hPawn()
+                                            .Get<CCSPlayerPawn>()
+                                            ->m_pWeaponServices();
+            if (weaponServices == nullptr) {
+                break;
+            }
+            const auto activeWeapon =
+                weaponServices->m_hActiveWeapon().Get<CBasePlayerWeapon>();
+            if (activeWeapon == nullptr) {
+                return;
+            }
+            weaponServices->RemoveWeapon(activeWeapon);
+            isSuccess = true;
+        } while (false);
+    });
+    lua_pop(luaVm, 1);
+    lua_pushboolean(luaVm, isSuccess);
+    return 1;
+}
 auto luaApi_RemovePlayerWeapon(lua_State* luaVm) -> int {
     // param: playerIndex:int, itemClass:string
     const auto playerIndex = lua_tointeger(luaVm, 1);
@@ -577,6 +602,116 @@ auto luaApi_SentToAllPlayerChat(lua_State* luaVm) -> int {
     lua_pop(luaVm, 2);
     return 0;
 }
+auto luaApi_ChangePlayeriAccount(lua_State* luaVm) -> int {
+    // param: playerIndex:int, x:float, y:float, z:float
+    const auto playerIndex = lua_tointeger(luaVm, 1);
+    const auto number = lua_tonumber(luaVm, 2);
+    ExcutePlayerAction(playerIndex, [&](CCSPlayerController* playerController) {
+        playerController->m_pInGameMoneyServices()->m_iAccount(number);
+    });
+    lua_pop(luaVm, 2);
+    return 0;
+}
+auto luaApi_GetPlayeriAccount(lua_State* luaVm) -> int {
+    // param: playerIndex:int, x:float, y:float, z:float
+    const auto playerIndex = lua_tointeger(luaVm, 1);
+    auto number = 0;
+    ExcutePlayerAction(playerIndex, [&](CCSPlayerController* playerController) {
+        number = playerController->m_pInGameMoneyServices()->m_iAccount();
+    });
+    lua_pop(luaVm, 1);
+    lua_pushinteger(luaVm, number);
+    return 1;
+}
+auto luaApi_GetPlayerVecBaseVelocity(lua_State* luaVm) -> int {
+    // param: playerIndex:int, x:float, y:float, z:float
+    const auto playerIndex = lua_tointeger(luaVm, 1);
+    Vector number;
+    ExcutePlayerAction(playerIndex, [&](CCSPlayerController* playerController) {
+        number = playerController->m_hPawn()
+                     .Get<CCSPlayerPawnBase>()
+                     ->m_vecBaseVelocity();
+    });
+    lua_pop(luaVm, 1);
+    lua_pushnumber(luaVm, number.x);
+    lua_pushnumber(luaVm, number.y);
+    lua_pushnumber(luaVm, number.z);
+    return 3;
+}
+auto luaApi_ChangePlayerVecBaseVelocity(lua_State* luaVm) -> int {
+    // param: playerIndex:int, x:float, y:float, z:float
+    const auto playerIndex = lua_tointeger(luaVm, 1);
+    const auto x = lua_tonumber(luaVm, 2);
+    const auto y = lua_tonumber(luaVm, 3);
+    const auto z = lua_tonumber(luaVm, 4);
+    ExcutePlayerAction(playerIndex, [&](CCSPlayerController* playerController) {
+        playerController->m_hPawn().Get<CCSPlayerPawnBase>()->m_vecBaseVelocity(
+            Vector(x, y, z));
+    });
+    lua_pop(luaVm, 4);
+    return 0;
+}
+
+auto luaApi_SetPlayerGlowColor(lua_State* luaVm) -> int {
+    // param: playerIndex:int, r:float, g:float, b:float, a:float
+    const auto playerIndex = lua_tointeger(luaVm, 1);
+    const auto r = lua_tonumber(luaVm, 2);
+    const auto g = lua_tonumber(luaVm, 3);
+    const auto b = lua_tonumber(luaVm, 4);
+    ExcutePlayerAction(playerIndex, [&](CCSPlayerController* playerController) {
+        playerController->m_hPawn()
+            .Get<CBaseModelEntity>()
+            ->m_Glow()
+            .m_fGlowColor(Vector(r, g, b));
+        playerController->m_hPawn()
+            .Get<CBaseModelEntity>()
+            ->m_Glow()
+            .m_glowColorOverride(Color(r, g, b, 230));
+    });
+    lua_pop(luaVm, 4);
+    return 0;
+}
+auto luaApi_SetPlayerGlowEnable(lua_State* luaVm) -> int {
+    // param: playerIndex:int, isEnable:int
+    const auto playerIndex = lua_tointeger(luaVm, 1);
+    const auto isEnable = lua_toboolean(luaVm, 2);
+    ExcutePlayerAction(playerIndex, [&](CCSPlayerController* playerController) {
+        playerController->m_hPawn()
+            .Get<CBaseModelEntity>()
+            ->m_Glow()
+            .m_bGlowing(isEnable);
+        playerController->m_hPawn()
+            .Get<CBaseModelEntity>()
+            ->m_Glow()
+            .m_iGlowType(3);
+    });
+    lua_pop(luaVm, 2);
+    return 0;
+}
+auto luaApi_GetAllPlayerIndex(lua_State* luaVm) -> int {
+    // param: playerIndex:int, style:int
+    lua_newtable(luaVm);
+    CGameEntitySystem* EntitySystem = global::EntitySystem;
+    do {
+        if (EntitySystem == nullptr) {
+            break;
+        }
+        int index = 1;  // Lua tables start at index 1
+        for (size_t i = 0; i < global::MaxPlayers; i++) {
+            auto player = EntitySystem->GetBaseEntity(i);
+
+            if (player == nullptr) {
+                break;
+            }
+            if (player->IsBasePlayerController() == false) {
+                break;
+            }
+            lua_pushinteger(luaVm, player->GetRefEHandle().GetEntryIndex());
+            lua_rawseti(luaVm, -2, index++);
+        }
+    } while (false);
+    return 1;
+}
 auto initFunciton(lua_State* luaVm) -> void {
     lua_register(luaVm, "ListenToGameEvent", luaApi_ListenToGameEvent);
     lua_register(luaVm, "luaApi_SetPlayerCurrentWeaponAmmo",
@@ -602,9 +737,22 @@ auto initFunciton(lua_State* luaVm) -> void {
     lua_register(luaVm, "luaApi_RemovePlayerWeapon", luaApi_RemovePlayerWeapon);
     lua_register(luaVm, "luaApi_MakePlayerWeaponDrop",
                  luaApi_MakePlayerWeaponDrop);
+    lua_register(luaVm, "luaApi_MakePlayerCurrentWeaponDrop",
+                 luaApi_MakePlayerCurrentWeaponDrop);
     lua_register(luaVm, "luaApi_SendToPlayerChat", luaApi_SendToPlayerChat);
     lua_register(luaVm, "luaApi_SentToAllPlayerChat",
                  luaApi_SentToAllPlayerChat);
+    lua_register(luaVm, "luaApi_ChangePlayerVecBaseVelocity",
+                 luaApi_ChangePlayerVecBaseVelocity);
+    lua_register(luaVm, "luaApi_GetPlayerVecBaseVelocity",
+                 luaApi_GetPlayerVecBaseVelocity);
+    lua_register(luaVm, "luaApi_ChangePlayeriAccount",
+                 luaApi_ChangePlayeriAccount);
+    lua_register(luaVm, "luaApi_GetPlayeriAccount", luaApi_GetPlayeriAccount);
+    lua_register(luaVm, "luaApi_SetPlayerGlowEnable",
+                 luaApi_SetPlayerGlowEnable);
+    lua_register(luaVm, "luaApi_SetPlayerGlowColor", luaApi_SetPlayerGlowColor);
+    lua_register(luaVm, "luaApi_GetAllPlayerIndex", luaApi_GetAllPlayerIndex);
 
     luabridge::getGlobalNamespace(luaVm)
         .beginClass<_luaApi_WeaponInfo>("WeaponInfo")

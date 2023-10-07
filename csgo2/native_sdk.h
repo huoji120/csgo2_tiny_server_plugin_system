@@ -152,6 +152,7 @@ class SchemaClassInfoData_t {
 
         return m_schema_parent->m_class;
     }
+
    private:
     char pad_0x0000[0x8];  // 0x0000
 
@@ -205,7 +206,6 @@ class CUtlVector_NativeSdk {
 };
 
 class CBaseEntity;
-
 
 class CEntityIdentity {
    public:
@@ -332,6 +332,7 @@ class CBaseEntity : public CEntityInstance {
     SCHEMA_FIELD(int, m_iTeamNum)
     // SCHEMA_FIELD(Vector, m_vecBaseVelocity)
     SCHEMA_FIELD(CCollisionProperty*, m_pCollision)
+    SCHEMA_FIELD(Vector, m_vecBaseVelocity)
     auto IsBasePlayerController() -> bool;
     auto SpawnClientEntity() -> void;
 };
@@ -425,9 +426,8 @@ class CEconEntity {
     PSCHEMA_FIELD(CAttributeContainer, m_AttributeManager);
 };
 
-class CCSWeaponBase : public CEconEntity
-{
-public:
+class CCSWeaponBase : public CEconEntity {
+   public:
     DECLARE_CLASS(CCSWeaponBase)
 };
 class CBasePlayerWeapon : public CEconEntity {
@@ -461,7 +461,24 @@ class CPlayer_MovementServices {
    public:
     DECLARE_CLASS(CPlayer_MovementServices);
 };
+class CGlowProperty {
+   public:
+    DECLARE_SCHEMA_CLASS_INLINE(CGlowProperty)
 
+    SCHEMA_FIELD(Vector, m_fGlowColor)
+    SCHEMA_FIELD(int, m_iGlowType)
+    SCHEMA_FIELD(int, m_nGlowRange)
+    SCHEMA_FIELD(Color, m_glowColorOverride)
+    SCHEMA_FIELD(bool, m_bFlashing)
+    SCHEMA_FIELD(bool, m_bGlowing)
+};
+class CBaseModelEntity {
+   public:
+    DECLARE_CLASS(CBaseModelEntity);
+
+    SCHEMA_FIELD(CCollisionProperty, m_Collision)
+    SCHEMA_FIELD(CGlowProperty, m_Glow)
+};
 class CBasePlayerPawn : public CBaseEntity {
    public:
     DECLARE_CLASS(CBasePlayerPawn);
