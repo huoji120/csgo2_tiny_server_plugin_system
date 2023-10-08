@@ -36,9 +36,9 @@ class IGameEvent {
                          bool defaultValue = false) = 0;
     virtual int GetInt(UnkGameEventStruct_t* keyName = NULL,
                        int defaultValue = 0) = 0;
-    virtual uint64_t GetUint64(const char* keyName = NULL,
+    virtual uint64_t GetUint64(UnkGameEventStruct_t* keyName = NULL,
                                uint64_t defaultValue = 0) = 0;
-    virtual float GetFloat(const char* keyName = NULL,
+    virtual float GetFloat(UnkGameEventStruct_t* keyName = NULL,
                            float defaultValue = 0.0f) = 0;
     virtual const char* GetString(UnkGameEventStruct_t* keyName = NULL,
                                   const char* defaultValue = "") = 0;

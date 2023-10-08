@@ -660,7 +660,7 @@ auto luaApi_SetPlayerGlowColor(lua_State* luaVm) -> int {
     const auto b = lua_tonumber(luaVm, 4);
     ExcutePlayerAction(playerIndex, [&](CCSPlayerController* playerController) {
         playerController->m_hPawn()
-            .Get<CCSPlayerPawn>()
+            .Get<CBaseModelEntity>()
             ->m_Glow()
             .m_glowColorOverride(Color(r, g, b, 230));
     });
@@ -672,12 +672,22 @@ auto luaApi_SetPlayerGlowEnable(lua_State* luaVm) -> int {
     const auto playerIndex = lua_tointeger(luaVm, 1);
     const auto isEnable = lua_toboolean(luaVm, 2);
     ExcutePlayerAction(playerIndex, [&](CCSPlayerController* playerController) {
-        playerController->m_hPawn().Get<CCSPlayerPawn>()->m_Glow().m_bGlowing(
+        LOG("glow set %d to %d \n", playerController->m_hPawn().Get<CBaseModelEntity>()->m_Glow().m_bGlowing(), isEnable);
+        playerController->m_hPawn().Get<CBaseModelEntity>()->m_Glow().m_bGlowing(
             isEnable);
-        playerController->m_hPawn().Get<CCSPlayerPawn>()->m_Glow().m_iGlowType(
-            3);
+        playerController->m_hPawn().Get<CBaseModelEntity>()->m_Glow().m_iGlowType(3);
+        playerController->m_hPawn()
+            .Get<CBaseModelEntity>()
+            ->m_Glow()
+            .m_glowColorOverride(Color(201, 0, 118, 230));
     });
     lua_pop(luaVm, 2);
+    return 0;
+}
+auto luaApi_RunServerCommand(lua_State* luaVm) -> int {
+    const auto command = lua_tostring(luaVm, 1);
+    Offset::InterFaces::IVEngineServer->ServerCommand(command);
+    lua_pop(luaVm, 1);
     return 0;
 }
 auto luaApi_GetAllPlayerIndex(lua_State* luaVm) -> int {
@@ -693,10 +703,10 @@ auto luaApi_GetAllPlayerIndex(lua_State* luaVm) -> int {
             auto player = EntitySystem->GetBaseEntity(i);
 
             if (player == nullptr) {
-                break;
+                continue;
             }
             if (player->IsBasePlayerController() == false) {
-                break;
+                continue;
             }
             lua_pushinteger(luaVm, player->GetRefEHandle().GetEntryIndex());
             lua_rawseti(luaVm, -2, index++);
@@ -704,6 +714,7 @@ auto luaApi_GetAllPlayerIndex(lua_State* luaVm) -> int {
     } while (false);
     return 1;
 }
+
 auto initFunciton(lua_State* luaVm) -> void {
     lua_register(luaVm, "ListenToGameEvent", luaApi_ListenToGameEvent);
     lua_register(luaVm, "luaApi_SetPlayerCurrentWeaponAmmo",
@@ -745,6 +756,7 @@ auto initFunciton(lua_State* luaVm) -> void {
                  luaApi_SetPlayerGlowEnable);
     lua_register(luaVm, "luaApi_SetPlayerGlowColor", luaApi_SetPlayerGlowColor);
     lua_register(luaVm, "luaApi_GetAllPlayerIndex", luaApi_GetAllPlayerIndex);
+    lua_register(luaVm, "luaApi_RunServerCommand", luaApi_RunServerCommand);
 
     luabridge::getGlobalNamespace(luaVm)
         .beginClass<_luaApi_WeaponInfo>("WeaponInfo")

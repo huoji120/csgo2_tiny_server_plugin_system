@@ -85,7 +85,7 @@ extern auto SetStateChanged(Z_CBaseEntity* pEntity, int offset) -> void;
         static constexpr auto prop_hash = hash_32_fnv1a_const(#varName);       \
                                                                                \
         static const auto m_key =                                              \
-            schema::GetOffset(ThisClass, datatable_hash, #varName, prop_hash); \
+            schema::GetOffset(datatableName, datatable_hash, #varName, prop_hash); \
                                                                                \
         return *reinterpret_cast<std::add_pointer_t<type>>(                    \
             (uintptr_t)(this) + m_key.offset + extra_offset);                  \
@@ -96,7 +96,7 @@ extern auto SetStateChanged(Z_CBaseEntity* pEntity, int offset) -> void;
         static constexpr auto prop_hash = hash_32_fnv1a_const(#varName);       \
                                                                                \
         static const auto m_key =                                              \
-            schema::GetOffset(ThisClass, datatable_hash, #varName, prop_hash); \
+            schema::GetOffset(datatableName, datatable_hash, #varName, prop_hash); \
                                                                                \
         static const auto m_chain = schema::FindChainOffset(ThisClass);        \
                                                                                \
@@ -111,7 +111,7 @@ extern auto SetStateChanged(Z_CBaseEntity* pEntity, int offset) -> void;
                middle of a class will need to have their this pointer          \
                corrected by the offset .*/                                     \
             LOG("Attempting to call SetStateChanged on on %s::%s\n",           \
-                ThisClass, #varName);                                          \
+                datatableName, #varName);                                          \
             if (!OffsetIsStruct)                                               \
                 SetStateChanged((Z_CBaseEntity*)this,                          \
                                 m_key.offset + extra_offset);                  \
@@ -380,13 +380,7 @@ class CGlowProperty {
     SCHEMA_FIELD(bool, m_bFlashing)
     SCHEMA_FIELD(bool, m_bGlowing)
 };
-class CBaseModelEntity {
-   public:
-    DECLARE_CLASS(CBaseModelEntity);
 
-    SCHEMA_FIELD(CCollisionProperty, m_Collision)
-    SCHEMA_FIELD(CGlowProperty, m_Glow)
-};
 class CBaseEntity : public CEntityInstance {
    public:
     DECLARE_CLASS(CBaseEntity);
@@ -396,11 +390,17 @@ class CBaseEntity : public CEntityInstance {
     // SCHEMA_FIELD(Vector, m_vecBaseVelocity)
     SCHEMA_FIELD(CCollisionProperty*, m_pCollision)
     SCHEMA_FIELD(Vector, m_vecBaseVelocity)
-    SCHEMA_FIELD_EX(CGlowProperty, "CBaseModelEntity", m_Glow);
+    //SCHEMA_FIELD_EX(CGlowProperty, "CBaseModelEntity", m_Glow);
     auto IsBasePlayerController() -> bool;
     auto SpawnClientEntity() -> void;
 };
+class CBaseModelEntity : public CBaseEntity {
+public:
+    DECLARE_CLASS(CBaseModelEntity);
 
+    SCHEMA_FIELD(CCollisionProperty, m_Collision)
+    SCHEMA_FIELD(CGlowProperty, m_Glow)
+};
 class CBasePlayerController : public CBaseEntity {
    public:
     DECLARE_CLASS(CBasePlayerController);

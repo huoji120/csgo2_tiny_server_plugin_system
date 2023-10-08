@@ -9,7 +9,7 @@ auto OnPlayerHurtEvent(IGameEvent* event) -> void {
     */
     UnkGameEventStruct_t userIdNameParams{"userid"};
     UnkGameEventStruct_t attackerNameParams{"attacker"};
-    UnkGameEventStruct_t healthNameParams{"health"};
+    UnkGameEventStruct_t healthNameParams{0};
     UnkGameEventStruct_t armorNameParams{0};
     UnkGameEventStruct_t weaponNameParams{0};
     UnkGameEventStruct_t dmg_healthNameParams{0};
@@ -23,9 +23,9 @@ auto OnPlayerHurtEvent(IGameEvent* event) -> void {
     static const auto dmg_armorStr = "dmg_armor";
     static const auto hitgroupStr = "hitgroup";
 
-    // healthNameParams.m_Unk = Offset::FnServerHashFunction(
-    //     healthStr, sizeof healthStr, SERVER_HASH_FUCNTION_KEY);
-    // healthNameParams.m_Key = healthStr;
+    healthNameParams.m_Unk = Offset::FnServerHashFunction(
+        healthStr, sizeof healthStr, SERVER_HASH_FUCNTION_KEY);
+    healthNameParams.m_Key = healthStr;
 
     armorNameParams.m_Unk = Offset::FnServerHashFunction(
         armorStr, sizeof armorStr, SERVER_HASH_FUCNTION_KEY);
