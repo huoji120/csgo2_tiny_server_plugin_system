@@ -1,4 +1,4 @@
-### about this projecy
+### about this project
 name: "cs2 server plugin system"  
 author: "huoji"  
 description: "a server plugin system for cs2 server,power by lua"  
