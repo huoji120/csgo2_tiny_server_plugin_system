@@ -46,4 +46,4 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: csgo2.dll
-        path: ./x64/Release/
+        path: D:/a/csgo2_tiny_server_plugin_system/csgo2_tiny_server_plugin_system/Release/
