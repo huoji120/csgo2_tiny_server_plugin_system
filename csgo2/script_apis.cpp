@@ -111,6 +111,7 @@ auto luaApi_SetPlayerCurrentWeaponAmmo(lua_State* luaVm) -> int {
     lua_pop(luaVm, 3);
     return 0;
 }
+//
 auto luaApi_RespawnPlayer(lua_State* luaVm) -> int {
     const auto playerIndex = lua_tointeger(luaVm, 1);
     int playerArmorValue = 0;
@@ -120,7 +121,20 @@ auto luaApi_RespawnPlayer(lua_State* luaVm) -> int {
         if (playerPawn == nullptr) {
             return;
         }
-        Offset::FnRespawnPlayer(playerPawn);
+        Offset::InterFaces::CCSGameRulesInterFace->PlayerRespawn(playerPawn);
+        });
+    return 0;
+}
+auto luaApi_RespawnPlayerInDeathMatch(lua_State* luaVm) -> int {
+    const auto playerIndex = lua_tointeger(luaVm, 1);
+    int playerArmorValue = 0;
+    ExcutePlayerAction(playerIndex, [&](CCSPlayerController* playerController) {
+        const auto playerPawn =
+            playerController->m_hPawn().Get<CCSPlayerPawn>();
+        if (playerPawn == nullptr) {
+            return;
+        }
+        Offset::FnRespawnPlayerInDeathMatch(playerPawn);
     });
     return 0;
 }
@@ -753,6 +767,7 @@ auto initFunciton(lua_State* luaVm) -> void {
     lua_register(luaVm, "luaApi_SetPlayerArmorValue",
                  luaApi_SetPlayerArmorValue);
     lua_register(luaVm, "luaApi_RespawnPlayer", luaApi_RespawnPlayer);
+    lua_register(luaVm, "luaApi_RespawnPlayerInDeathMatch", luaApi_RespawnPlayerInDeathMatch);
     lua_register(luaVm, "luaApi_CreateTimer", luaApi_CreateTimer);
     lua_register(luaVm, "luaApi_CreateTickRunFunction",
                  luaApi_CreateTickRunFunction);

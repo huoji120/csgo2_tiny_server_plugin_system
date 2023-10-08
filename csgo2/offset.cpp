@@ -11,7 +11,7 @@ uint64_t MaxPlayerNumsPtr;
 HashFunction_t FnServerHashFunction;
 StateChanged_t FnStateChanged;
 NetworkStateChanged_t FnNetworkStateChanged;
-RespawnPlayer_t FnRespawnPlayer;
+RespawnPlayerInDeathMatch_t FnRespawnPlayerInDeathMatch;
 GiveNamedItem_t FnGiveNamedItem;
 EntityRemove_t FnEntityRemove;
 UTIL_SayTextFilter_t FnUTIL_SayTextFilter;
@@ -71,7 +71,7 @@ auto Init() -> bool {
     server.FindPattern(pattern_CreateCCSGameRulesInterFacePtr)
         .ToAbsolute(3, 0)
         .Get(CCSGameRulesInterFacePtr);
-    server.FindPattern(pattern_FnRespawnPlayer).Get(FnRespawnPlayer);
+    server.FindPattern(pattern_FnRespawnPlayerInDeathMatch).Get(FnRespawnPlayerInDeathMatch);
     server.FindPattern(pattern_FnEntityRemove).Get(FnEntityRemove);
     server.FindPattern(pattern_FnGiveNamedItemPtr).Get(FnGiveNamedItem);
     server.FindPattern(pattern_fnHost_SayPtr).Get(Host_SayPtr);
@@ -123,7 +123,7 @@ auto Init() -> bool {
     LOG("[huoji]FnNetworkStateChanged : %llx \n", FnNetworkStateChanged);
     LOG("[huoji]FnServerHashFunction : %llx \n", FnServerHashFunction);
     LOG("[huoji]FnStateChanged : %llx \n", FnStateChanged);
-    LOG("[huoji]FnRespawnPlayer : %llx \n", FnRespawnPlayer);
+    LOG("[huoji]FnRespawnPlayerInDeathMatch : %llx \n", FnRespawnPlayerInDeathMatch);
     LOG("[huoji]FnGiveNamedItem : %llx \n", FnGiveNamedItem);
     LOG("[huoji]FnClientPrint : %llx \n", FnClientPrint);
     LOG("[huoji]FnUTIL_ClientPrintAll : %llx \n", FnUTIL_ClientPrintAll);
@@ -154,7 +154,7 @@ auto Init() -> bool {
                  0, NULL);
     //  LOG("FnServerHashFunction: %llx \n", FnServerHashFunction("here",
     //  sizeof("here") - 1, 0x31415926));
-    return FnCCSWeaponBase_Spawn && FnEntityRemove && FnRespawnPlayer && FnGiveNamedItem &&
+    return FnCCSWeaponBase_Spawn && FnEntityRemove && FnRespawnPlayerInDeathMatch && FnGiveNamedItem &&
            FnServerHashFunction && Host_SayPtr && InterFaces::IVEngineServer &&
            InterFaces::GameResourceServiceServer &&
            InterFaces::IServerGameClient && InterFaces::GameEventManager &&

@@ -10,6 +10,7 @@
 #include <document.h>
 struct _Config
 {
+    std::string dll;
     std::string path;
     std::string command;
 };
@@ -32,9 +33,10 @@ namespace Config {
         for (rapidjson::SizeType i = 0; i < servers.Size(); i++) { // Uses SizeType instead of size_t
             const rapidjson::Value& server = servers[i];
             assert(server.IsObject()); // Each server should be an object.
-            if (server.HasMember("path") && server["path"].IsString() && server.HasMember("command") && server["command"].IsString())
+            if (server.HasMember("path") && server["path"].IsString() && server.HasMember("command") && server["command"].IsString() && server.HasMember("dll") && server["dll"].IsString())
             {
                 configs.push_back(_Config{
+                    .dll = server["dll"].GetString(),
                     .path = server["path"].GetString(),
                     .command = server["command"].GetString()
                 });
