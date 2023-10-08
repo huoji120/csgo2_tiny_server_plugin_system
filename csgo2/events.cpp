@@ -7,9 +7,9 @@ auto OnPlayerHurtEvent(IGameEvent* event) -> void {
                           const char* weapon, int dmg_health, int dmg_armor,
                           int hitgroup) -> void
     */
-    UnkGameEventStruct_t userIdNameParams{ "userid" };
-    UnkGameEventStruct_t attackerNameParams{ "attacker" };
-    UnkGameEventStruct_t healthNameParams{0};
+    UnkGameEventStruct_t userIdNameParams{"userid"};
+    UnkGameEventStruct_t attackerNameParams{"attacker"};
+    UnkGameEventStruct_t healthNameParams{"health"};
     UnkGameEventStruct_t armorNameParams{0};
     UnkGameEventStruct_t weaponNameParams{0};
     UnkGameEventStruct_t dmg_healthNameParams{0};
@@ -23,10 +23,9 @@ auto OnPlayerHurtEvent(IGameEvent* event) -> void {
     static const auto dmg_armorStr = "dmg_armor";
     static const auto hitgroupStr = "hitgroup";
 
-   
-    healthNameParams.m_Unk = Offset::FnServerHashFunction(
-        healthStr, sizeof healthStr, SERVER_HASH_FUCNTION_KEY);
-    healthNameParams.m_Key = healthStr;
+    // healthNameParams.m_Unk = Offset::FnServerHashFunction(
+    //     healthStr, sizeof healthStr, SERVER_HASH_FUCNTION_KEY);
+    // healthNameParams.m_Key = healthStr;
 
     armorNameParams.m_Unk = Offset::FnServerHashFunction(
         armorStr, sizeof armorStr, SERVER_HASH_FUCNTION_KEY);
@@ -74,8 +73,8 @@ auto OnPlayerHurtEvent(IGameEvent* event) -> void {
     auto dmg_health = event->GetInt(&dmg_healthNameParams);
     auto dmg_armor = event->GetInt(&dmg_armorNameParams);
     auto hitgroup = event->GetInt(&hitgroupNameParams);
-    ScriptCallBacks::luaCall_onPlayerHurt(victimIndex, attackerIndex, health, armor,
-                                          weapon, dmg_health, dmg_armor,
+    ScriptCallBacks::luaCall_onPlayerHurt(victimIndex, attackerIndex, health,
+                                          armor, weapon, dmg_health, dmg_armor,
                                           hitgroup);
 }
 auto OnRoundEndEvent(IGameEvent* event) -> void {
