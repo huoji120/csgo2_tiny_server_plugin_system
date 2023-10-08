@@ -369,7 +369,24 @@ class CEntityInstance {
     SCHEMA_FIELD(CEntityIdentity*, m_pEntity);
     SCHEMA_FIELD(const char*, m_designerName);
 };
-class CGlowProperty;
+class CGlowProperty {
+   public:
+    DECLARE_SCHEMA_CLASS_INLINE(CGlowProperty)
+
+    SCHEMA_FIELD(Vector, m_fGlowColor)
+    SCHEMA_FIELD(int, m_iGlowType)
+    SCHEMA_FIELD(int, m_nGlowRange)
+    SCHEMA_FIELD(Color, m_glowColorOverride)
+    SCHEMA_FIELD(bool, m_bFlashing)
+    SCHEMA_FIELD(bool, m_bGlowing)
+};
+class CBaseModelEntity {
+   public:
+    DECLARE_CLASS(CBaseModelEntity);
+
+    SCHEMA_FIELD(CCollisionProperty, m_Collision)
+    SCHEMA_FIELD(CGlowProperty, m_Glow)
+};
 class CBaseEntity : public CEntityInstance {
    public:
     DECLARE_CLASS(CBaseEntity);
@@ -508,24 +525,7 @@ class CPlayer_MovementServices {
    public:
     DECLARE_CLASS(CPlayer_MovementServices);
 };
-class CGlowProperty {
-   public:
-    DECLARE_SCHEMA_CLASS_INLINE(CGlowProperty)
 
-    SCHEMA_FIELD(Vector, m_fGlowColor)
-    SCHEMA_FIELD(int, m_iGlowType)
-    SCHEMA_FIELD(int, m_nGlowRange)
-    SCHEMA_FIELD(Color, m_glowColorOverride)
-    SCHEMA_FIELD(bool, m_bFlashing)
-    SCHEMA_FIELD(bool, m_bGlowing)
-};
-class CBaseModelEntity {
-   public:
-    DECLARE_CLASS(CBaseModelEntity);
-
-    SCHEMA_FIELD(CCollisionProperty, m_Collision)
-    SCHEMA_FIELD(CGlowProperty, m_Glow)
-};
 class CBasePlayerPawn : public CBaseEntity {
    public:
     DECLARE_CLASS(CBasePlayerPawn);
