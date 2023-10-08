@@ -660,11 +660,7 @@ auto luaApi_SetPlayerGlowColor(lua_State* luaVm) -> int {
     const auto b = lua_tonumber(luaVm, 4);
     ExcutePlayerAction(playerIndex, [&](CCSPlayerController* playerController) {
         playerController->m_hPawn()
-            .Get<CBaseModelEntity>()
-            ->m_Glow()
-            .m_fGlowColor(Vector(r, g, b));
-        playerController->m_hPawn()
-            .Get<CBaseModelEntity>()
+            .Get<CCSPlayerPawn>()
             ->m_Glow()
             .m_glowColorOverride(Color(r, g, b, 230));
     });
@@ -676,14 +672,10 @@ auto luaApi_SetPlayerGlowEnable(lua_State* luaVm) -> int {
     const auto playerIndex = lua_tointeger(luaVm, 1);
     const auto isEnable = lua_toboolean(luaVm, 2);
     ExcutePlayerAction(playerIndex, [&](CCSPlayerController* playerController) {
-        playerController->m_hPawn()
-            .Get<CBaseModelEntity>()
-            ->m_Glow()
-            .m_bGlowing(isEnable);
-        playerController->m_hPawn()
-            .Get<CBaseModelEntity>()
-            ->m_Glow()
-            .m_iGlowType(3);
+        playerController->m_hPawn().Get<CCSPlayerPawn>()->m_Glow().m_bGlowing(
+            isEnable);
+        playerController->m_hPawn().Get<CCSPlayerPawn>()->m_Glow().m_iGlowType(
+            3);
     });
     lua_pop(luaVm, 2);
     return 0;

@@ -78,7 +78,53 @@ extern auto SetStateChanged(Z_CBaseEntity* pEntity, int offset) -> void;
             (uintptr_t)(this) + m_key.offset + extra_offset) = val;            \
     }
 
+#define SCHEMA_FIELD_OFFSET_EX(type, datatableName, varName, extra_offset)     \
+    std::add_lvalue_reference_t<type> varName() {                              \
+        static constexpr auto datatable_hash =                                 \
+            hash_32_fnv1a_const(datatableName);                                \
+        static constexpr auto prop_hash = hash_32_fnv1a_const(#varName);       \
+                                                                               \
+        static const auto m_key =                                              \
+            schema::GetOffset(ThisClass, datatable_hash, #varName, prop_hash); \
+                                                                               \
+        return *reinterpret_cast<std::add_pointer_t<type>>(                    \
+            (uintptr_t)(this) + m_key.offset + extra_offset);                  \
+    }                                                                          \
+    void varName(type val) {                                                   \
+        static constexpr auto datatable_hash =                                 \
+            hash_32_fnv1a_const(datatableName);                                \
+        static constexpr auto prop_hash = hash_32_fnv1a_const(#varName);       \
+                                                                               \
+        static const auto m_key =                                              \
+            schema::GetOffset(ThisClass, datatable_hash, #varName, prop_hash); \
+                                                                               \
+        static const auto m_chain = schema::FindChainOffset(ThisClass);        \
+                                                                               \
+        if (m_chain != 0 && m_key.networked) {                                 \
+            LOG("Found chain offset %d for %s::%s\n", m_chain, ThisClass,      \
+                #varName);                                                     \
+            Offset::FnNetworkStateChanged((uintptr_t)(this) + m_chain,         \
+                                          m_key.offset + extra_offset,         \
+                                          0xFFFFFFFF);                         \
+        } else if (m_key.networked) {                                          \
+            /* WIP: Works fine for most props, but inlined classes in the      \
+               middle of a class will need to have their this pointer          \
+               corrected by the offset .*/                                     \
+            LOG("Attempting to call SetStateChanged on on %s::%s\n",           \
+                ThisClass, #varName);                                          \
+            if (!OffsetIsStruct)                                               \
+                SetStateChanged((Z_CBaseEntity*)this,                          \
+                                m_key.offset + extra_offset);                  \
+            else                                                               \
+                CALL_VIRTUAL(void, 1, this, m_key.offset + extra_offset,       \
+                             0xFFFFFFFF, 0xFFFF);                              \
+        }                                                                      \
+        *reinterpret_cast<std::add_pointer_t<type>>(                           \
+            (uintptr_t)(this) + m_key.offset + extra_offset) = val;            \
+    }
 #define SCHEMA_FIELD(type, varName) SCHEMA_FIELD_OFFSET(type, varName, 0)
+#define SCHEMA_FIELD_EX(type, dataTableName, varName) \
+    SCHEMA_FIELD_OFFSET_EX(type, dataTableName, varName, 0)
 
 #define PSCHEMA_FIELD_OFFSET(type, varName, extra_offset)                      \
     auto varName() {                                                           \
@@ -323,7 +369,7 @@ class CEntityInstance {
     SCHEMA_FIELD(CEntityIdentity*, m_pEntity);
     SCHEMA_FIELD(const char*, m_designerName);
 };
-
+class CGlowProperty;
 class CBaseEntity : public CEntityInstance {
    public:
     DECLARE_CLASS(CBaseEntity);
@@ -333,6 +379,7 @@ class CBaseEntity : public CEntityInstance {
     // SCHEMA_FIELD(Vector, m_vecBaseVelocity)
     SCHEMA_FIELD(CCollisionProperty*, m_pCollision)
     SCHEMA_FIELD(Vector, m_vecBaseVelocity)
+    SCHEMA_FIELD_EX(CGlowProperty, "CBaseModelEntity", m_Glow);
     auto IsBasePlayerController() -> bool;
     auto SpawnClientEntity() -> void;
 };
