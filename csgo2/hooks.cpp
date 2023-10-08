@@ -258,6 +258,9 @@ auto initVmtHook() -> bool {
     return original_OnClientConnected && original_OnClientDisconnect &&
            origin_StartServer && origin_GameFrame;
 }
+auto initConVarHooks() -> void {
+   // Offset::InterFaces::IVEngineCvar->RegisterConVar
+}
 auto init() -> bool {
     bool isSuccess = initMinHook() && initVmtHook();
     // bool isSuccess = initVmtHook();

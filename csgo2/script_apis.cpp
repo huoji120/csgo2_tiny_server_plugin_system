@@ -672,10 +672,20 @@ auto luaApi_SetPlayerGlowEnable(lua_State* luaVm) -> int {
     const auto playerIndex = lua_tointeger(luaVm, 1);
     const auto isEnable = lua_toboolean(luaVm, 2);
     ExcutePlayerAction(playerIndex, [&](CCSPlayerController* playerController) {
-        LOG("glow set %d to %d \n", playerController->m_hPawn().Get<CBaseModelEntity>()->m_Glow().m_bGlowing(), isEnable);
-        playerController->m_hPawn().Get<CBaseModelEntity>()->m_Glow().m_bGlowing(
+        LOG("glow set %d to %d \n",
+            playerController->m_hPawn()
+                .Get<CBaseModelEntity>()
+                ->m_Glow()
+                .m_bGlowing(),
             isEnable);
-        playerController->m_hPawn().Get<CBaseModelEntity>()->m_Glow().m_iGlowType(3);
+        playerController->m_hPawn()
+            .Get<CBaseModelEntity>()
+            ->m_Glow()
+            .m_bGlowing(isEnable);
+        playerController->m_hPawn()
+            .Get<CBaseModelEntity>()
+            ->m_Glow()
+            .m_iGlowType(3);
         playerController->m_hPawn()
             .Get<CBaseModelEntity>()
             ->m_Glow()
@@ -688,6 +698,23 @@ auto luaApi_RunServerCommand(lua_State* luaVm) -> int {
     const auto command = lua_tostring(luaVm, 1);
     Offset::InterFaces::IVEngineServer->ServerCommand(command);
     lua_pop(luaVm, 1);
+    return 0;
+}
+auto luaApi_KickPlayer(lua_State* luaVm) -> int {
+    const auto playerIndex = lua_tointeger(luaVm, 1);
+    const auto reason = lua_tostring(luaVm, 2);
+    ExcutePlayerAction(playerIndex, [&](CCSPlayerController* playerController) {
+        auto playerSlot = EntityIndex_to_PlayerSlot(playerIndex);
+        if (playerSlot == -1) {
+            return;
+        }
+        const auto theReason =
+            "You have kicked by server , reason: " + std::string(reason);
+        Offset::InterFaces::IVEngineServer->DisconnectClient(playerSlot, 39);
+        SdkTools::SentChatToClient(playerController, _HubType::kTalk,
+                                   theReason.c_str());
+    });
+    lua_pop(luaVm, 2);
     return 0;
 }
 auto luaApi_GetAllPlayerIndex(lua_State* luaVm) -> int {
@@ -757,6 +784,7 @@ auto initFunciton(lua_State* luaVm) -> void {
     lua_register(luaVm, "luaApi_SetPlayerGlowColor", luaApi_SetPlayerGlowColor);
     lua_register(luaVm, "luaApi_GetAllPlayerIndex", luaApi_GetAllPlayerIndex);
     lua_register(luaVm, "luaApi_RunServerCommand", luaApi_RunServerCommand);
+    lua_register(luaVm, "luaApi_KickPlayer", luaApi_KickPlayer);
 
     luabridge::getGlobalNamespace(luaVm)
         .beginClass<_luaApi_WeaponInfo>("WeaponInfo")
