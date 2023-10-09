@@ -171,8 +171,7 @@
     <ClInclude Include="head.h" />
     <ClInclude Include="hooks.h" />
     <ClInclude Include="interface.h" />
-    <ClInclude Include="lua-cjson\fpconv.h" />
-    <ClInclude Include="lua-cjson\strbuf.h" />
+    <ClInclude Include="luaCjson\strbuf.h" />
     <ClInclude Include="lua\lapi.h" />
     <ClInclude Include="lua\lauxlib.h" />
     <ClInclude Include="lua\lcode.h" />
@@ -264,9 +263,9 @@
     <ClCompile Include="global.cpp" />
     <ClCompile Include="hooks.cpp" />
     <ClCompile Include="interface.cpp" />
-    <ClCompile Include="lua-cjson\fpconv.c" />
-    <ClCompile Include="lua-cjson\lua_cjson.c" />
-    <ClCompile Include="lua-cjson\strbuf.c" />
+    <ClCompile Include="luaCjson\fpconv.c" />
+    <ClCompile Include="luaCjson\lua_cjson.c" />
+    <ClCompile Include="luaCjson\strbuf.c" />
     <ClCompile Include="lua\lapi.c" />
     <ClCompile Include="lua\lauxlib.c" />
     <ClCompile Include="lua\lbaselib.c" />

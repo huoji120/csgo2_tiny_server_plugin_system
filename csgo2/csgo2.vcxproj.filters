@@ -363,14 +363,11 @@
     <ClInclude Include="sdk\public\Vector_Sdk.h">
       <Filter>头文件\sdk\public</Filter>
     </ClInclude>
-    <ClInclude Include="lua-cjson\strbuf.h">
-      <Filter>源文件\script_engine\lua_cjson</Filter>
-    </ClInclude>
-    <ClInclude Include="lua-cjson\fpconv.h">
-      <Filter>源文件\script_engine\lua_cjson</Filter>
-    </ClInclude>
     <ClInclude Include="Server.h">
       <Filter>头文件\http</Filter>
+    </ClInclude>
+    <ClInclude Include="luaCjson\strbuf.h">
+      <Filter>源文件\script_engine\lua_cjson</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -554,17 +551,17 @@
     <ClCompile Include="version_hijack.cpp">
       <Filter>源文件\hijack</Filter>
     </ClCompile>
-    <ClCompile Include="lua-cjson\lua_cjson.c">
-      <Filter>源文件\script_engine\lua_cjson</Filter>
-    </ClCompile>
-    <ClCompile Include="lua-cjson\strbuf.c">
-      <Filter>源文件\script_engine\lua_cjson</Filter>
-    </ClCompile>
-    <ClCompile Include="lua-cjson\fpconv.c">
-      <Filter>源文件\script_engine\lua_cjson</Filter>
-    </ClCompile>
     <ClCompile Include="Server.cpp">
       <Filter>源文件\http</Filter>
+    </ClCompile>
+    <ClCompile Include="luaCjson\lua_cjson.c">
+      <Filter>源文件\script_engine\lua_cjson</Filter>
+    </ClCompile>
+    <ClCompile Include="luaCjson\strbuf.c">
+      <Filter>源文件\script_engine\lua_cjson</Filter>
+    </ClCompile>
+    <ClCompile Include="luaCjson\fpconv.c">
+      <Filter>源文件\script_engine\lua_cjson</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
