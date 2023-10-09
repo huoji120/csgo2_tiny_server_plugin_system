@@ -172,7 +172,6 @@
     <ClInclude Include="hooks.h" />
     <ClInclude Include="interface.h" />
     <ClInclude Include="lua-cjson\fpconv.h" />
-    <ClInclude Include="lua-cjson\lua_cjson.h" />
     <ClInclude Include="lua-cjson\strbuf.h" />
     <ClInclude Include="lua\lapi.h" />
     <ClInclude Include="lua\lauxlib.h" />

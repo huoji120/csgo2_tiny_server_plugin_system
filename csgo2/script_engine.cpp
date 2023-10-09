@@ -1,4 +1,6 @@
 #include "script_engine.h"
+extern "C" int luaopen_cjson(lua_State * L);
+
 namespace ScriptEngine {
 std::string luaPath;
 std::map<std::string, lua_State*> pluginEnvs;

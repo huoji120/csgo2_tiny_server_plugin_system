@@ -363,9 +363,6 @@
     <ClInclude Include="sdk\public\Vector_Sdk.h">
       <Filter>头文件\sdk\public</Filter>
     </ClInclude>
-    <ClInclude Include="lua-cjson\lua_cjson.h">
-      <Filter>源文件\script_engine\lua_cjson</Filter>
-    </ClInclude>
     <ClInclude Include="lua-cjson\strbuf.h">
       <Filter>源文件\script_engine\lua_cjson</Filter>
     </ClInclude>
