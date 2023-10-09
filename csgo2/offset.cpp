@@ -54,6 +54,7 @@ auto Init() -> bool {
     CModule schemasystem("schemasystem.dll");
     CModule engine("engine2.dll");
     CModule localize("localize.dll");
+    CModule tier0("tier0.dll");
 
     // engine.dll
     engine.FindPattern(pattern_MaxPlayerNumsPtr)
@@ -89,7 +90,7 @@ auto Init() -> bool {
     InterFaces::ILocalize = reinterpret_cast<CLocalize*>(
         localize.FindInterface("Localize_001").Get());
     InterFaces::IVEngineCvar = reinterpret_cast<ICvar*>(
-        engine.FindInterface("VEngineCvar007").Get());
+        tier0.FindInterface("VEngineCvar007").Get());
 
     InterFaces::GameResourceServiceServer =
         reinterpret_cast<CGameResourceService*>(
