@@ -122,7 +122,7 @@ auto luaApi_RespawnPlayer(lua_State* luaVm) -> int {
             return;
         }
         Offset::InterFaces::CCSGameRulesInterFace->PlayerRespawn(playerPawn);
-        });
+    });
     return 0;
 }
 auto luaApi_RespawnPlayerInDeathMatch(lua_State* luaVm) -> int {
@@ -755,7 +755,31 @@ auto luaApi_GetAllPlayerIndex(lua_State* luaVm) -> int {
     } while (false);
     return 1;
 }
-
+auto luaApi_HttpGet(lua_State* luaVm) -> int {
+    // param: url:string header:string timeOut:int
+    const auto url = lua_tostring(luaVm, 1);
+    const auto header = lua_tostring(luaVm, 2);
+    const auto timeOut = lua_tointeger(luaVm, 3);
+    auto strHeader = std::string(header);
+    std::string response;
+    auto result = Server::HttpGet(url, strHeader, response, timeOut);
+    lua_pushinteger(luaVm, result);
+    lua_pushstring(luaVm, response.c_str());
+    return 2;
+}
+auto luaApi_HttpPost(lua_State* luaVm) -> int {
+    // param: url:string header:string postdata:string timeOut:int
+    const auto url = lua_tostring(luaVm, 1);
+    const auto header = lua_tostring(luaVm, 2);
+    const auto postdata = lua_tostring(luaVm, 3);
+    const auto timeOut = lua_tointeger(luaVm, 4);
+    auto strHeader = std::string(header);
+    std::string response;
+    auto result = Server::HttpPost(url, strHeader, postdata, response, timeOut);
+    lua_pushinteger(luaVm, result);
+    lua_pushstring(luaVm, response.c_str());
+    return 2;
+}
 auto initFunciton(lua_State* luaVm) -> void {
     lua_register(luaVm, "ListenToGameEvent", luaApi_ListenToGameEvent);
     lua_register(luaVm, "luaApi_SetPlayerCurrentWeaponAmmo",
@@ -767,7 +791,8 @@ auto initFunciton(lua_State* luaVm) -> void {
     lua_register(luaVm, "luaApi_SetPlayerArmorValue",
                  luaApi_SetPlayerArmorValue);
     lua_register(luaVm, "luaApi_RespawnPlayer", luaApi_RespawnPlayer);
-    lua_register(luaVm, "luaApi_RespawnPlayerInDeathMatch", luaApi_RespawnPlayerInDeathMatch);
+    lua_register(luaVm, "luaApi_RespawnPlayerInDeathMatch",
+                 luaApi_RespawnPlayerInDeathMatch);
     lua_register(luaVm, "luaApi_CreateTimer", luaApi_CreateTimer);
     lua_register(luaVm, "luaApi_CreateTickRunFunction",
                  luaApi_CreateTickRunFunction);
@@ -800,6 +825,8 @@ auto initFunciton(lua_State* luaVm) -> void {
     lua_register(luaVm, "luaApi_GetAllPlayerIndex", luaApi_GetAllPlayerIndex);
     lua_register(luaVm, "luaApi_RunServerCommand", luaApi_RunServerCommand);
     lua_register(luaVm, "luaApi_KickPlayer", luaApi_KickPlayer);
+    lua_register(luaVm, "luaApi_HttpGet", luaApi_HttpGet);
+    lua_register(luaVm, "luaApi_HttpPost", luaApi_HttpPost);
 
     luabridge::getGlobalNamespace(luaVm)
         .beginClass<_luaApi_WeaponInfo>("WeaponInfo")
