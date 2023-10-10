@@ -2,6 +2,10 @@
 #include "head.h"
 #define IS_WINDOWS 1
 class InterfaceReg;
+//cancer fix me plz
+namespace global {
+    extern bool isMetaModInit;
+};
 // Pointer arithmetic utility class.
 struct UTILPtr {
    public:
@@ -65,10 +69,8 @@ class CModule {
     UTILPtr GetProcAddress(const char* procName) const {
         UTILPtr rv = 0;
         if (this->IsLoaded()) {
-#ifdef IS_WINDOWS
             rv = ::GetProcAddress(static_cast<HMODULE>(this->m_handle),
                                   procName);
-#endif
         }
         return rv;
     }
@@ -77,11 +79,7 @@ class CModule {
         if (this->IsLoaded()) {
             UTILPtr pCreateInterface = this->GetProcAddress("CreateInterface");
             if (!pCreateInterface.IsValid()) return rv;
-
-            InterfaceReg* s_pInterfaceRegs = pCreateInterface.ToAbsolute(3, 0)
-                                                 .Dereference(1)
-                                                 .Get<InterfaceReg*>();
-
+            auto s_pInterfaceRegs = pCreateInterface.ToAbsolute(3, 0).Dereference(1).Get<InterfaceReg*>();
             for (; s_pInterfaceRegs;
                  s_pInterfaceRegs = s_pInterfaceRegs->m_pNext) {
                 if (strcmp(version, s_pInterfaceRegs->m_pName) == 0) {
@@ -121,9 +119,36 @@ class CModule {
 
    private:
     void InitializeHandle() {
-#ifdef IS_WINDOWS
-        this->m_handle = static_cast<void*>(GetModuleHandleA(this->GetName()));
-#endif
+        if (global::isMetaModInit == false) {
+            this->m_handle = static_cast<void*>(GetModuleHandleA(this->GetName()));
+            return;
+        }
+
+        HANDLE hProcess = GetCurrentProcess();
+        DWORD cbNeeded;
+
+        // Call EnumProcessModules with a null hMods parameter to get the needed size.
+        EnumProcessModules(hProcess, nullptr, 0, &cbNeeded);
+        int moduleCount = cbNeeded / sizeof(HMODULE);
+        std::vector<HMODULE> hMods(moduleCount);
+
+        if (EnumProcessModules(hProcess, hMods.data(), cbNeeded, &cbNeeded))
+        {
+            for (const auto& hMod : hMods)
+            {
+                char szModName[MAX_PATH];
+
+                if (GetModuleFileNameExA(hProcess, hMod, szModName, sizeof(szModName) / sizeof(char)))
+                {
+                    const auto fullModulePath = std::string(szModName);
+                    if (fullModulePath.find("metamod") == std::string::npos && fullModulePath.ends_with(this->GetName()) == true) {
+                        this->m_handle = static_cast<void*>(hMod);
+                        break;
+                    }
+                }
+            }
+        }
+        CloseHandle(hProcess);
     }
     void InitializeBounds() {
         if (!this->IsLoaded()) return;

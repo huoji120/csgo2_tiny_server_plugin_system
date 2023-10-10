@@ -49,33 +49,14 @@ auto SafeDelayInit(void* ctx) -> void {
     LOG("m_bForceTeamChangeSilent: %d \n",
         InterFaces::CCSGameRulesInterFace->m_bForceTeamChangeSilent());
 }
-auto PathVscript() -> void {
-    CModule vscript_old("vscript_old.dll");
-    CModule vscript("vscript.dll");
 
-    uint64_t vscriptPathAddr = 0;
-    if (vscript_old.IsLoaded() == true) {
-        vscript_old.FindPattern(pattern_VscriptPath).Get(vscriptPathAddr);
-    }
-    else {
-        vscript.FindPattern(pattern_VscriptPath).Get(vscriptPathAddr);
-    }
-    if (vscriptPathAddr != 0) {
-        const static char PatchVScriptEnable[] = {0xBE, 0x02};
-        DWORD oldProtect;
-        VirtualProtect(reinterpret_cast<void*>(vscriptPathAddr), sizeof(PatchVScriptEnable), PAGE_EXECUTE_READWRITE, &oldProtect);
-        memcpy(reinterpret_cast<void*>(vscriptPathAddr), PatchVScriptEnable, sizeof(PatchVScriptEnable));
-        VirtualProtect(reinterpret_cast<void*>(vscriptPathAddr), sizeof(PatchVScriptEnable), oldProtect, &oldProtect);
-        LOG("success patch vscript at %llx \n", vscriptPathAddr);
-    }
-}
 auto Init() -> bool {
     CModule server("server.dll");
     CModule schemasystem("schemasystem.dll");
     CModule engine("engine2.dll");
     CModule localize("localize.dll");
     CModule tier0("tier0.dll");
-    PathVscript();
+    Memory::PathVscript();
 
     // engine.dll
     engine.FindPattern(pattern_MaxPlayerNumsPtr)
