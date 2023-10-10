@@ -45,17 +45,3 @@ jobs:
       with:
         name: csgo2.dll
         path: D:/a/csgo2_tiny_server_plugin_system/csgo2_tiny_server_plugin_system/Release/
-        
-    - name: Upload to Release Action
-      # You may pin to the exact commit or the version.
-      # uses: Shopify/upload-to-release@9942a4c936dab172f7101dcc7dc20528ea949102
-      uses: Shopify/upload-to-release@v1.0.1
-      with:
-        # Artifact name
-        name: csgo2.dll
-        # Path to the file to upload
-        path: ./csgo2.dll
-        # Content type for the file
-        content-type: application/octet-stream
-        # secrets.GITHUB_TOKEN
-        repo-token: ${{ secrets.GITHUB_TOKEN }}
