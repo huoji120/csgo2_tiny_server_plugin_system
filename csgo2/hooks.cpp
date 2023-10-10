@@ -56,22 +56,29 @@ void __fastcall hook_GameFrame(void* rcx, bool simulating, bool bFirstTick,
      * true  | game is ticking
      * false | game is not ticking
      */
-    if (simulating && global::HasTicked) {
-        global::m_flUniversalTime +=
-            global::GlobalVars->curtime - global::m_flLastTickedTime;
-    } else {
-        global::m_flUniversalTime += global::GlobalVars->interval_per_tick;
+    if (global::GlobalVars == nullptr) {
+        global::GlobalVars = GetGameGlobals();
     }
+    if (global::GlobalVars != nullptr) {
+        if (simulating && global::HasTicked) {
+            global::m_flUniversalTime +=
+                global::GlobalVars->curtime - global::m_flLastTickedTime;
+        }
+        else {
+            global::m_flUniversalTime += global::GlobalVars->interval_per_tick;
+        }
 
-    global::m_flLastTickedTime = global::GlobalVars->curtime;
-    global::HasTicked = true;
+        global::m_flLastTickedTime = global::GlobalVars->curtime;
+        global::HasTicked = true;
 
-    if (global::EntitySystem == nullptr) {
-        global::EntitySystem = CGameEntitySystem::GetInstance();
+        if (global::EntitySystem == nullptr) {
+            global::EntitySystem = CGameEntitySystem::GetInstance();
+        }
+
+        GameTimer::ExcuteTimers();
+        GameTickRunTime::ExcuteTickFunctions();
     }
-
-    GameTimer::ExcuteTimers();
-    GameTickRunTime::ExcuteTickFunctions();
+   
     return origin_GameFrame(rcx, simulating, bFirstTick, bLastTick);
 }
 void __fastcall hook_StartServer(void* rcx,
