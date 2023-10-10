@@ -56,9 +56,6 @@ void __fastcall hook_GameFrame(void* rcx, bool simulating, bool bFirstTick,
      * true  | game is ticking
      * false | game is not ticking
      */
-    if (global::GlobalVars == nullptr) {
-        global::GlobalVars = GetGameGlobals();
-    }
     if (global::GlobalVars != nullptr) {
         if (simulating && global::HasTicked) {
             global::m_flUniversalTime +=

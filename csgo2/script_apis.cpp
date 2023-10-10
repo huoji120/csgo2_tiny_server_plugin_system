@@ -714,6 +714,16 @@ auto luaApi_RunServerCommand(lua_State* luaVm) -> int {
     lua_pop(luaVm, 1);
     return 0;
 }
+auto luaApi_GetPlayerSteamId(lua_State* luaVm) -> int {
+    const auto playerIndex = lua_tointeger(luaVm, 1);
+    uint64_t steamid;
+    ExcutePlayerAction(playerIndex, [&](CCSPlayerController* playerController) {
+        steamid = playerController->m_steamID();
+    });
+    lua_pop(luaVm, 1);
+    lua_pushinteger(luaVm, steamid);
+    return 1;
+}
 auto luaApi_KickPlayer(lua_State* luaVm) -> int {
     const auto playerIndex = lua_tointeger(luaVm, 1);
     const auto reason = lua_tostring(luaVm, 2);
@@ -827,6 +837,7 @@ auto initFunciton(lua_State* luaVm) -> void {
     lua_register(luaVm, "luaApi_KickPlayer", luaApi_KickPlayer);
     lua_register(luaVm, "luaApi_HttpGet", luaApi_HttpGet);
     lua_register(luaVm, "luaApi_HttpPost", luaApi_HttpPost);
+    lua_register(luaVm, "luaApi_GetPlayerSteamId", luaApi_GetPlayerSteamId);
 
     luabridge::getGlobalNamespace(luaVm)
         .beginClass<_luaApi_WeaponInfo>("WeaponInfo")
