@@ -78,7 +78,7 @@ auto Init() -> bool {
     server.FindPattern(pattern_FnEntityRemove).Get(FnEntityRemove);
     server.FindPattern(pattern_FnGiveNamedItemPtr).Get(FnGiveNamedItem);
     server.FindPattern(pattern_fnHost_SayPtr).Get(Host_SayPtr);
-    server.FindPattern(pattern_ServerHashFunctionPtr).Get(FnServerHashFunction);
+    //server.FindPattern(pattern_ServerHashFunctionPtr).Get(FnServerHashFunction);
     server.FindPattern(pattern_UTIL_ClientPrintAll).Get(FnUTIL_ClientPrintAll);
     server.FindPattern(pattern_FnClientPrint).Get(FnClientPrint);
 
@@ -124,7 +124,7 @@ auto Init() -> bool {
     LOG("[huoji]FireEventServerSidePtr : %llx \n", FireEventServerSidePtr);
     LOG("[huoji]Host_SayPtr : %llx \n", Host_SayPtr);
     LOG("[huoji]FnNetworkStateChanged : %llx \n", FnNetworkStateChanged);
-    LOG("[huoji]FnServerHashFunction : %llx \n", FnServerHashFunction);
+    //LOG("[huoji]FnServerHashFunction : %llx \n", FnServerHashFunction);
     LOG("[huoji]FnStateChanged : %llx \n", FnStateChanged);
     LOG("[huoji]FnRespawnPlayerInDeathMatch : %llx \n", FnRespawnPlayerInDeathMatch);
     LOG("[huoji]FnGiveNamedItem : %llx \n", FnGiveNamedItem);
@@ -157,8 +157,7 @@ auto Init() -> bool {
                  0, NULL);
     //  LOG("FnServerHashFunction: %llx \n", FnServerHashFunction("here",
     //  sizeof("here") - 1, 0x31415926));
-    return FnCCSWeaponBase_Spawn && FnEntityRemove && FnRespawnPlayerInDeathMatch && FnGiveNamedItem &&
-           FnServerHashFunction && Host_SayPtr && InterFaces::IVEngineServer &&
+    return FnCCSWeaponBase_Spawn && FnEntityRemove && FnRespawnPlayerInDeathMatch && FnGiveNamedItem && Host_SayPtr && InterFaces::IVEngineServer &&
            InterFaces::GameResourceServiceServer &&
            InterFaces::IServerGameClient && InterFaces::GameEventManager &&
            InterFaces::SchemaSystem && FireEventServerSidePtr &&

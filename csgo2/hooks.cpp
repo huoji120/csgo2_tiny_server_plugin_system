@@ -13,7 +13,7 @@ Host_Say_t original_Host_Say = NULL;
 StartupServer_t origin_StartServer = NULL;
 GameFrame_t origin_GameFrame = NULL;
 CCSWeaponBase_Spawn_t origin_CCSWeaponBase_Spawn = NULL;
-
+// https://github.com/Source2ZE/CS2Fixes/blob/main/src/commands.cpp#L494
 void __fastcall hook_CCSWeaponBase_Spawn(CBaseEntity* pThis, void* a2) {
     const char* pszClassName = pThis->m_pEntity()->m_designerName;
 
@@ -31,14 +31,26 @@ void __fastcall hook_CCSWeaponBase_Spawn(CBaseEntity* pThis, void* a2) {
             pWeapon->m_AttributeManager()->m_Item()->m_bInitialized()) {
             break;
         }
-        if (GameWeapons::WeaponMap.find(pszClassName) ==
-            GameWeapons::WeaponMap.end()) {
+        const auto weaponName = Tools::toLower(std::string(pszClassName));
+        auto lookupWeaponSimpleName = std::string();
+        for (const auto& weapon : GameWeapons::WeaponMap) {
+            const auto& key = weapon.first;
+            const auto& [fullWeaponName, weaponItemDefIndex] = weapon.second;
+            if (fullWeaponName.find(weaponName) ==
+                std::string::npos) {
+                continue;
+            }
+            lookupWeaponSimpleName = key;
             break;
         }
+        if (lookupWeaponSimpleName.size() <= 1) {
+            break;
+        }
+        // lazy , fix me
         const auto [fullWeaponName, weaponiItemDefIndex] =
-            GameWeapons::WeaponMap.at(pszClassName);
+            GameWeapons::WeaponMap.at(lookupWeaponSimpleName);
 
-        LOG("Fixing a %s with index = %d and initialized = %d\n", pszClassName,
+        LOG("Fixing a %s with index = %d and initialized = %d\n", fullWeaponName.c_str(),
             pWeapon->m_AttributeManager()->m_Item()->m_iItemDefinitionIndex(),
             pWeapon->m_AttributeManager()->m_Item()->m_bInitialized());
 
@@ -60,8 +72,7 @@ void __fastcall hook_GameFrame(void* rcx, bool simulating, bool bFirstTick,
         if (simulating && global::HasTicked) {
             global::m_flUniversalTime +=
                 global::GlobalVars->curtime - global::m_flLastTickedTime;
-        }
-        else {
+        } else {
             global::m_flUniversalTime += global::GlobalVars->interval_per_tick;
         }
 
@@ -75,7 +86,7 @@ void __fastcall hook_GameFrame(void* rcx, bool simulating, bool bFirstTick,
         GameTimer::ExcuteTimers();
         GameTickRunTime::ExcuteTickFunctions();
     }
-   
+
     return origin_GameFrame(rcx, simulating, bFirstTick, bLastTick);
 }
 void __fastcall hook_StartServer(void* rcx,
@@ -173,6 +184,7 @@ bool __fastcall hook_FireEventServerSide(CGameEventManager* rcx,
         static constexpr auto round_start = hash_32_fnv1a_const("round_start");
         static constexpr auto round_end = hash_32_fnv1a_const("round_end");
         static constexpr auto player_hurt = hash_32_fnv1a_const("player_hurt");
+        static constexpr auto player_team = hash_32_fnv1a_const("player_team");
 
         switch (hash_32_fnv1a_const(eventName)) {
             case player_death:
@@ -189,6 +201,9 @@ bool __fastcall hook_FireEventServerSide(CGameEventManager* rcx,
                 break;
             case player_hurt:
                 events::OnPlayerHurtEvent(event);
+                break;
+            case player_team:
+                events::OnPlayerTeamChangeEevent(event);
                 break;
                 // V社bug,这不会有用
                 /*
@@ -263,7 +278,7 @@ auto initVmtHook() -> bool {
            origin_StartServer && origin_GameFrame;
 }
 auto initConVarHooks() -> void {
-   // Offset::InterFaces::IVEngineCvar->RegisterConVar
+    // Offset::InterFaces::IVEngineCvar->RegisterConVar
 }
 auto init() -> bool {
     bool isSuccess = initMinHook() && initVmtHook();

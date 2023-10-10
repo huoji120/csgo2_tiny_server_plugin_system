@@ -790,6 +790,7 @@ auto luaApi_HttpPost(lua_State* luaVm) -> int {
     lua_pushstring(luaVm, response.c_str());
     return 2;
 }
+
 auto initFunciton(lua_State* luaVm) -> void {
     lua_register(luaVm, "ListenToGameEvent", luaApi_ListenToGameEvent);
     lua_register(luaVm, "luaApi_SetPlayerCurrentWeaponAmmo",
@@ -838,6 +839,7 @@ auto initFunciton(lua_State* luaVm) -> void {
     lua_register(luaVm, "luaApi_HttpGet", luaApi_HttpGet);
     lua_register(luaVm, "luaApi_HttpPost", luaApi_HttpPost);
     lua_register(luaVm, "luaApi_GetPlayerSteamId", luaApi_GetPlayerSteamId);
+    //lua_register(luaVm, "luaApi_TeleportPlayer", luaApi_TeleportPlayer);
 
     luabridge::getGlobalNamespace(luaVm)
         .beginClass<_luaApi_WeaponInfo>("WeaponInfo")

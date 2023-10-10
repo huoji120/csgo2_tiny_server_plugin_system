@@ -11,7 +11,8 @@ enum class _CallbackNames {
     kOnPlayerSpawn,
     kOnRoundStart,
     kOnRoundEnd,
-    kOnPlayerHurt
+    kOnPlayerHurt,
+    kOnPlayerTeamChange
 };
 extern std::unordered_map<lua_State*, std::unordered_map<_CallbackNames, int>>
     callbackList;
@@ -33,4 +34,5 @@ auto luaCall_onRoundEnd(int winnerTeam, int reason, const char* message)
 auto luaCall_onPlayerHurt(int userid, int attacker, int health, int armor,
                           const char* weapon, int dmg_health, int dmg_armor,
                           int hitgroup) -> void;
+auto luaCall_onPlayerTeamChange(int userid, int team, int oldteam, bool disconnect, bool slient, bool isBot) -> bool;
 }  // namespace ScriptCallBacks

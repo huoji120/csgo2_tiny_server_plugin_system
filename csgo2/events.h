@@ -14,4 +14,5 @@ auto OnPlayerSpawnEvent(IGameEvent* event) -> void;
 auto OnRoundStartEvent(IGameEvent* event) -> void;
 auto OnRoundEndEvent(IGameEvent* event) -> void;
 auto OnPlayerHurtEvent(IGameEvent* event) -> void;
+auto OnPlayerTeamChangeEevent(IGameEvent* event) -> void;
 }  // namespace events
