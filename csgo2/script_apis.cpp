@@ -716,12 +716,12 @@ auto luaApi_RunServerCommand(lua_State* luaVm) -> int {
 }
 auto luaApi_GetPlayerSteamId(lua_State* luaVm) -> int {
     const auto playerIndex = lua_tointeger(luaVm, 1);
-    uint64_t steamid;
+    std::string steamid;
     ExcutePlayerAction(playerIndex, [&](CCSPlayerController* playerController) {
-        steamid = playerController->m_steamID();
+        steamid = std::to_string(playerController->m_steamID());
     });
     lua_pop(luaVm, 1);
-    lua_pushinteger(luaVm, steamid);
+    lua_pushstring(luaVm, steamid.c_str());
     return 1;
 }
 auto luaApi_KickPlayer(lua_State* luaVm) -> int {
