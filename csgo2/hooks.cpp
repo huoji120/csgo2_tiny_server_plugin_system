@@ -79,14 +79,12 @@ void __fastcall hook_GameFrame(void* rcx, bool simulating, bool bFirstTick,
         global::m_flLastTickedTime = global::GlobalVars->curtime;
         global::HasTicked = true;
 
-        if (global::EntitySystem == nullptr) {
-            global::EntitySystem = CGameEntitySystem::GetInstance();
-        }
-
         GameTimer::ExcuteTimers();
         GameTickRunTime::ExcuteTickFunctions();
     }
-
+    if (global::EntitySystem == nullptr) {
+        global::EntitySystem = CGameEntitySystem::GetInstance();
+    }
     return origin_GameFrame(rcx, simulating, bFirstTick, bLastTick);
 }
 void __fastcall hook_StartServer(void* rcx,
