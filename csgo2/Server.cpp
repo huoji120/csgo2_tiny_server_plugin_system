@@ -13,7 +13,14 @@ CURLcode HttpGet(const std::string& strUrl, std::string& strResponse,
         return CURLE_FAILED_INIT;
     }
     struct curl_slist* headers = NULL;
-    headers = curl_slist_append(headers, (char*)header.c_str());
+
+    if (header.empty() == false) {
+        headers = curl_slist_append(headers, (char*)header.c_str());
+    }
+    headers = curl_slist_append(headers, "Accept: application/json");
+    headers = curl_slist_append(headers,
+                                "Content-Type: application/json");  // text/html
+    headers = curl_slist_append(headers, "charsets: utf-8");
     curl_easy_setopt(pCURL, CURLOPT_HTTPHEADER, headers);
     curl_easy_setopt(pCURL, CURLOPT_URL, strUrl.c_str());
     // curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
@@ -24,7 +31,9 @@ CURLcode HttpGet(const std::string& strUrl, std::string& strResponse,
     curl_easy_setopt(pCURL, CURLOPT_WRITEFUNCTION, receive_data);
     curl_easy_setopt(pCURL, CURLOPT_WRITEDATA, (void*)&strResponse);
     res = curl_easy_perform(pCURL);
+    curl_slist_free_all(headers);
     curl_easy_cleanup(pCURL);
+
     return res;
 }
 
@@ -35,6 +44,9 @@ CURLcode HttpPost(const std::string& strUrl, std::string header,
     struct curl_slist* headers = NULL;
     if (pCURL == NULL) {
         return CURLE_FAILED_INIT;
+    }
+    if (header.empty() == false) {
+        headers = curl_slist_append(headers, (char*)header.c_str());
     }
     CURLcode ret;
     ret = curl_easy_setopt(pCURL, CURLOPT_URL, strUrl.c_str());

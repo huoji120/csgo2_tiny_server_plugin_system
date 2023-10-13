@@ -772,7 +772,7 @@ auto luaApi_HttpGet(lua_State* luaVm) -> int {
     const auto timeOut = lua_tointeger(luaVm, 3);
     auto strHeader = std::string(header);
     std::string response;
-    auto result = Server::HttpGet(url, strHeader, response, timeOut);
+    auto result = Server::HttpGet(url, response, strHeader, timeOut);
     lua_pushinteger(luaVm, result);
     lua_pushstring(luaVm, response.c_str());
     return 2;
@@ -789,6 +789,87 @@ auto luaApi_HttpPost(lua_State* luaVm) -> int {
     lua_pushinteger(luaVm, result);
     lua_pushstring(luaVm, response.c_str());
     return 2;
+}
+auto luaApi_HttpAsyncPost(lua_State* luaVm) -> int {
+    // param: url:string header:string postdata:string timeOut:int
+    // metadata:string
+    const auto url = lua_tostring(luaVm, 1);
+    const auto header = lua_tostring(luaVm, 2);
+    const auto postdata = lua_tostring(luaVm, 3);
+    const auto theTimeOut = lua_tointeger(luaVm, 4);
+    const auto metadata = lua_tostring(luaVm, 5);
+    struct _ctx {
+        std::shared_ptr<std::string> url;
+        std::shared_ptr<std::string> header;
+        std::shared_ptr<std::string> postdata;
+        std::shared_ptr<std::string> metadata;
+        long timeOut;
+    };
+    _ctx* ctx = new _ctx{
+        .url = std::make_shared<std::string>(url),
+        .header = std::make_shared<std::string>(header),
+        .postdata = std::make_shared<std::string>(postdata),
+        .metadata = std::make_shared<std::string>(metadata),
+        .timeOut = (int)theTimeOut,
+    };
+    if (ctx) {
+        CreateThread(
+            nullptr, 0,
+            [](void* ctx) -> DWORD {
+                const auto theCtx = reinterpret_cast<_ctx*>(ctx);
+                auto strHeader = std::string(*theCtx->header.get());
+                std::string response;
+                auto result = Server::HttpPost(*theCtx->url.get(), strHeader,
+                                               *theCtx->postdata.get(),
+                                               response, theCtx->timeOut);
+                ScriptCallBacks::luaCall_onHttpRequest(
+                    *theCtx->url.get(), *theCtx->metadata.get(),
+                    response.c_str(), result);
+                delete theCtx;
+                return 0;
+            },
+            ctx, 0, nullptr);
+    }
+    lua_pop(luaVm, 5);
+    return 0;
+}
+auto luaApi_HttpAsyncGet(lua_State* luaVm) -> int {
+    // param: url:string header:string  timeOut:int
+    // metadata:string
+    const auto url = lua_tostring(luaVm, 1);
+    const auto header = lua_tostring(luaVm, 2);
+    const auto theTimeOut = lua_tointeger(luaVm, 3);
+    const auto metadata = lua_tostring(luaVm, 4);
+    struct _ctx {
+        std::shared_ptr<std::string> url;
+        std::shared_ptr<std::string> header;
+        std::shared_ptr<std::string> metadata;
+        long timeOut;
+    };
+    _ctx* ctx = new _ctx{
+        .url = std::make_shared<std::string>(url),
+        .header = std::make_shared<std::string>(header),
+        .metadata = std::make_shared<std::string>(metadata),
+        .timeOut = (long)theTimeOut,
+    };
+    if (ctx) {
+        CreateThread(
+            nullptr, 0,
+            [](void* ctx) -> DWORD {
+                const auto theCtx = reinterpret_cast<_ctx*>(ctx);
+                std::string response;
+                auto httpCode =
+                    Server::HttpGet(*theCtx->url.get(), response, *theCtx->header.get(),theCtx->timeOut);
+                ScriptCallBacks::luaCall_onHttpRequest(
+                    *theCtx->url.get(), *theCtx->metadata.get(),
+                    response.c_str(), httpCode);
+                delete theCtx;
+                return 0;
+            },
+            const_cast<_ctx*>(ctx), 0, nullptr);
+    }
+    lua_pop(luaVm, 4);
+    return 0;
 }
 
 auto initFunciton(lua_State* luaVm) -> void {
@@ -838,8 +919,11 @@ auto initFunciton(lua_State* luaVm) -> void {
     lua_register(luaVm, "luaApi_KickPlayer", luaApi_KickPlayer);
     lua_register(luaVm, "luaApi_HttpGet", luaApi_HttpGet);
     lua_register(luaVm, "luaApi_HttpPost", luaApi_HttpPost);
+    lua_register(luaVm, "luaApi_HttpAsyncGet", luaApi_HttpAsyncGet);
+    lua_register(luaVm, "luaApi_HttpAsyncPost", luaApi_HttpAsyncPost);
+
     lua_register(luaVm, "luaApi_GetPlayerSteamId", luaApi_GetPlayerSteamId);
-    //lua_register(luaVm, "luaApi_TeleportPlayer", luaApi_TeleportPlayer);
+    // lua_register(luaVm, "luaApi_TeleportPlayer", luaApi_TeleportPlayer);
 
     luabridge::getGlobalNamespace(luaVm)
         .beginClass<_luaApi_WeaponInfo>("WeaponInfo")

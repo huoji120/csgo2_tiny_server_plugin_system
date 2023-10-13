@@ -15,6 +15,8 @@ std::unordered_map<uint32_t, _CallbackNames> callbackNameWithEnumMap{
     {hash_32_fnv1a_const("round_end"), _CallbackNames::kOnRoundEnd},
     {hash_32_fnv1a_const("player_hurt"), _CallbackNames::kOnPlayerHurt},
     {hash_32_fnv1a_const("player_team"), _CallbackNames::kOnPlayerTeamChange},
+    {hash_32_fnv1a_const("http_request"), _CallbackNames::kOnHttpRequest},
+
 };
 auto CallBackNameToEnum(const char* name) -> _CallbackNames {
     if (name == nullptr) {
@@ -206,30 +208,51 @@ auto luaCall_onPlayerHurt(int userid, int attacker, int health, int armor,
                                  }
                              });
 }
-auto luaCall_onPlayerTeamChange(int userid, int team, int oldteam, bool disconnect, bool slient, bool isBot) -> bool {
+auto luaCall_onPlayerTeamChange(int userid, int team, int oldteam,
+                                bool disconnect, bool slient, bool isBot)
+    -> bool {
     bool result = false;
     ExcuteCallbackInAllLuaVm(_CallbackNames::kOnPlayerTeamChange,
-        [&](lua_State* luaVm, int refIndex) -> void {
-            lua_rawgeti(luaVm, LUA_REGISTRYINDEX,
-                refIndex);
-            if (lua_isfunction(luaVm, -1)) {
-                lua_pushinteger(luaVm, userid);
-                lua_pushinteger(luaVm, team);
-                lua_pushinteger(luaVm, oldteam);
-                lua_pushboolean(luaVm, disconnect);
-                lua_pushboolean(luaVm, slient);
-                lua_pushboolean(luaVm, isBot);
+                             [&](lua_State* luaVm, int refIndex) -> void {
+                                 lua_rawgeti(luaVm, LUA_REGISTRYINDEX,
+                                             refIndex);
+                                 if (lua_isfunction(luaVm, -1)) {
+                                     lua_pushinteger(luaVm, userid);
+                                     lua_pushinteger(luaVm, team);
+                                     lua_pushinteger(luaVm, oldteam);
+                                     lua_pushboolean(luaVm, disconnect);
+                                     lua_pushboolean(luaVm, slient);
+                                     lua_pushboolean(luaVm, isBot);
 
-                if (lua_pcall(luaVm, 6, 1, 0) != LUA_OK) {
-                    LOG("Error calling Lua callback: %s\n",
-                        lua_tostring(luaVm, -1));
-                    lua_pop(luaVm, 1);
-                }
-                if (lua_isboolean(luaVm, -1)) {
-                    result = lua_toboolean(luaVm, -1);
-                }
-            }
-        });
+                                     if (lua_pcall(luaVm, 6, 1, 0) != LUA_OK) {
+                                         LOG("Error calling Lua callback: %s\n",
+                                             lua_tostring(luaVm, -1));
+                                         lua_pop(luaVm, 1);
+                                     }
+                                     if (lua_isboolean(luaVm, -1)) {
+                                         result = lua_toboolean(luaVm, -1);
+                                     }
+                                 }
+                             });
     return result;
+}
+auto luaCall_onHttpRequest(std::string url, std::string metaData,
+                           std::string respon, int statusCode) -> void {
+    ExcuteCallbackInAllLuaVm(_CallbackNames::kOnHttpRequest,
+                             [&](lua_State* luaVm, int refIndex) -> void {
+                                 lua_rawgeti(luaVm, LUA_REGISTRYINDEX,
+                                             refIndex);
+                                 if (lua_isfunction(luaVm, -1)) {
+                                     lua_pushstring(luaVm, url.c_str());
+                                     lua_pushstring(luaVm, metaData.c_str());
+                                     lua_pushstring(luaVm, respon.c_str());
+                                     lua_pushinteger(luaVm, statusCode);
+                                     if (lua_pcall(luaVm, 4, 0, 0) != LUA_OK) {
+                                         LOG("Error calling Lua callback: %s\n",
+                                             lua_tostring(luaVm, -1));
+                                         lua_pop(luaVm, 1);
+                                     }
+                                 }
+                             });
 }
 }  // namespace ScriptCallBacks
