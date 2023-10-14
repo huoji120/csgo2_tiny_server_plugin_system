@@ -859,7 +859,8 @@ auto luaApi_HttpAsyncGet(lua_State* luaVm) -> int {
                 const auto theCtx = reinterpret_cast<_ctx*>(ctx);
                 std::string response;
                 auto httpCode =
-                    Server::HttpGet(*theCtx->url.get(), response, *theCtx->header.get(),theCtx->timeOut);
+                    Server::HttpGet(*theCtx->url.get(), response,
+                                    *theCtx->header.get(), theCtx->timeOut);
                 ScriptCallBacks::luaCall_onHttpRequest(
                     *theCtx->url.get(), *theCtx->metadata.get(),
                     response.c_str(), httpCode);
@@ -871,7 +872,44 @@ auto luaApi_HttpAsyncGet(lua_State* luaVm) -> int {
     lua_pop(luaVm, 4);
     return 0;
 }
+auto luaApi_GetConVarString(lua_State* luaVm) -> int {
+    // param: convarObject:int
+    ConVarHandle theConvarHandle{};
+    theConvarHandle.Set(lua_tointeger(luaVm, 1));
+    std::string value;
+    if (theConvarHandle.IsValid()) {
+        const auto convarData =
+            Offset::InterFaces::IVEngineCvar->GetConVar(theConvarHandle);
+        const auto address = convarData->values;
+        const auto valueData = reinterpret_cast<char*>(address);
+        value = convarData ? std::string(valueData) : "";
+    }
+    lua_pop(luaVm, 1);
+    lua_pushstring(luaVm, value.c_str());
 
+    return 1;
+}
+auto luaApi_GetConVarInt(lua_State* luaVm) -> int {
+    // param: convarObject:int
+    ConVarHandle theConvarHandle{};
+    theConvarHandle.Set(lua_tointeger(luaVm, 1));
+    int value = -1;
+    if (theConvarHandle.IsValid()) {
+        const auto convarData =
+            Offset::InterFaces::IVEngineCvar->GetConVar(theConvarHandle);
+        value = reinterpret_cast<int>(convarData->values);
+    }
+    lua_pop(luaVm, 1);
+    lua_pushinteger(luaVm, value);
+    return 1;
+}
+auto luaApi_GetConVarObject(lua_State* luaVm) -> int {
+    // param: name:string
+    const auto name = lua_tostring(luaVm, 1);
+    lua_pushnumber(luaVm,
+                   Offset::InterFaces::IVEngineCvar->FindConVar(name).Get());
+    return 1;
+}
 auto initFunciton(lua_State* luaVm) -> void {
     lua_register(luaVm, "ListenToGameEvent", luaApi_ListenToGameEvent);
     lua_register(luaVm, "luaApi_SetPlayerCurrentWeaponAmmo",
@@ -921,8 +959,10 @@ auto initFunciton(lua_State* luaVm) -> void {
     lua_register(luaVm, "luaApi_HttpPost", luaApi_HttpPost);
     lua_register(luaVm, "luaApi_HttpAsyncGet", luaApi_HttpAsyncGet);
     lua_register(luaVm, "luaApi_HttpAsyncPost", luaApi_HttpAsyncPost);
+    lua_register(luaVm, "luaApi_GetConVarObject", luaApi_GetConVarObject);
 
-    lua_register(luaVm, "luaApi_GetPlayerSteamId", luaApi_GetPlayerSteamId);
+    lua_register(luaVm, "luaApi_GetConVarString", luaApi_GetConVarString);
+    lua_register(luaVm, "luaApi_GetConVarInt", luaApi_GetConVarInt);
     // lua_register(luaVm, "luaApi_TeleportPlayer", luaApi_TeleportPlayer);
 
     luabridge::getGlobalNamespace(luaVm)
