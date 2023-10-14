@@ -963,6 +963,8 @@ auto initFunciton(lua_State* luaVm) -> void {
 
     lua_register(luaVm, "luaApi_GetConVarString", luaApi_GetConVarString);
     lua_register(luaVm, "luaApi_GetConVarInt", luaApi_GetConVarInt);
+    lua_register(luaVm, "luaApi_GetPlayerSteamId", luaApi_GetPlayerSteamId);
+
     // lua_register(luaVm, "luaApi_TeleportPlayer", luaApi_TeleportPlayer);
 
     luabridge::getGlobalNamespace(luaVm)
