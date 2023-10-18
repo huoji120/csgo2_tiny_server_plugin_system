@@ -714,6 +714,16 @@ auto luaApi_RunServerCommand(lua_State* luaVm) -> int {
     lua_pop(luaVm, 1);
     return 0;
 }
+auto luaApi_RunClientCommand(lua_State* luaVm) -> int {
+    const auto playerIndex = lua_tointeger(luaVm, 1);
+    const auto command = lua_tostring(luaVm, 2);
+
+    ExcutePlayerAction(playerIndex, [&](CCSPlayerController* playerController) {
+        Offset::InterFaces::IVEngineServer->ClientCommand(EntityIndex_to_PlayerSlot(playerIndex), command);
+    });
+    lua_pop(luaVm, 2);
+    return 0;
+}
 auto luaApi_GetPlayerSteamId(lua_State* luaVm) -> int {
     const auto playerIndex = lua_tointeger(luaVm, 1);
     std::string steamid;
@@ -874,15 +884,20 @@ auto luaApi_HttpAsyncGet(lua_State* luaVm) -> int {
 }
 auto luaApi_GetConVarString(lua_State* luaVm) -> int {
     // param: convarObject:int
-    ConVarHandle theConvarHandle{};
-    theConvarHandle.Set(lua_tointeger(luaVm, 1));
+    const auto inputData = lua_tointeger(luaVm, 1);
     std::string value;
-    if (theConvarHandle.IsValid()) {
-        const auto convarData =
-            Offset::InterFaces::IVEngineCvar->GetConVar(theConvarHandle);
-        const auto address = convarData->values;
-        const auto valueData = reinterpret_cast<char*>(address);
-        value = convarData ? std::string(valueData) : "";
+    if (inputData != NULL) {
+        ConVarHandle theConvarHandle{};
+        theConvarHandle.Set(inputData);
+        if (theConvarHandle.IsValid()) {
+            const auto convarData =
+                Offset::InterFaces::IVEngineCvar->GetConVar(theConvarHandle);
+            if (convarData) {
+                const auto address = convarData->values;
+                const auto valueData = reinterpret_cast<char*>(address);
+                value = valueData ? std::string(valueData) : "";
+            }
+        }
     }
     lua_pop(luaVm, 1);
     lua_pushstring(luaVm, value.c_str());
@@ -891,16 +906,20 @@ auto luaApi_GetConVarString(lua_State* luaVm) -> int {
 }
 auto luaApi_GetConVarInt(lua_State* luaVm) -> int {
     // param: convarObject:int
-    ConVarHandle theConvarHandle{};
-    theConvarHandle.Set(lua_tointeger(luaVm, 1));
-    int value = -1;
-    if (theConvarHandle.IsValid()) {
-        const auto convarData =
-            Offset::InterFaces::IVEngineCvar->GetConVar(theConvarHandle);
-        value = reinterpret_cast<int>(convarData->values);
+    const auto inputData = lua_tointeger(luaVm, 1);
+    if (inputData)
+    {
+        ConVarHandle theConvarHandle{};
+        theConvarHandle.Set(inputData);
+        int value = -1;
+        if (theConvarHandle.IsValid()) {
+            const auto convarData =
+                Offset::InterFaces::IVEngineCvar->GetConVar(theConvarHandle);
+            value = convarData ? reinterpret_cast<int>(convarData->values) : -1;
+        }
+        lua_pop(luaVm, 1);
+        lua_pushinteger(luaVm, value);
     }
-    lua_pop(luaVm, 1);
-    lua_pushinteger(luaVm, value);
     return 1;
 }
 auto luaApi_GetConVarObject(lua_State* luaVm) -> int {
@@ -964,6 +983,8 @@ auto initFunciton(lua_State* luaVm) -> void {
     lua_register(luaVm, "luaApi_GetConVarString", luaApi_GetConVarString);
     lua_register(luaVm, "luaApi_GetConVarInt", luaApi_GetConVarInt);
     lua_register(luaVm, "luaApi_GetPlayerSteamId", luaApi_GetPlayerSteamId);
+    lua_register(luaVm, "luaApi_GetPlayerSteamId", luaApi_GetPlayerSteamId);
+    lua_register(luaVm, "luaApi_RunClientCommand", luaApi_RunClientCommand);
 
     // lua_register(luaVm, "luaApi_TeleportPlayer", luaApi_TeleportPlayer);
 
