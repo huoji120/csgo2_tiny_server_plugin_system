@@ -2,12 +2,12 @@
 
 namespace events {
 auto OnPlayerTeamChangeEevent(IGameEvent* event) -> void {
-    GameEventKeySymbol_t userIdNameParams{ "userid" };
-    GameEventKeySymbol_t teamNameParams{ "team" };
-    GameEventKeySymbol_t oldteamNameParams{ "oldteam" };
-    GameEventKeySymbol_t disconnectNameParams{ "disconnect"};
-    GameEventKeySymbol_t silentNameParams{ "silent" };
-    GameEventKeySymbol_t isbotParams{ "isbot"};
+    GameEventKeySymbol_t userIdNameParams{"userid"};
+    GameEventKeySymbol_t teamNameParams{"team"};
+    GameEventKeySymbol_t oldteamNameParams{"oldteam"};
+    GameEventKeySymbol_t disconnectNameParams{"disconnect"};
+    GameEventKeySymbol_t silentNameParams{"silent"};
+    GameEventKeySymbol_t isbotParams{"isbot"};
 
     const auto PlayerPawn = reinterpret_cast<CCSPlayerPawn*>(
         event->GetPlayerPawn(userIdNameParams));
@@ -27,7 +27,8 @@ auto OnPlayerTeamChangeEevent(IGameEvent* event) -> void {
     auto disconnect = event->GetBool(disconnectNameParams);
     auto slient = event->GetBool(silentNameParams);
     auto isBot = event->GetBool(isbotParams);
-    if (ScriptCallBacks::luaCall_onPlayerTeamChange(playerIndex, team, oldTeam, disconnect, slient, isBot) == true) {
+    if (ScriptCallBacks::luaCall_onPlayerTeamChange(
+            playerIndex, team, oldTeam, disconnect, slient, isBot) == true) {
         event->SetBool(silentNameParams, true);
     }
 }
@@ -115,7 +116,7 @@ auto OnPlayerDeathEvent(IGameEvent* event) -> void {
     GameEventKeySymbol_t userIdNameParams{"userid"};
     GameEventKeySymbol_t attackerNameParams{"attacker"};
     GameEventKeySymbol_t headshotNameParams{"headshot"};
-    
+
     const auto victimPawn = reinterpret_cast<CCSPlayerPawn*>(
         event->GetPlayerPawn(userIdNameParams));
     const auto attackerPawn = reinterpret_cast<CCSPlayerPawn*>(
@@ -137,7 +138,11 @@ auto OnPlayerDeathEvent(IGameEvent* event) -> void {
     const auto attackerIndex = attacker->GetRefEHandle().GetEntryIndex();
     ScriptCallBacks::luaCall_onPlayerDeath(victimIndex, attackerIndex,
                                            isHeadShot);
-    //printf("player[%p] %s kill[%p] %llu\n", attacker, &attacker->m_iszPlayerName(), victim,  &victim->m_steamID());
+    // printf("player[%p] %s kill[%p] %llu\n", attacker,
+    // &attacker->m_iszPlayerName(), victim,  &victim->m_steamID());
+}
+auto OnConsoleChat(std::string message) -> bool {
+    return ScriptCallBacks::luaCall_onPlayerSpeak(-1, static_cast<int>(_ChatType::kConsole), message);
 }
 auto OnPlayerChat(CCSPlayerController* player, std::string message) -> bool {
     auto [procesChatSuccess, chatType, chatCtx] =
@@ -146,7 +151,8 @@ auto OnPlayerChat(CCSPlayerController* player, std::string message) -> bool {
         return false;
     }
     return ScriptCallBacks::luaCall_onPlayerSpeak(
-        player->GetRefEHandle().GetEntryIndex(), chatType, chatCtx);
+        player->GetRefEHandle().GetEntryIndex(), static_cast<int>(chatType),
+        chatCtx);
 }
 auto OnPlayerConnect(int slot, const char* pszName, uint64_t xuid,
                      const char* pszNetworkID, const char* pszAddress,

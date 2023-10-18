@@ -593,7 +593,7 @@ auto luaApi_SendToPlayerChat(lua_State* luaVm) -> int {
     const auto playerIndex = lua_tointeger(luaVm, 1);
     const auto hudType = lua_tointeger(luaVm, 2);
     const auto message = lua_tostring(luaVm, 3);
-    if (hudType >= _HubType::kMax || hudType < _HubType::kNotify) {
+    if (hudType >= static_cast<int>(_HubType::kMax) || hudType < static_cast<int>(_HubType::kNotify)) {
         lua_pop(luaVm, 3);
         return 0;
     }
@@ -608,7 +608,7 @@ auto luaApi_SentToAllPlayerChat(lua_State* luaVm) -> int {
     // param: playerIndex:int, message:string
     const auto message = lua_tostring(luaVm, 1);
     const auto hudType = lua_tointeger(luaVm, 2);
-    if (hudType >= _HubType::kMax || hudType < _HubType::kNotify) {
+    if (hudType >= static_cast<int>(_HubType::kMax) || hudType < static_cast<int>(_HubType::kNotify)) {
         lua_pop(luaVm, 3);
         return 0;
     }

@@ -36,8 +36,7 @@ void __fastcall hook_CCSWeaponBase_Spawn(CBaseEntity* pThis, void* a2) {
         for (const auto& weapon : GameWeapons::WeaponMap) {
             const auto& key = weapon.first;
             const auto& [fullWeaponName, weaponItemDefIndex] = weapon.second;
-            if (fullWeaponName.find(weaponName) ==
-                std::string::npos) {
+            if (fullWeaponName.find(weaponName) == std::string::npos) {
                 continue;
             }
             lookupWeaponSimpleName = key;
@@ -50,7 +49,8 @@ void __fastcall hook_CCSWeaponBase_Spawn(CBaseEntity* pThis, void* a2) {
         const auto [fullWeaponName, weaponiItemDefIndex] =
             GameWeapons::WeaponMap.at(lookupWeaponSimpleName);
 
-        LOG("Fixing a %s with index = %d and initialized = %d\n", fullWeaponName.c_str(),
+        LOG("Fixing a %s with index = %d and initialized = %d\n",
+            fullWeaponName.c_str(),
             pWeapon->m_AttributeManager()->m_Item()->m_iItemDefinitionIndex(),
             pWeapon->m_AttributeManager()->m_Item()->m_bInitialized());
 
@@ -139,11 +139,17 @@ void __fastcall hook_Host_Say(void* pEntity, void* args, bool teamonly,
     char* pos = nullptr;
     bool blockMsg = false;
     do {
-        if (theArgs == nullptr || theEntity == nullptr) {
+        if (theArgs == nullptr) {
             break;
         }
         const auto message = std::string(theArgs->GetCommandString());
-
+        if (theEntity == nullptr) {
+            if (events::OnConsoleChat(message) == true) {
+                blockMsg = true;
+                break;
+            }
+            break;
+        }
         if (events::OnPlayerChat(theEntity, message) == true) {
             blockMsg = true;
             break;

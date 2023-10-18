@@ -38,7 +38,7 @@ auto SentChatToClient(CCSPlayerController* player, _HubType hubtype, const char*
 
     va_end(args);
 
-    Offset::FnClientPrint(player, hubtype, buf, nullptr, nullptr, nullptr, nullptr);
+    Offset::FnClientPrint(player, static_cast<int>(hubtype), buf, nullptr, nullptr, nullptr, nullptr);
 }
 auto SendConsoleChat(_HubType hubtype, const char* msg, ...) -> void
 {
@@ -50,6 +50,6 @@ auto SendConsoleChat(_HubType hubtype, const char* msg, ...) -> void
 
     va_end(args);
 
-    Offset::FnUTIL_ClientPrintAll(hubtype, buf, nullptr, nullptr, nullptr, nullptr);
+    Offset::FnUTIL_ClientPrintAll(static_cast<int>(hubtype), buf, nullptr, nullptr, nullptr, nullptr);
 }
 };  // namespace SdkTools
