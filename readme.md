@@ -60,3 +60,14 @@ example:
 ### Test Plugin  
 api and plugin example: 
 https://github.com/huoji120/cs2_funny_trash_plugin  
+
+### Q&A
+Summarize some common issues:  
+1. Q: why not use metamod?   
+   A: At the time of writing this project, there was no metamod yet.   
+2. Q: Why is there no skin changer?   
+   A: no such content will be considered because harm the interests of the game company  
+3. Q: Why not continue updating like add linux support && more api && convar?  
+   A: I have my own job in real-life and I do not have much time to maintain this project. I will only maintain it when I am free. If you want to continue to maintain it, you can fork it and continue to maintain it.  
+4. Q: I would like to hire you for a fee  
+   A: It is impossible for accept. I am very satisfied with my real-life job and doing it is just a hobby  
