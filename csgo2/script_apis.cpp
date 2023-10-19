@@ -54,7 +54,7 @@ auto ExcutePlayerAction(int playerIndex,
         function(playerController);
     } while (false);
 }
-// ·µ»ØÊÇ·µ»ØÖµÊýÁ¿,·µ»ØÖµÄÚÈÝÒª×Ô¼ºpushµ½stackÉÏ
+// ï¿½ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ï¿½ï¿½Öµï¿½ï¿½ï¿½ï¿½,ï¿½ï¿½ï¿½ï¿½Öµï¿½ï¿½ï¿½ï¿½Òªï¿½Ô¼ï¿½pushï¿½ï¿½stackï¿½ï¿½
 auto luaApi_ListenToGameEvent(lua_State* luaVm) -> int {
     const auto eventName = lua_tostring(luaVm, 1);
     do {
@@ -73,7 +73,7 @@ auto luaApi_ListenToGameEvent(lua_State* luaVm) -> int {
             LOG("luaApi_ListenToGameEvent unknown event name: %s\n", eventName);
             break;
         }
-        // ½«»Øµ÷Ìí¼Óµ½Ó³ÉäÖÐ
+        // ï¿½ï¿½ï¿½Øµï¿½ï¿½ï¿½ï¿½Óµï¿½Ó³ï¿½ï¿½ï¿½ï¿½
         std::unique_lock lock(ScriptCallBacks::mutex_callbackList);
         ScriptCallBacks::callbackList[luaVm][callbackType] =
             luaL_ref(luaVm, LUA_REGISTRYINDEX);
@@ -82,7 +82,7 @@ auto luaApi_ListenToGameEvent(lua_State* luaVm) -> int {
             eventName);
     } while (false);
 
-    lua_pop(luaVm, 2);  // ÇåÀí¶ÑÕ»
+    lua_pop(luaVm, 2);  // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Õ»
     return 0;
 }
 auto luaApi_SetPlayerCurrentWeaponAmmo(lua_State* luaVm) -> int {
@@ -593,7 +593,8 @@ auto luaApi_SendToPlayerChat(lua_State* luaVm) -> int {
     const auto playerIndex = lua_tointeger(luaVm, 1);
     const auto hudType = lua_tointeger(luaVm, 2);
     const auto message = lua_tostring(luaVm, 3);
-    if (hudType >= static_cast<int>(_HubType::kMax) || hudType < static_cast<int>(_HubType::kNotify)) {
+    if (hudType >= static_cast<int>(_HubType::kMax) ||
+        hudType < static_cast<int>(_HubType::kNotify)) {
         lua_pop(luaVm, 3);
         return 0;
     }
@@ -608,7 +609,8 @@ auto luaApi_SentToAllPlayerChat(lua_State* luaVm) -> int {
     // param: playerIndex:int, message:string
     const auto message = lua_tostring(luaVm, 1);
     const auto hudType = lua_tointeger(luaVm, 2);
-    if (hudType >= static_cast<int>(_HubType::kMax) || hudType < static_cast<int>(_HubType::kNotify)) {
+    if (hudType >= static_cast<int>(_HubType::kMax) ||
+        hudType < static_cast<int>(_HubType::kNotify)) {
         lua_pop(luaVm, 3);
         return 0;
     }
@@ -719,10 +721,51 @@ auto luaApi_RunClientCommand(lua_State* luaVm) -> int {
     const auto command = lua_tostring(luaVm, 2);
 
     ExcutePlayerAction(playerIndex, [&](CCSPlayerController* playerController) {
-        Offset::InterFaces::IVEngineServer->ClientCommand(EntityIndex_to_PlayerSlot(playerIndex), command);
+        Offset::InterFaces::IVEngineServer->ClientCommand(
+            EntityIndex_to_PlayerSlot(playerIndex), command);
     });
     lua_pop(luaVm, 2);
     return 0;
+}
+auto luaApi_SetPlayerName(lua_State* luaVm) -> int {
+    const auto playerIndex = lua_tointeger(luaVm, 1);
+    const auto playerName = lua_tostring(luaVm, 2);
+
+    if (playerName != nullptr) {
+        ExcutePlayerAction(
+            playerIndex, [&](CCSPlayerController* playerController) {
+                Offset::FnPlayerChangeName(playerController->m_hPawn().Get(),
+                                           (char*)playerName);
+            });
+    }
+    lua_pop(luaVm, 2);
+    return 0;
+}
+auto luaApi_SetPlayerNameSlient(lua_State* luaVm) -> int {
+    const auto playerIndex = lua_tointeger(luaVm, 1);
+    const auto playerName = lua_tostring(luaVm, 2);
+
+    if (playerName != nullptr) {
+        ExcutePlayerAction(
+            playerIndex, [&](CCSPlayerController* playerController) {
+                const auto playerNameAddress =
+                    &playerController->m_iszPlayerName();
+                const auto playerNameLength = min(strlen(playerName) + 1, 127);
+                memcpy(playerNameAddress, playerName, playerNameLength);
+            });
+    }
+    lua_pop(luaVm, 2);
+    return 0;
+}
+auto luaApi_GetPlayerName(lua_State* luaVm) -> int {
+    const auto playerIndex = lua_tointeger(luaVm, 1);
+    std::string playerName;
+    ExcutePlayerAction(playerIndex, [&](CCSPlayerController* playerController) {
+        playerName = &playerController->m_iszPlayerName();
+    });
+    lua_pop(luaVm, 1);
+    lua_pushstring(luaVm, playerName.c_str());
+    return 1;
 }
 auto luaApi_GetPlayerSteamId(lua_State* luaVm) -> int {
     const auto playerIndex = lua_tointeger(luaVm, 1);
@@ -907,8 +950,7 @@ auto luaApi_GetConVarString(lua_State* luaVm) -> int {
 auto luaApi_GetConVarInt(lua_State* luaVm) -> int {
     // param: convarObject:int
     const auto inputData = lua_tointeger(luaVm, 1);
-    if (inputData)
-    {
+    if (inputData) {
         ConVarHandle theConvarHandle{};
         theConvarHandle.Set(inputData);
         int value = -1;
@@ -984,6 +1026,10 @@ auto initFunciton(lua_State* luaVm) -> void {
     lua_register(luaVm, "luaApi_GetConVarInt", luaApi_GetConVarInt);
     lua_register(luaVm, "luaApi_GetPlayerSteamId", luaApi_GetPlayerSteamId);
     lua_register(luaVm, "luaApi_RunClientCommand", luaApi_RunClientCommand);
+    lua_register(luaVm, "luaApi_SetPlayerName", luaApi_SetPlayerName);
+    lua_register(luaVm, "luaApi_GetPlayerName", luaApi_GetPlayerName);
+    lua_register(luaVm, "luaApi_SetPlayerNameSlient",
+                 luaApi_SetPlayerNameSlient);
 
     // lua_register(luaVm, "luaApi_TeleportPlayer", luaApi_TeleportPlayer);
 
@@ -999,7 +1045,7 @@ auto initFunciton(lua_State* luaVm) -> void {
         .addData("weaponIndex", &_luaApi_WeaponInfo::weaponIndex)
         .endClass()
         .addFunction("luaApi_GetPlayerWeaponInfo", &luaApi_GetPlayerWeaponInfo);
-    //  ÎÒ²»Ï²»¶Ëû
+    //  ï¿½Ò²ï¿½Ï²ï¿½ï¿½ï¿½ï¿½
     luabridge::getGlobalNamespace(luaVm)
         .beginClass<_luaApi_WeaponInfo>("WeaponInfo")
         .addConstructor<void (*)(void)>()

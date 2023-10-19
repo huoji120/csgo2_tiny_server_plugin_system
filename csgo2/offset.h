@@ -23,9 +23,15 @@ typedef void*(__fastcall* EntityRemove_t)(CGameEntitySystem*, void*, void*,
                                           uint64_t);
 typedef void*(__fastcall* UTIL_SayTextFilter_t)(IRecipientFilter&, const char*,
                                                 CCSPlayerController*, uint64_t);
-typedef void(__fastcall* UTIL_ClientPrintAll_t)(int msg_dest, const char* msg_name, const char* param1, const char* param2, const char* param3, const char* param4);
-typedef void(__fastcall* ClientPrint_t)(CCSPlayerController* player, int msg_dest, const char* msg_name, const char* param1, const char* param2, const char* param3, const char* param4);
+typedef void(__fastcall* UTIL_ClientPrintAll_t)(
+    int msg_dest, const char* msg_name, const char* param1, const char* param2,
+    const char* param3, const char* param4);
+typedef void(__fastcall* ClientPrint_t)(CCSPlayerController* player,
+                                        int msg_dest, const char* msg_name,
+                                        const char* param1, const char* param2,
+                                        const char* param3, const char* param4);
 typedef void(__fastcall* CCSWeaponBase_Spawn_t)(CBaseEntity*, void*);
+typedef void(__fastcall* PlayerChangeName_t)(CBaseEntity*, char*);
 class CSchemaSystem;
 class CGameResourceService;
 class CLocalize;
@@ -44,7 +50,15 @@ extern ISource2Server* ISource2ServerInterFace;
 extern CCSGameRules* CCSGameRulesInterFace;
 extern ICvar* IVEngineCvar;
 };  // namespace InterFaces
-static const auto pattern_VscriptPath = THE_GAME_SIG("BE 01 ?? ?? ?? 2B D6 74 ?? 3B D6");
+static const auto pattern_FnUTIL_SayText2FilterPtr = THE_GAME_SIG(
+    "48 89 5C 24 ?? 55 56 57 48 8D 6C 24 ?? 48 81 EC ?? ?? ?? ?? 41 0F B6 F8");
+static const auto pattern_PlayerChangeName = THE_GAME_SIG(
+    "4C 8B DC 55 56 41 54 49 8D ?? ?? ?? ?? ?? 48 ?? ?? ?? ?? ?? ?? 48 8B F1 "
+    "41 ?? ?? ?? ?? ?? 8B 89 ?? ?? ?? ?? 4C 8B D2 41 3B CC 0F ?? ?? ?? ?? ?? "
+    "4C ?? ?? ?? ?? ?? ?? 4D 85 C0 0F ?? ?? ?? ?? ?? 83 ?? ?? 0F ?? ?? ?? ?? "
+    "?? 8B C1 25 ?? ?? ?? ??");
+static const auto pattern_VscriptPath =
+    THE_GAME_SIG("BE 01 ?? ?? ?? 2B D6 74 ?? 3B D6");
 static const auto pattern_CGameEventManager = THE_GAME_SIG(
     "48 ?? ?? ?? ?? ?? ?? 48 89 ?? ?? ?? 48 89 01 48 8B D9 48 ?? ?? ?? ?? ?? "
     "?? 48 89 ?? ?? E8 ?? ?? ?? ?? 48 ?? ?? ?? ?? ?? ??");
@@ -79,7 +93,9 @@ static const auto pattern_CreateCCSGameRulesInterFacePtr = THE_GAME_SIG(
     "?? ?? 4C 8D ?? ?? ?? 49 8B ?? ?? 49 8B ?? ?? 49 8B ?? ?? 49 8B E3 41 5F "
     "41 5E 5F C3");
 static const auto pattern_FnRespawnPlayer = THE_GAME_SIG(
-    "48 89 ?? ?? ?? 48 89 ?? ?? ?? 56 48 ?? ?? ?? ?? ?? ?? 48 8B DA 48 8B E9 48 85 D2 0F ?? ?? ?? ?? ?? 48 8B 02 48 8B CA FF ?? ?? ?? ?? ?? 84 C0 0F ?? ?? ?? ?? ?? 83 BB ?? ?? ?? ?? ?? 0F ?? ?? ?? ?? ??");
+    "48 89 ?? ?? ?? 48 89 ?? ?? ?? 56 48 ?? ?? ?? ?? ?? ?? 48 8B DA 48 8B E9 "
+    "48 85 D2 0F ?? ?? ?? ?? ?? 48 8B 02 48 8B CA FF ?? ?? ?? ?? ?? 84 C0 0F "
+    "?? ?? ?? ?? ?? 83 BB ?? ?? ?? ?? ?? 0F ?? ?? ?? ?? ??");
 static const auto pattern_FnRespawnPlayerInDeathMatch = THE_GAME_SIG(
     "48 89 ?? ?? ?? 57 48 ?? ?? ?? 48 8D ?? ?? ?? 48 8B F9 E8 ?? ?? ?? ?? 83 "
     "?? ?? 74 ?? 48 ?? ?? ?? ?? ?? ?? 48 8B CF 48 8B 10 48 8B ?? ?? ?? ?? ?? "
@@ -92,15 +108,20 @@ static const auto pattern_FnEntityRemove = THE_GAME_SIG(
 static const auto pattern_FnUTIL_SayTextFilter = THE_GAME_SIG(
     "48 89 5C 24 ?? 55 56 57 48 8D 6C 24 ?? 48 81 EC ?? ?? ?? ?? 49 8B D8");
 static const auto pattern_UTIL_ClientPrintAll = THE_GAME_SIG(
-    "48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 48 81 EC 70 01 ?? ?? 8B E9");
-static const auto pattern_FnClientPrint = THE_GAME_SIG(
-    "48 85 C9 0F 84 ?? ?? ?? ?? 48 8B C4 48 89 58 18");
-static const auto pattern_CCSWeaponBase_Spawn = THE_GAME_SIG("48 89 5C 24 08 48 89 6C 24 18 48 89 74 24 20 57 48 83 EC 30 48 8B DA 48 8B E9 E8 ?? ?? ?? ??");
+    "48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 48 81 EC 70 01 ?? ?? 8B "
+    "E9");
+static const auto pattern_FnClientPrint =
+    THE_GAME_SIG("48 85 C9 0F 84 ?? ?? ?? ?? 48 8B C4 48 89 58 18");
+static const auto pattern_CCSWeaponBase_Spawn = THE_GAME_SIG(
+    "48 89 5C 24 08 48 89 6C 24 18 48 89 74 24 20 57 48 83 EC 30 48 8B DA 48 "
+    "8B E9 E8 ?? ?? ?? ??");
 extern uint64_t GameResourceServicePtr;
 extern uint64_t FireEventServerSidePtr;
 extern uint64_t Module_tier0;
 extern uint64_t Host_SayPtr;
 extern uint64_t MaxPlayerNumsPtr;
+extern uint64_t FnUTIL_SayText2FilterPtr;
+
 extern HashFunction_t FnServerHashFunction;
 extern StateChanged_t FnStateChanged;
 extern NetworkStateChanged_t FnNetworkStateChanged;
@@ -111,6 +132,7 @@ extern UTIL_SayTextFilter_t FnUTIL_SayTextFilter;
 extern UTIL_ClientPrintAll_t FnUTIL_ClientPrintAll;
 extern ClientPrint_t FnClientPrint;
 extern CCSWeaponBase_Spawn_t FnCCSWeaponBase_Spawn;
+extern PlayerChangeName_t FnPlayerChangeName;
 extern bool InitOffsetSuccess;
 auto Init() -> bool;
 };  // namespace Offset

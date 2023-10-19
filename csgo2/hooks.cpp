@@ -13,6 +13,31 @@ Host_Say_t original_Host_Say = NULL;
 StartupServer_t origin_StartServer = NULL;
 GameFrame_t origin_GameFrame = NULL;
 CCSWeaponBase_Spawn_t origin_CCSWeaponBase_Spawn = NULL;
+UTIL_SayText2Filter_t origin_UTIL_SayText2Filter = NULL;
+void __fastcall hook_UTIL_SayText2Filter(
+    IRecipientFilter& filter, CCSPlayerController* pEntity,
+    uint64_t eMessageType, const char* messeageName, const char* param1,
+    const char* param2, const char* param3, const char* param4) {
+    const auto entIndex =
+        PlayerSlot_to_EntityIndex(filter.GetRecipientIndex(0).Get());
+    /*
+LOG("UTIL_SayText2Filter: %s\n", messeageName);
+LOG("entIndex: %d\n", entIndex);
+
+LOG("param1: %s\n", param1);
+LOG("param2: %s\n", param2);
+
+LOG("param3: %s\n", param3);
+LOG("param4: %s\n", param4);
+LOG("eMessageType: %d\n", eMessageType);
+*/
+    const auto isHandle = ScriptCallBacks::luCall_onSayText2Filter(
+        entIndex, eMessageType, messeageName, param1, param2, param3, param4);
+    if (isHandle == false) {
+        origin_UTIL_SayText2Filter(filter, pEntity, eMessageType, messeageName,
+                                   param1, param2, param3, param4);
+    }
+}
 // https://github.com/Source2ZE/CS2Fixes/blob/main/src/commands.cpp#L494
 void __fastcall hook_CCSWeaponBase_Spawn(CBaseEntity* pThis, void* a2) {
     const char* pszClassName = pThis->m_pEntity()->m_designerName;
@@ -248,6 +273,13 @@ auto initMinHook() -> bool {
                           reinterpret_cast<LPVOID*>(
                               &origin_CCSWeaponBase_Spawn)) != MH_OK) {
             LOG("MH_CreateHook origin_CCSWeaponBase_Spawn\n");
+            break;
+        }
+        if (MH_CreateHook((LPVOID)Offset::FnUTIL_SayText2FilterPtr,
+                          &hook_UTIL_SayText2Filter,
+                          reinterpret_cast<LPVOID*>(
+                              &origin_UTIL_SayText2Filter)) != MH_OK) {
+            LOG("MH_CreateHook origin_UTIL_SayText2Filter\n");
             break;
         }
         // ÆôÓÃ¹³×Ó

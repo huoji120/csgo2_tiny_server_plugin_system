@@ -13,7 +13,8 @@ enum class _CallbackNames {
     kOnRoundEnd,
     kOnPlayerHurt,
     kOnPlayerTeamChange,
-    kOnHttpRequest
+    kOnHttpRequest,
+    kOnSayText2Filter
 };
 extern std::unordered_map<lua_State*, std::unordered_map<_CallbackNames, int>>
     callbackList;
@@ -40,4 +41,8 @@ auto luaCall_onPlayerTeamChange(int userid, int team, int oldteam,
     -> bool;
 auto luaCall_onHttpRequest(std::string url, std::string metaData,
                            std::string respon, int statusCode) -> void;
+auto luCall_onSayText2Filter(int player, uint64_t eMessageType,
+                             const char* messeageName, const char* param1,
+                             const char* param2, const char* param3,
+                             const char* param4) -> bool;
 }  // namespace ScriptCallBacks
