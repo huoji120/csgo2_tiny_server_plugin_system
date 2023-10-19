@@ -85,6 +85,15 @@
     <Filter Include="源文件\hijack">
       <UniqueIdentifier>{23cedcbc-aa1d-444b-baf2-0f55c87c525e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="源文件\script_engine\lua_cjson">
+      <UniqueIdentifier>{40443ff4-f9c7-4ed8-824e-244fc667bcf3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\http">
+      <UniqueIdentifier>{766101f1-81fc-457d-b23e-f896d2582e12}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\http">
+      <UniqueIdentifier>{6733acfb-5291-4538-9448-3e945dc649ce}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -354,6 +363,12 @@
     <ClInclude Include="sdk\public\Vector_Sdk.h">
       <Filter>头文件\sdk\public</Filter>
     </ClInclude>
+    <ClInclude Include="Server.h">
+      <Filter>头文件\http</Filter>
+    </ClInclude>
+    <ClInclude Include="luaCjson\strbuf.h">
+      <Filter>源文件\script_engine\lua_cjson</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -535,6 +550,18 @@
     </ClCompile>
     <ClCompile Include="version_hijack.cpp">
       <Filter>源文件\hijack</Filter>
+    </ClCompile>
+    <ClCompile Include="Server.cpp">
+      <Filter>源文件\http</Filter>
+    </ClCompile>
+    <ClCompile Include="luaCjson\lua_cjson.c">
+      <Filter>源文件\script_engine\lua_cjson</Filter>
+    </ClCompile>
+    <ClCompile Include="luaCjson\strbuf.c">
+      <Filter>源文件\script_engine\lua_cjson</Filter>
+    </ClCompile>
+    <ClCompile Include="luaCjson\fpconv.c">
+      <Filter>源文件\script_engine\lua_cjson</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

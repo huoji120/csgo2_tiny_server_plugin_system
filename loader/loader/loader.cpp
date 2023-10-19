@@ -4,16 +4,48 @@
 #include <iostream>
 #include <string.h>
 #include <filesystem>
+#include <fstream>
+#include "../../raidjson/rapidjson/rapidjson.h"
+#include <istreamwrapper.h>
+#include <document.h>
+struct _Config
+{
+    std::string dll;
+    std::string path;
+    std::string command;
+};
+namespace Config {
+    std::vector<_Config> configs;
+    auto ReadConfig() -> bool {
+        bool result = false;
+        std::ifstream ifs("config.json");
+        if (!ifs.is_open()) {
+            std::cerr << "Could not open file for reading!\n";
+            return result;
+        }
 
-// 读取INI文件
-std::pair<std::string, std::string> readConfig() {
-    char path[255], command[255];
+        rapidjson::IStreamWrapper isw(ifs);
+        rapidjson::Document d;
+        d.ParseStream(isw);
 
-    GetPrivateProfileStringA("server", "path", "", path, 255, ".\\config.ini");
-    GetPrivateProfileStringA("server", "command", "", command, 255, ".\\config.ini");
-
-    return { std::string(path), std::string(command) };
-}
+        const rapidjson::Value& servers = d["servers"]; // Using a reference for consecutive access is handy and faster.
+        assert(servers.IsArray());
+        for (rapidjson::SizeType i = 0; i < servers.Size(); i++) { // Uses SizeType instead of size_t
+            const rapidjson::Value& server = servers[i];
+            assert(server.IsObject()); // Each server should be an object.
+            if (server.HasMember("path") && server["path"].IsString() && server.HasMember("command") && server["command"].IsString() && server.HasMember("dll") && server["dll"].IsString())
+            {
+                configs.push_back(_Config{
+                    .dll = server["dll"].GetString(),
+                    .path = server["path"].GetString(),
+                    .command = server["command"].GetString()
+                });
+            }
+        }
+        result = true;
+        return result;
+    }
+};
 
 // 创建进程
 PROCESS_INFORMATION createProcess(const std::string& path, const std::string& command) {
@@ -48,9 +80,13 @@ void loadDll(PROCESS_INFORMATION pi) {
 }
 
 int main() {
-    auto [path, command] = readConfig();
-    PROCESS_INFORMATION pi = createProcess(path, command);
-    loadDll(pi);
-
+    Config::ReadConfig();
+    if (Config::configs.size() > 0) {
+        for (auto& config : Config::configs)
+        {
+            PROCESS_INFORMATION pi = createProcess(config.path, config.command);
+            loadDll(pi);
+        }
+    }
     return 0;
 }

@@ -7,4 +7,5 @@ namespace global {
 	CGlobalVars* GlobalVars;
 	float m_flUniversalTime;
 	float m_flLastTickedTime;
+	bool isMetaModInit;
 }

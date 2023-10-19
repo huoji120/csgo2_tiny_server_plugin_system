@@ -14,5 +14,5 @@ namespace Memory {
 		ReadProcessMemory(GetCurrentProcess(), (void*)address, &buffer, sizeof(T), 0);
 		return buffer;
 	}
-
+	auto PathVscript() -> void;
 };

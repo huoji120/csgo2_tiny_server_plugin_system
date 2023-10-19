@@ -82,12 +82,14 @@
     <IncludePath>$(MSBuildProjectDirectory)\sdk\protobuf-2.6.1\src;$(MSBuildProjectDirectory)\LuaBridge;$(IncludePath)</IncludePath>
     <TargetName>$(ProjectName)</TargetName>
     <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+    <LibraryPath>$(ProjectDir)libcurl\lib\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>$(MSBuildProjectDirectory)\sdk\protobuf-2.6.1\src;$(MSBuildProjectDirectory)\LuaBridge;$(IncludePath)</IncludePath>
     <TargetName>$(ProjectName)</TargetName>
     <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+    <LibraryPath>$(ProjectDir)libcurl\lib\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -137,6 +139,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -150,6 +153,8 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpplatest</LanguageStandard>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <Optimization>MaxSpeed</Optimization>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -157,6 +162,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -166,6 +172,7 @@
     <ClInclude Include="head.h" />
     <ClInclude Include="hooks.h" />
     <ClInclude Include="interface.h" />
+    <ClInclude Include="luaCjson\strbuf.h" />
     <ClInclude Include="lua\lapi.h" />
     <ClInclude Include="lua\lauxlib.h" />
     <ClInclude Include="lua\lcode.h" />
@@ -241,6 +248,7 @@
     <ClInclude Include="sdk\tier1\UtlString.hpp" />
     <ClInclude Include="sdk\tier1\UtlVector.hpp" />
     <ClInclude Include="sdk_tools.h" />
+    <ClInclude Include="Server.h" />
     <ClInclude Include="stb.hh" />
     <ClInclude Include="timer.h" />
     <ClInclude Include="tools.h" />
@@ -256,6 +264,9 @@
     <ClCompile Include="global.cpp" />
     <ClCompile Include="hooks.cpp" />
     <ClCompile Include="interface.cpp" />
+    <ClCompile Include="luaCjson\fpconv.c" />
+    <ClCompile Include="luaCjson\lua_cjson.c" />
+    <ClCompile Include="luaCjson\strbuf.c" />
     <ClCompile Include="lua\lapi.c" />
     <ClCompile Include="lua\lauxlib.c" />
     <ClCompile Include="lua\lbaselib.c" />
@@ -311,6 +322,7 @@
     <ClCompile Include="sdk\convar\convar.cpp" />
     <ClCompile Include="sdk\tier1\UtlString.cpp" />
     <ClCompile Include="sdk_tools.cpp" />
+    <ClCompile Include="Server.cpp" />
     <ClCompile Include="timer.cpp" />
     <ClCompile Include="tools.cpp" />
     <ClCompile Include="version_hijack.cpp" />

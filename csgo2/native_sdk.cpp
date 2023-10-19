@@ -100,8 +100,7 @@ static bool InitSchemaFieldsForClass(SchemaTableMap_t* tableMap,
 
     for (int i = 0; i < fieldsSize; ++i) {
         SchemaClassFieldData_t& field = pFields[i];
-        // LOG("%s::%s found at -> 0x%X - %llx\n", className, field.m_name,
-        // field.m_offset, &field);
+        LOG("%s::%s found at -> 0x%X - %llx\n", className, field.m_name, field.m_offset, &field);
 
         keyValueMap->Insert(hash_32_fnv1a_const(field.m_name),
                             {field.m_offset, IsFieldNetworked(field)});

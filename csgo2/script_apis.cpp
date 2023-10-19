@@ -111,6 +111,7 @@ auto luaApi_SetPlayerCurrentWeaponAmmo(lua_State* luaVm) -> int {
     lua_pop(luaVm, 3);
     return 0;
 }
+//
 auto luaApi_RespawnPlayer(lua_State* luaVm) -> int {
     const auto playerIndex = lua_tointeger(luaVm, 1);
     int playerArmorValue = 0;
@@ -120,7 +121,20 @@ auto luaApi_RespawnPlayer(lua_State* luaVm) -> int {
         if (playerPawn == nullptr) {
             return;
         }
-        Offset::FnRespawnPlayer(playerPawn);
+        Offset::InterFaces::CCSGameRulesInterFace->PlayerRespawn(playerPawn);
+    });
+    return 0;
+}
+auto luaApi_RespawnPlayerInDeathMatch(lua_State* luaVm) -> int {
+    const auto playerIndex = lua_tointeger(luaVm, 1);
+    int playerArmorValue = 0;
+    ExcutePlayerAction(playerIndex, [&](CCSPlayerController* playerController) {
+        const auto playerPawn =
+            playerController->m_hPawn().Get<CCSPlayerPawn>();
+        if (playerPawn == nullptr) {
+            return;
+        }
+        Offset::FnRespawnPlayerInDeathMatch(playerPawn);
     });
     return 0;
 }
@@ -580,7 +594,7 @@ auto luaApi_SendToPlayerChat(lua_State* luaVm) -> int {
     const auto playerIndex = lua_tointeger(luaVm, 1);
     const auto hudType = lua_tointeger(luaVm, 2);
     const auto message = lua_tostring(luaVm, 3);
-    if (hudType >= _HubType::kMax || hudType < _HubType::kNotify) {
+    if (hudType >= static_cast<int>(_HubType::kMax) || hudType < static_cast<int>(_HubType::kNotify)) {
         lua_pop(luaVm, 3);
         return 0;
     }
@@ -595,7 +609,7 @@ auto luaApi_SentToAllPlayerChat(lua_State* luaVm) -> int {
     // param: playerIndex:int, message:string
     const auto message = lua_tostring(luaVm, 1);
     const auto hudType = lua_tointeger(luaVm, 2);
-    if (hudType >= _HubType::kMax || hudType < _HubType::kNotify) {
+    if (hudType >= static_cast<int>(_HubType::kMax) || hudType < static_cast<int>(_HubType::kNotify)) {
         lua_pop(luaVm, 3);
         return 0;
     }
@@ -661,7 +675,7 @@ auto luaApi_SetPlayerGlowColor(lua_State* luaVm) -> int {
     const auto b = lua_tonumber(luaVm, 4);
     ExcutePlayerAction(playerIndex, [&](CCSPlayerController* playerController) {
         playerController->m_hPawn()
-            .Get<CCSPlayerPawn>()
+            .Get<CBaseModelEntity>()
             ->m_Glow()
             .m_glowColorOverride(Color(r, g, b, 230));
     });
@@ -673,10 +687,67 @@ auto luaApi_SetPlayerGlowEnable(lua_State* luaVm) -> int {
     const auto playerIndex = lua_tointeger(luaVm, 1);
     const auto isEnable = lua_toboolean(luaVm, 2);
     ExcutePlayerAction(playerIndex, [&](CCSPlayerController* playerController) {
-        playerController->m_hPawn().Get<CCSPlayerPawn>()->m_Glow().m_bGlowing(
+        LOG("glow set %d to %d \n",
+            playerController->m_hPawn()
+                .Get<CBaseModelEntity>()
+                ->m_Glow()
+                .m_bGlowing(),
             isEnable);
-        playerController->m_hPawn().Get<CCSPlayerPawn>()->m_Glow().m_iGlowType(
-            3);
+        playerController->m_hPawn()
+            .Get<CBaseModelEntity>()
+            ->m_Glow()
+            .m_bGlowing(isEnable);
+        playerController->m_hPawn()
+            .Get<CBaseModelEntity>()
+            ->m_Glow()
+            .m_iGlowType(3);
+        playerController->m_hPawn()
+            .Get<CBaseModelEntity>()
+            ->m_Glow()
+            .m_glowColorOverride(Color(201, 0, 118, 230));
+    });
+    lua_pop(luaVm, 2);
+    return 0;
+}
+auto luaApi_RunServerCommand(lua_State* luaVm) -> int {
+    const auto command = lua_tostring(luaVm, 1);
+    Offset::InterFaces::IVEngineServer->ServerCommand(command);
+    lua_pop(luaVm, 1);
+    return 0;
+}
+auto luaApi_RunClientCommand(lua_State* luaVm) -> int {
+    const auto playerIndex = lua_tointeger(luaVm, 1);
+    const auto command = lua_tostring(luaVm, 2);
+
+    ExcutePlayerAction(playerIndex, [&](CCSPlayerController* playerController) {
+        Offset::InterFaces::IVEngineServer->ClientCommand(EntityIndex_to_PlayerSlot(playerIndex), command);
+    });
+    lua_pop(luaVm, 2);
+    return 0;
+}
+auto luaApi_GetPlayerSteamId(lua_State* luaVm) -> int {
+    const auto playerIndex = lua_tointeger(luaVm, 1);
+    std::string steamid;
+    ExcutePlayerAction(playerIndex, [&](CCSPlayerController* playerController) {
+        steamid = std::to_string(playerController->m_steamID());
+    });
+    lua_pop(luaVm, 1);
+    lua_pushstring(luaVm, steamid.c_str());
+    return 1;
+}
+auto luaApi_KickPlayer(lua_State* luaVm) -> int {
+    const auto playerIndex = lua_tointeger(luaVm, 1);
+    const auto reason = lua_tostring(luaVm, 2);
+    ExcutePlayerAction(playerIndex, [&](CCSPlayerController* playerController) {
+        auto playerSlot = EntityIndex_to_PlayerSlot(playerIndex);
+        if (playerSlot == -1) {
+            return;
+        }
+        const auto theReason =
+            "You have kicked by server , reason: " + std::string(reason);
+        Offset::InterFaces::IVEngineServer->DisconnectClient(playerSlot, 39);
+        SdkTools::SentChatToClient(playerController, _HubType::kTalk,
+                                   theReason.c_str());
     });
     lua_pop(luaVm, 2);
     return 0;
@@ -694,15 +765,169 @@ auto luaApi_GetAllPlayerIndex(lua_State* luaVm) -> int {
             auto player = EntitySystem->GetBaseEntity(i);
 
             if (player == nullptr) {
-                break;
+                continue;
             }
             if (player->IsBasePlayerController() == false) {
-                break;
+                continue;
             }
             lua_pushinteger(luaVm, player->GetRefEHandle().GetEntryIndex());
             lua_rawseti(luaVm, -2, index++);
         }
     } while (false);
+    return 1;
+}
+auto luaApi_HttpGet(lua_State* luaVm) -> int {
+    // param: url:string header:string timeOut:int
+    const auto url = lua_tostring(luaVm, 1);
+    const auto header = lua_tostring(luaVm, 2);
+    const auto timeOut = lua_tointeger(luaVm, 3);
+    auto strHeader = std::string(header);
+    std::string response;
+    auto result = Server::HttpGet(url, response, strHeader, timeOut);
+    lua_pushinteger(luaVm, result);
+    lua_pushstring(luaVm, response.c_str());
+    return 2;
+}
+auto luaApi_HttpPost(lua_State* luaVm) -> int {
+    // param: url:string header:string postdata:string timeOut:int
+    const auto url = lua_tostring(luaVm, 1);
+    const auto header = lua_tostring(luaVm, 2);
+    const auto postdata = lua_tostring(luaVm, 3);
+    const auto timeOut = lua_tointeger(luaVm, 4);
+    auto strHeader = std::string(header);
+    std::string response;
+    auto result = Server::HttpPost(url, strHeader, postdata, response, timeOut);
+    lua_pushinteger(luaVm, result);
+    lua_pushstring(luaVm, response.c_str());
+    return 2;
+}
+auto luaApi_HttpAsyncPost(lua_State* luaVm) -> int {
+    // param: url:string header:string postdata:string timeOut:int
+    // metadata:string
+    const auto url = lua_tostring(luaVm, 1);
+    const auto header = lua_tostring(luaVm, 2);
+    const auto postdata = lua_tostring(luaVm, 3);
+    const auto theTimeOut = lua_tointeger(luaVm, 4);
+    const auto metadata = lua_tostring(luaVm, 5);
+    struct _ctx {
+        std::shared_ptr<std::string> url;
+        std::shared_ptr<std::string> header;
+        std::shared_ptr<std::string> postdata;
+        std::shared_ptr<std::string> metadata;
+        long timeOut;
+    };
+    _ctx* ctx = new _ctx{
+        .url = std::make_shared<std::string>(url),
+        .header = std::make_shared<std::string>(header),
+        .postdata = std::make_shared<std::string>(postdata),
+        .metadata = std::make_shared<std::string>(metadata),
+        .timeOut = (int)theTimeOut,
+    };
+    if (ctx) {
+        CreateThread(
+            nullptr, 0,
+            [](void* ctx) -> DWORD {
+                const auto theCtx = reinterpret_cast<_ctx*>(ctx);
+                auto strHeader = std::string(*theCtx->header.get());
+                std::string response;
+                auto result = Server::HttpPost(*theCtx->url.get(), strHeader,
+                                               *theCtx->postdata.get(),
+                                               response, theCtx->timeOut);
+                ScriptCallBacks::luaCall_onHttpRequest(
+                    *theCtx->url.get(), *theCtx->metadata.get(),
+                    response.c_str(), result);
+                delete theCtx;
+                return 0;
+            },
+            ctx, 0, nullptr);
+    }
+    lua_pop(luaVm, 5);
+    return 0;
+}
+auto luaApi_HttpAsyncGet(lua_State* luaVm) -> int {
+    // param: url:string header:string  timeOut:int
+    // metadata:string
+    const auto url = lua_tostring(luaVm, 1);
+    const auto header = lua_tostring(luaVm, 2);
+    const auto theTimeOut = lua_tointeger(luaVm, 3);
+    const auto metadata = lua_tostring(luaVm, 4);
+    struct _ctx {
+        std::shared_ptr<std::string> url;
+        std::shared_ptr<std::string> header;
+        std::shared_ptr<std::string> metadata;
+        long timeOut;
+    };
+    _ctx* ctx = new _ctx{
+        .url = std::make_shared<std::string>(url),
+        .header = std::make_shared<std::string>(header),
+        .metadata = std::make_shared<std::string>(metadata),
+        .timeOut = (long)theTimeOut,
+    };
+    if (ctx) {
+        CreateThread(
+            nullptr, 0,
+            [](void* ctx) -> DWORD {
+                const auto theCtx = reinterpret_cast<_ctx*>(ctx);
+                std::string response;
+                auto httpCode =
+                    Server::HttpGet(*theCtx->url.get(), response,
+                                    *theCtx->header.get(), theCtx->timeOut);
+                ScriptCallBacks::luaCall_onHttpRequest(
+                    *theCtx->url.get(), *theCtx->metadata.get(),
+                    response.c_str(), httpCode);
+                delete theCtx;
+                return 0;
+            },
+            const_cast<_ctx*>(ctx), 0, nullptr);
+    }
+    lua_pop(luaVm, 4);
+    return 0;
+}
+auto luaApi_GetConVarString(lua_State* luaVm) -> int {
+    // param: convarObject:int
+    const auto inputData = lua_tointeger(luaVm, 1);
+    std::string value;
+    if (inputData != NULL) {
+        ConVarHandle theConvarHandle{};
+        theConvarHandle.Set(inputData);
+        if (theConvarHandle.IsValid()) {
+            const auto convarData =
+                Offset::InterFaces::IVEngineCvar->GetConVar(theConvarHandle);
+            if (convarData) {
+                const auto address = convarData->values;
+                const auto valueData = reinterpret_cast<char*>(address);
+                value = valueData ? std::string(valueData) : "";
+            }
+        }
+    }
+    lua_pop(luaVm, 1);
+    lua_pushstring(luaVm, value.c_str());
+
+    return 1;
+}
+auto luaApi_GetConVarInt(lua_State* luaVm) -> int {
+    // param: convarObject:int
+    const auto inputData = lua_tointeger(luaVm, 1);
+    if (inputData)
+    {
+        ConVarHandle theConvarHandle{};
+        theConvarHandle.Set(inputData);
+        int value = -1;
+        if (theConvarHandle.IsValid()) {
+            const auto convarData =
+                Offset::InterFaces::IVEngineCvar->GetConVar(theConvarHandle);
+            value = convarData ? reinterpret_cast<int>(convarData->values) : -1;
+        }
+        lua_pop(luaVm, 1);
+        lua_pushinteger(luaVm, value);
+    }
+    return 1;
+}
+auto luaApi_GetConVarObject(lua_State* luaVm) -> int {
+    // param: name:string
+    const auto name = lua_tostring(luaVm, 1);
+    lua_pushnumber(luaVm,
+                   Offset::InterFaces::IVEngineCvar->FindConVar(name).Get());
     return 1;
 }
 auto initFunciton(lua_State* luaVm) -> void {
@@ -716,6 +941,8 @@ auto initFunciton(lua_State* luaVm) -> void {
     lua_register(luaVm, "luaApi_SetPlayerArmorValue",
                  luaApi_SetPlayerArmorValue);
     lua_register(luaVm, "luaApi_RespawnPlayer", luaApi_RespawnPlayer);
+    lua_register(luaVm, "luaApi_RespawnPlayerInDeathMatch",
+                 luaApi_RespawnPlayerInDeathMatch);
     lua_register(luaVm, "luaApi_CreateTimer", luaApi_CreateTimer);
     lua_register(luaVm, "luaApi_CreateTickRunFunction",
                  luaApi_CreateTickRunFunction);
@@ -746,6 +973,20 @@ auto initFunciton(lua_State* luaVm) -> void {
                  luaApi_SetPlayerGlowEnable);
     lua_register(luaVm, "luaApi_SetPlayerGlowColor", luaApi_SetPlayerGlowColor);
     lua_register(luaVm, "luaApi_GetAllPlayerIndex", luaApi_GetAllPlayerIndex);
+    lua_register(luaVm, "luaApi_RunServerCommand", luaApi_RunServerCommand);
+    lua_register(luaVm, "luaApi_KickPlayer", luaApi_KickPlayer);
+    lua_register(luaVm, "luaApi_HttpGet", luaApi_HttpGet);
+    lua_register(luaVm, "luaApi_HttpPost", luaApi_HttpPost);
+    lua_register(luaVm, "luaApi_HttpAsyncGet", luaApi_HttpAsyncGet);
+    lua_register(luaVm, "luaApi_HttpAsyncPost", luaApi_HttpAsyncPost);
+    lua_register(luaVm, "luaApi_GetConVarObject", luaApi_GetConVarObject);
+
+    lua_register(luaVm, "luaApi_GetConVarString", luaApi_GetConVarString);
+    lua_register(luaVm, "luaApi_GetConVarInt", luaApi_GetConVarInt);
+    lua_register(luaVm, "luaApi_GetPlayerSteamId", luaApi_GetPlayerSteamId);
+    lua_register(luaVm, "luaApi_RunClientCommand", luaApi_RunClientCommand);
+
+    // lua_register(luaVm, "luaApi_TeleportPlayer", luaApi_TeleportPlayer);
 
     luabridge::getGlobalNamespace(luaVm)
         .beginClass<_luaApi_WeaponInfo>("WeaponInfo")

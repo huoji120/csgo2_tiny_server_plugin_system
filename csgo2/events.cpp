@@ -1,57 +1,56 @@
 #include "events.h"
 
 namespace events {
+auto OnPlayerTeamChangeEevent(IGameEvent* event) -> void {
+    GameEventKeySymbol_t userIdNameParams{"userid"};
+    GameEventKeySymbol_t teamNameParams{"team"};
+    GameEventKeySymbol_t oldteamNameParams{"oldteam"};
+    GameEventKeySymbol_t disconnectNameParams{"disconnect"};
+    GameEventKeySymbol_t silentNameParams{"silent"};
+    GameEventKeySymbol_t isbotParams{"isbot"};
+
+    const auto PlayerPawn = reinterpret_cast<CCSPlayerPawn*>(
+        event->GetPlayerPawn(userIdNameParams));
+    if (PlayerPawn == nullptr) {
+        return;
+    }
+    if (PlayerPawn->IsBasePlayerController() == false) {
+        return;
+    }
+    const auto Player = PlayerPawn->GetPlayerController();
+    if (Player == nullptr) {
+        return;
+    }
+    const auto playerIndex = Player->GetRefEHandle().GetEntryIndex();
+    auto team = event->GetInt(teamNameParams);
+    auto oldTeam = event->GetInt(oldteamNameParams);
+    auto disconnect = event->GetBool(disconnectNameParams);
+    auto slient = event->GetBool(silentNameParams);
+    auto isBot = event->GetBool(isbotParams);
+    if (ScriptCallBacks::luaCall_onPlayerTeamChange(
+            playerIndex, team, oldTeam, disconnect, slient, isBot) == true) {
+        event->SetBool(silentNameParams, true);
+    }
+}
 auto OnPlayerHurtEvent(IGameEvent* event) -> void {
     /*
     auto luaCall_onPlayerHurt(int userid, int attacker, int health, int armor,
                           const char* weapon, int dmg_health, int dmg_armor,
                           int hitgroup) -> void
     */
-    UnkGameEventStruct_t userIdNameParams{"userid"};
-    UnkGameEventStruct_t attackerNameParams{"attacker"};
-    UnkGameEventStruct_t healthNameParams{"health"};
-    UnkGameEventStruct_t armorNameParams{0};
-    UnkGameEventStruct_t weaponNameParams{0};
-    UnkGameEventStruct_t dmg_healthNameParams{0};
-    UnkGameEventStruct_t dmg_armorNameParams{0};
-    UnkGameEventStruct_t hitgroupNameParams{0};
-
-    static const auto healthStr = "health";
-    static const auto armorStr = "armor";
-    static const auto weaponStr = "weapon";
-    static const auto dmg_healthStr = "dmg_health";
-    static const auto dmg_armorStr = "dmg_armor";
-    static const auto hitgroupStr = "hitgroup";
-
-    // healthNameParams.m_Unk = Offset::FnServerHashFunction(
-    //     healthStr, sizeof healthStr, SERVER_HASH_FUCNTION_KEY);
-    // healthNameParams.m_Key = healthStr;
-
-    armorNameParams.m_Unk = Offset::FnServerHashFunction(
-        armorStr, sizeof armorStr, SERVER_HASH_FUCNTION_KEY);
-    armorNameParams.m_Key = armorStr;
-
-    weaponNameParams.m_Unk = Offset::FnServerHashFunction(
-        weaponStr, sizeof weaponStr, SERVER_HASH_FUCNTION_KEY);
-
-    weaponNameParams.m_Key = weaponStr;
-
-    dmg_healthNameParams.m_Unk = Offset::FnServerHashFunction(
-        dmg_healthStr, sizeof dmg_healthStr, SERVER_HASH_FUCNTION_KEY);
-    dmg_healthNameParams.m_Key = dmg_healthStr;
-
-    dmg_armorNameParams.m_Unk = Offset::FnServerHashFunction(
-        dmg_armorStr, sizeof dmg_armorStr, SERVER_HASH_FUCNTION_KEY);
-    dmg_armorNameParams.m_Key = dmg_armorStr;
-
-    hitgroupNameParams.m_Unk = Offset::FnServerHashFunction(
-        hitgroupStr, sizeof hitgroupStr, SERVER_HASH_FUCNTION_KEY);
-    hitgroupNameParams.m_Key = hitgroupStr;
+    GameEventKeySymbol_t userIdNameParams{"userid"};
+    GameEventKeySymbol_t attackerNameParams{"attacker"};
+    GameEventKeySymbol_t healthNameParams{"health"};
+    GameEventKeySymbol_t armorNameParams{"armor"};
+    GameEventKeySymbol_t weaponNameParams{"weapon"};
+    GameEventKeySymbol_t dmg_healthNameParams{"dmg_health"};
+    GameEventKeySymbol_t dmg_armorNameParams{"dmg_armor"};
+    GameEventKeySymbol_t hitgroupNameParams{"hitgroup"};
 
     const auto victimPawn = reinterpret_cast<CCSPlayerPawn*>(
-        event->GetPlayerPawn(&userIdNameParams));
+        event->GetPlayerPawn(userIdNameParams));
     const auto attackerPawn = reinterpret_cast<CCSPlayerPawn*>(
-        event->GetPlayerPawn(&attackerNameParams));
+        event->GetPlayerPawn(attackerNameParams));
     if (victimPawn == nullptr || attackerPawn == nullptr) {
         return;
     }
@@ -67,12 +66,12 @@ auto OnPlayerHurtEvent(IGameEvent* event) -> void {
     const auto victimIndex = victim->GetRefEHandle().GetEntryIndex();
     const auto attackerIndex = attacker->GetRefEHandle().GetEntryIndex();
 
-    auto health = event->GetInt(&healthNameParams);
-    auto armor = event->GetInt(&armorNameParams);
-    auto weapon = event->GetString(&weaponNameParams);
-    auto dmg_health = event->GetInt(&dmg_healthNameParams);
-    auto dmg_armor = event->GetInt(&dmg_armorNameParams);
-    auto hitgroup = event->GetInt(&hitgroupNameParams);
+    auto health = event->GetInt(healthNameParams);
+    auto armor = event->GetInt(armorNameParams);
+    auto weapon = event->GetString(weaponNameParams);
+    auto dmg_health = event->GetInt(dmg_healthNameParams);
+    auto dmg_armor = event->GetInt(dmg_armorNameParams);
+    auto hitgroup = event->GetInt(hitgroupNameParams);
     ScriptCallBacks::luaCall_onPlayerHurt(victimIndex, attackerIndex, health,
                                           armor, weapon, dmg_health, dmg_armor,
                                           hitgroup);
@@ -84,45 +83,25 @@ auto OnRoundEndEvent(IGameEvent* event) -> void {
         "message"	"string"	// end round message
     */
 
-    UnkGameEventStruct_t winnerNameParams{0};
-    UnkGameEventStruct_t reasonNameParams{0};
-    UnkGameEventStruct_t messageNameParams{0};
+    GameEventKeySymbol_t winnerNameParams{"winner"};
+    GameEventKeySymbol_t reasonNameParams{"reason"};
+    GameEventKeySymbol_t messageNameParams{"message"};
 
-    static const auto winnerStr = "winner";
-    static const auto reasonStr = "reason";
-    static const auto messageStr = "message";
-
-    winnerNameParams.m_Unk = Offset::FnServerHashFunction(
-        winnerStr, sizeof winnerStr, SERVER_HASH_FUCNTION_KEY);
-    winnerNameParams.m_Key = winnerStr;
-
-    reasonNameParams.m_Unk = Offset::FnServerHashFunction(
-        reasonStr, sizeof reasonStr, SERVER_HASH_FUCNTION_KEY);
-    reasonNameParams.m_Key = reasonStr;
-
-    messageNameParams.m_Unk = Offset::FnServerHashFunction(
-        messageStr, sizeof messageStr, SERVER_HASH_FUCNTION_KEY);
-    messageNameParams.m_Key = messageStr;
-
-    const auto message = event->GetString(&messageNameParams);
-    const auto winner = event->GetInt(&winnerNameParams);
-    const auto reason = event->GetInt(&reasonNameParams);
+    const auto message = event->GetString(messageNameParams);
+    const auto winner = event->GetInt(winnerNameParams);
+    const auto reason = event->GetInt(reasonNameParams);
 
     ScriptCallBacks::luaCall_onRoundEnd(winner, reason, message);
 }
 auto OnRoundStartEvent(IGameEvent* event) -> void {
-    UnkGameEventStruct_t timelimitNameParams{0};
-    static const auto timelimitStr = "timelimit";
-    timelimitNameParams.m_Unk = Offset::FnServerHashFunction(
-        timelimitStr, sizeof timelimitStr, SERVER_HASH_FUCNTION_KEY);
-    timelimitNameParams.m_Key = timelimitStr;
-    const auto timelimit = event->GetInt(&timelimitNameParams);
+    GameEventKeySymbol_t timelimitNameParams{"timelimit"};
+    const auto timelimit = event->GetInt(timelimitNameParams);
     ScriptCallBacks::luaCall_onRoundStart(timelimit);
 }
 auto OnPlayerSpawnEvent(IGameEvent* event) -> void {
-    UnkGameEventStruct_t userIdNameParams{"userid"};
+    GameEventKeySymbol_t userIdNameParams{"userid"};
     const auto playerPawn = reinterpret_cast<CCSPlayerPawn*>(
-        event->GetPlayerPawn(&userIdNameParams));
+        event->GetPlayerPawn(userIdNameParams));
     if (playerPawn == nullptr) {
         return;
     }
@@ -134,18 +113,15 @@ auto OnPlayerSpawnEvent(IGameEvent* event) -> void {
     ScriptCallBacks::luaCall_onPlayerSpawn(playerIndex);
 }
 auto OnPlayerDeathEvent(IGameEvent* event) -> void {
-    UnkGameEventStruct_t userIdNameParams{"userid"};
-    UnkGameEventStruct_t attackerNameParams{"attacker"};
-    UnkGameEventStruct_t headshotNameParams{0};
-    static const auto headShotStr = "headshot";
-    headshotNameParams.m_Unk = Offset::FnServerHashFunction(
-        headShotStr, sizeof headShotStr, SERVER_HASH_FUCNTION_KEY);
-    headshotNameParams.m_Key = headShotStr;
+    GameEventKeySymbol_t userIdNameParams{"userid"};
+    GameEventKeySymbol_t attackerNameParams{"attacker"};
+    GameEventKeySymbol_t headshotNameParams{"headshot"};
+
     const auto victimPawn = reinterpret_cast<CCSPlayerPawn*>(
-        event->GetPlayerPawn(&userIdNameParams));
+        event->GetPlayerPawn(userIdNameParams));
     const auto attackerPawn = reinterpret_cast<CCSPlayerPawn*>(
-        event->GetPlayerPawn(&attackerNameParams));
-    const auto isHeadShot = event->GetBool(&headshotNameParams);
+        event->GetPlayerPawn(attackerNameParams));
+    const auto isHeadShot = event->GetBool(headshotNameParams);
     if (victimPawn == nullptr || attackerPawn == nullptr) {
         return;
     }
@@ -165,6 +141,9 @@ auto OnPlayerDeathEvent(IGameEvent* event) -> void {
     // printf("player[%p] %s kill[%p] %llu\n", attacker,
     // &attacker->m_iszPlayerName(), victim,  &victim->m_steamID());
 }
+auto OnConsoleChat(std::string message) -> bool {
+    return ScriptCallBacks::luaCall_onPlayerSpeak(-1, static_cast<int>(_ChatType::kConsole), message);
+}
 auto OnPlayerChat(CCSPlayerController* player, std::string message) -> bool {
     auto [procesChatSuccess, chatType, chatCtx] =
         SdkTools::ProcessChatString(message);
@@ -172,7 +151,8 @@ auto OnPlayerChat(CCSPlayerController* player, std::string message) -> bool {
         return false;
     }
     return ScriptCallBacks::luaCall_onPlayerSpeak(
-        player->GetRefEHandle().GetEntryIndex(), chatType, chatCtx);
+        player->GetRefEHandle().GetEntryIndex(), static_cast<int>(chatType),
+        chatCtx);
 }
 auto OnPlayerConnect(int slot, const char* pszName, uint64_t xuid,
                      const char* pszNetworkID, const char* pszAddress,

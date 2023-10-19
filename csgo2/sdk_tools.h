@@ -8,8 +8,8 @@ inline int EntityIndex_to_PlayerSlot(int EntityIndex) {
 #define HUD_PRINTCONSOLE	2
 #define HUD_PRINTTALK		3
 #define HUD_PRINTCENTER		4
-enum _ChatType { kTeam, kAll };
-enum _HubType { kNotify = 1, kConsole, kTalk, kCenter, kMax };
+enum class _ChatType { kTeam, kAll, kConsole };
+enum class _HubType { kNotify = 1, kConsole, kTalk, kCenter, kMax };
 
 namespace SdkTools {
 auto ProcessChatString(const std::string& input)

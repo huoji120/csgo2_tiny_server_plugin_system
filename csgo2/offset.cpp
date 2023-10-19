@@ -11,7 +11,7 @@ uint64_t MaxPlayerNumsPtr;
 HashFunction_t FnServerHashFunction;
 StateChanged_t FnStateChanged;
 NetworkStateChanged_t FnNetworkStateChanged;
-RespawnPlayer_t FnRespawnPlayer;
+RespawnPlayerInDeathMatch_t FnRespawnPlayerInDeathMatch;
 GiveNamedItem_t FnGiveNamedItem;
 EntityRemove_t FnEntityRemove;
 UTIL_SayTextFilter_t FnUTIL_SayTextFilter;
@@ -49,11 +49,14 @@ auto SafeDelayInit(void* ctx) -> void {
     LOG("m_bForceTeamChangeSilent: %d \n",
         InterFaces::CCSGameRulesInterFace->m_bForceTeamChangeSilent());
 }
+
 auto Init() -> bool {
     CModule server("server.dll");
     CModule schemasystem("schemasystem.dll");
     CModule engine("engine2.dll");
     CModule localize("localize.dll");
+    CModule tier0("tier0.dll");
+    Memory::PathVscript();
 
     // engine.dll
     engine.FindPattern(pattern_MaxPlayerNumsPtr)
@@ -71,11 +74,11 @@ auto Init() -> bool {
     server.FindPattern(pattern_CreateCCSGameRulesInterFacePtr)
         .ToAbsolute(3, 0)
         .Get(CCSGameRulesInterFacePtr);
-    server.FindPattern(pattern_FnRespawnPlayer).Get(FnRespawnPlayer);
+    server.FindPattern(pattern_FnRespawnPlayerInDeathMatch).Get(FnRespawnPlayerInDeathMatch);
     server.FindPattern(pattern_FnEntityRemove).Get(FnEntityRemove);
     server.FindPattern(pattern_FnGiveNamedItemPtr).Get(FnGiveNamedItem);
     server.FindPattern(pattern_fnHost_SayPtr).Get(Host_SayPtr);
-    server.FindPattern(pattern_ServerHashFunctionPtr).Get(FnServerHashFunction);
+    //server.FindPattern(pattern_ServerHashFunctionPtr).Get(FnServerHashFunction);
     server.FindPattern(pattern_UTIL_ClientPrintAll).Get(FnUTIL_ClientPrintAll);
     server.FindPattern(pattern_FnClientPrint).Get(FnClientPrint);
 
@@ -89,7 +92,7 @@ auto Init() -> bool {
     InterFaces::ILocalize = reinterpret_cast<CLocalize*>(
         localize.FindInterface("Localize_001").Get());
     InterFaces::IVEngineCvar = reinterpret_cast<ICvar*>(
-        engine.FindInterface("VEngineCvar007").Get());
+        tier0.FindInterface("VEngineCvar007").Get());
 
     InterFaces::GameResourceServiceServer =
         reinterpret_cast<CGameResourceService*>(
@@ -121,9 +124,9 @@ auto Init() -> bool {
     LOG("[huoji]FireEventServerSidePtr : %llx \n", FireEventServerSidePtr);
     LOG("[huoji]Host_SayPtr : %llx \n", Host_SayPtr);
     LOG("[huoji]FnNetworkStateChanged : %llx \n", FnNetworkStateChanged);
-    LOG("[huoji]FnServerHashFunction : %llx \n", FnServerHashFunction);
+    //LOG("[huoji]FnServerHashFunction : %llx \n", FnServerHashFunction);
     LOG("[huoji]FnStateChanged : %llx \n", FnStateChanged);
-    LOG("[huoji]FnRespawnPlayer : %llx \n", FnRespawnPlayer);
+    LOG("[huoji]FnRespawnPlayerInDeathMatch : %llx \n", FnRespawnPlayerInDeathMatch);
     LOG("[huoji]FnGiveNamedItem : %llx \n", FnGiveNamedItem);
     LOG("[huoji]FnClientPrint : %llx \n", FnClientPrint);
     LOG("[huoji]FnUTIL_ClientPrintAll : %llx \n", FnUTIL_ClientPrintAll);
@@ -154,8 +157,7 @@ auto Init() -> bool {
                  0, NULL);
     //  LOG("FnServerHashFunction: %llx \n", FnServerHashFunction("here",
     //  sizeof("here") - 1, 0x31415926));
-    return FnCCSWeaponBase_Spawn && FnEntityRemove && FnRespawnPlayer && FnGiveNamedItem &&
-           FnServerHashFunction && Host_SayPtr && InterFaces::IVEngineServer &&
+    return FnCCSWeaponBase_Spawn && FnEntityRemove && FnRespawnPlayerInDeathMatch && FnGiveNamedItem && Host_SayPtr && InterFaces::IVEngineServer &&
            InterFaces::GameResourceServiceServer &&
            InterFaces::IServerGameClient && InterFaces::GameEventManager &&
            InterFaces::SchemaSystem && FireEventServerSidePtr &&

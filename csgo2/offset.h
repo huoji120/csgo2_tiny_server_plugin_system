@@ -14,7 +14,7 @@ typedef void(__fastcall* StateChanged_t)(void* networkTransmitComponent,
 typedef void(__fastcall* NetworkStateChanged_t)(uintptr_t chainEntity,
                                                 uintptr_t offset, uintptr_t a3);
 typedef void*(__fastcall* CreateGameRuleInterFace_t)();
-typedef bool(__fastcall* RespawnPlayer_t)(CCSPlayerPawn* player);
+typedef bool(__fastcall* RespawnPlayerInDeathMatch_t)(CCSPlayerPawn* player);
 typedef void(__fastcall* GiveNamedItem_t)(void* itemService,
                                           const char* pchName, void* iSubType,
                                           void* pScriptItem, void* a5,
@@ -26,7 +26,6 @@ typedef void*(__fastcall* UTIL_SayTextFilter_t)(IRecipientFilter&, const char*,
 typedef void(__fastcall* UTIL_ClientPrintAll_t)(int msg_dest, const char* msg_name, const char* param1, const char* param2, const char* param3, const char* param4);
 typedef void(__fastcall* ClientPrint_t)(CCSPlayerController* player, int msg_dest, const char* msg_name, const char* param1, const char* param2, const char* param3, const char* param4);
 typedef void(__fastcall* CCSWeaponBase_Spawn_t)(CBaseEntity*, void*);
-
 class CSchemaSystem;
 class CGameResourceService;
 class CLocalize;
@@ -45,6 +44,7 @@ extern ISource2Server* ISource2ServerInterFace;
 extern CCSGameRules* CCSGameRulesInterFace;
 extern ICvar* IVEngineCvar;
 };  // namespace InterFaces
+static const auto pattern_VscriptPath = THE_GAME_SIG("BE 01 ?? ?? ?? 2B D6 74 ?? 3B D6");
 static const auto pattern_CGameEventManager = THE_GAME_SIG(
     "48 ?? ?? ?? ?? ?? ?? 48 89 ?? ?? ?? 48 89 01 48 8B D9 48 ?? ?? ?? ?? ?? "
     "?? 48 89 ?? ?? E8 ?? ?? ?? ?? 48 ?? ?? ?? ?? ?? ??");
@@ -79,6 +79,8 @@ static const auto pattern_CreateCCSGameRulesInterFacePtr = THE_GAME_SIG(
     "?? ?? 4C 8D ?? ?? ?? 49 8B ?? ?? 49 8B ?? ?? 49 8B ?? ?? 49 8B E3 41 5F "
     "41 5E 5F C3");
 static const auto pattern_FnRespawnPlayer = THE_GAME_SIG(
+    "48 89 ?? ?? ?? 48 89 ?? ?? ?? 56 48 ?? ?? ?? ?? ?? ?? 48 8B DA 48 8B E9 48 85 D2 0F ?? ?? ?? ?? ?? 48 8B 02 48 8B CA FF ?? ?? ?? ?? ?? 84 C0 0F ?? ?? ?? ?? ?? 83 BB ?? ?? ?? ?? ?? 0F ?? ?? ?? ?? ??");
+static const auto pattern_FnRespawnPlayerInDeathMatch = THE_GAME_SIG(
     "48 89 ?? ?? ?? 57 48 ?? ?? ?? 48 8D ?? ?? ?? 48 8B F9 E8 ?? ?? ?? ?? 83 "
     "?? ?? 74 ?? 48 ?? ?? ?? ?? ?? ?? 48 8B CF 48 8B 10 48 8B ?? ?? ?? ?? ?? "
     "48 8D ?? ?? ?? E8 ?? ?? ?? ?? 48 ?? ?? ?? ?? ?? ??");
@@ -102,7 +104,7 @@ extern uint64_t MaxPlayerNumsPtr;
 extern HashFunction_t FnServerHashFunction;
 extern StateChanged_t FnStateChanged;
 extern NetworkStateChanged_t FnNetworkStateChanged;
-extern RespawnPlayer_t FnRespawnPlayer;
+extern RespawnPlayerInDeathMatch_t FnRespawnPlayerInDeathMatch;
 extern GiveNamedItem_t FnGiveNamedItem;
 extern EntityRemove_t FnEntityRemove;
 extern UTIL_SayTextFilter_t FnUTIL_SayTextFilter;

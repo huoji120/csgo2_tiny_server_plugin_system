@@ -37,6 +37,7 @@ auto init(void* ctx) -> bool {
 
         Sleep(200);
     }
+    global::isMetaModInit = (GetModuleHandleA("metamod.2.cs2.dll") != nullptr);
     if (Offset::Init() == false) {
         LOG("Offset::Init() == false !\n");
         return false;
