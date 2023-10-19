@@ -54,7 +54,6 @@ auto ExcutePlayerAction(int playerIndex,
         function(playerController);
     } while (false);
 }
-// �����Ƿ���ֵ����,����ֵ����Ҫ�Լ�push��stack��
 auto luaApi_ListenToGameEvent(lua_State* luaVm) -> int {
     const auto eventName = lua_tostring(luaVm, 1);
     do {
@@ -73,7 +72,6 @@ auto luaApi_ListenToGameEvent(lua_State* luaVm) -> int {
             LOG("luaApi_ListenToGameEvent unknown event name: %s\n", eventName);
             break;
         }
-        // ���ص����ӵ�ӳ����
         std::unique_lock lock(ScriptCallBacks::mutex_callbackList);
         ScriptCallBacks::callbackList[luaVm][callbackType] =
             luaL_ref(luaVm, LUA_REGISTRYINDEX);
@@ -82,7 +80,7 @@ auto luaApi_ListenToGameEvent(lua_State* luaVm) -> int {
             eventName);
     } while (false);
 
-    lua_pop(luaVm, 2);  // ������ջ
+    lua_pop(luaVm, 2);
     return 0;
 }
 auto luaApi_SetPlayerCurrentWeaponAmmo(lua_State* luaVm) -> int {
@@ -1046,7 +1044,6 @@ auto initFunciton(lua_State* luaVm) -> void {
         .addData("weaponIndex", &_luaApi_WeaponInfo::weaponIndex)
         .endClass()
         .addFunction("luaApi_GetPlayerWeaponInfo", &luaApi_GetPlayerWeaponInfo);
-    //  �Ҳ�ϲ����
     luabridge::getGlobalNamespace(luaVm)
         .beginClass<_luaApi_WeaponInfo>("WeaponInfo")
         .addConstructor<void (*)(void)>()
