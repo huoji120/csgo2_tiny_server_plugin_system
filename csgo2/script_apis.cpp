@@ -400,13 +400,14 @@ auto luaApi_GivePlayerWeapon(lua_State* luaVm) -> int {
     const auto playerIndex = lua_tointeger(luaVm, 1);
     const auto weaponName = lua_tostring(luaVm, 2);
     auto isSuccess = false;
-    ExcutePlayerAction(playerIndex, [&](CCSPlayerController* playerController) {
-        if (playerController->m_bPawnIsAlive() == false) {
-            return;
-        }
-        isSuccess =
-            GameWeapons::ParseWeaponCommand(playerController, weaponName);
-    });
+    if (weaponName != nullptr) {
+        ExcutePlayerAction(playerIndex, [&](CCSPlayerController* playerController) {
+            if (playerController->m_bPawnIsAlive() == false) {
+               return;
+            }
+            isSuccess = GameWeapons::ParseWeaponCommand(playerController, weaponName);
+        });
+    }
     lua_pop(luaVm, 2);
     lua_pushboolean(luaVm, isSuccess);
     return 1;
