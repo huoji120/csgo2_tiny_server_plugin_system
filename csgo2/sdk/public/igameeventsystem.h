@@ -9,9 +9,10 @@ typedef uint NetworkCategoryId;
 
 enum NetChannelBufType_t
 {
-	kFuckOffAss
+	BUF_RELIABLE = 0,
+	BUF_UNRELIABLE,
+	BUF_VOICE,
 };
-
 enum NetworkValidationMode_t
 {
 	kFuckOffAss_NetworkValidationMode
@@ -66,7 +67,7 @@ enum NetworkSerializationMode_t
 	NET_SERIALIZATION_MODE_SERVER = 0x0,
 	NET_SERIALIZATION_MODE_CLIENT = 0x1,
 };
-enum ETEProtobufIds_t {
+enum ETEProtobufIds : int {
 	TE_EffectDispatchId = 400,
 	TE_ArmorRicochetId = 401,
 	TE_BeamEntPointId = 402,
@@ -92,15 +93,16 @@ enum ETEProtobufIds_t {
 	TE_PhysicsPropId = 423,
 	TE_PlayerDecalId = 424,
 	TE_ProjectedDecalId = 425,
-	TE_SmokeId = 426
+	TE_SmokeId = 426,
+	TE_BulletHold = 452
 };
 class INetworkSerializable
 {
 public:
 	virtual ~INetworkSerializable() = 0;
 
-	virtual const char* GetUnscopedName() = 0;
-	virtual NetMessageInfo_t* GetNetMessageInfo() = 0;
+	virtual const char *GetUnscopedName() = 0;
+	virtual NetMessageInfo_t *GetNetMessageInfo() = 0;
 
 	virtual void SetMessageId(unsigned short nMessageId) = 0;
 
@@ -108,12 +110,12 @@ public:
 
 	virtual void SwitchMode(NetworkValidationMode_t nMode) = 0;
 
-	virtual void* AllocateMessage() = 0;
-	virtual void DeallocateMessage(void* pMsg) = 0;
-	virtual void* AllocateAndCopyConstructNetMessage(void const* pOther) = 0;
+	virtual void *AllocateMessage() = 0;
+	virtual void DeallocateMessage(void *pMsg) = 0;
+	virtual void *AllocateAndCopyConstructNetMessage(void const *pOther) = 0;
 
-	virtual bool Serialize(bf_write& pBuf, void const* pData, NetworkSerializationMode_t unused) = 0;
-	virtual bool Unserialize(bf_read& pBuf, void* pData, NetworkSerializationMode_t unused) = 0;
+	virtual bool Serialize(bf_write &pBuf, void const *pData, NetworkSerializationMode_t unused) = 0;
+	virtual bool Unserialize(bf_read &pBuf, void *pData, NetworkSerializationMode_t unused) = 0;
 };
 
 class IGameEventSystem : public IAppSystem

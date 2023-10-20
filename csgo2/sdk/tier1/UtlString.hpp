@@ -181,7 +181,8 @@ public:
     static int __cdecl SortCaseSensitive(const CUtlString *pString1, const CUtlString *pString2);
 
 private:
-    CUtlBinaryBlock m_Storage;
+    //CUtlBinaryBlock m_Storage;
+    char* m_pString;
 };
 
 

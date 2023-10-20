@@ -16,6 +16,7 @@
 #define INCORRECT_PATH_SEPARATOR '/'
 #define INCORRECT_PATH_SEPARATOR_S "/"
 #define FMTFUNCTION(a, b)
+#define DLL_CLASS_IMPORT __declspec( dllimport )
 
 enum EStringConvertErrorPolicy {
     _STRINGCONVERTFLAG_SKIP = 1,

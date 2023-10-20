@@ -972,11 +972,68 @@ auto luaApi_GetConVarObject(lua_State* luaVm) -> int {
 
     return 1;
 }
+auto luaApi_SetPlayerWeaponEffectStatus(lua_State* luaVm) -> int {
+    const auto playerIndex = lua_tointeger(luaVm, 1);
+    const auto status = lua_tointeger(luaVm, 2);
+    auto playerSlot = EntityIndex_to_PlayerSlot(playerIndex);
+    do
+    {
+        if (status >= static_cast<int>(_ExtendPlayerSetting_Weapon::kMax)
+            || status < static_cast<int>(_ExtendPlayerSetting_Weapon::kNone)) {
+            break;
+        }
+        if (playerSlot == -1) {
+            break;
+        }
+        auto player = ExtendPlayerManager::GetPlayerByPlayerSlot(playerSlot);
+        if (player == nullptr) {
+            break;
+        }
+        auto [isSuccess, playerSetting] = ExtendPlayerManager::GetPlayerSettingBySteamId(player->m_steamID());
+        if (isSuccess == false) {
+            LOG("can't get player setting, wtf bug?? \n");
+            break;
+        }
+        ExtendPlayerManager::UpdatePlayerSettingBySteamId(player->m_steamID(), _ExtendPlayerSetting{
+            .bloodSetting = playerSetting.bloodSetting,
+            .weaponSetting = static_cast<_ExtendPlayerSetting_Weapon>(status)
+            });
 
-auto luaApi_SetServerBloodStatus(lua_State* luaVm) -> int {
-    // param: isEnableBoold:bool
-    global::IsDisableBlood = !lua_toboolean(luaVm, 1);
-    lua_pop(luaVm, 1);
+    } while (false);
+
+    lua_pop(luaVm, 2);
+    return 0;
+}
+auto luaApi_SetPlayerBloodStatus(lua_State* luaVm) -> int {
+    const auto playerIndex = lua_tointeger(luaVm, 1);
+    const auto status = lua_tointeger(luaVm, 2);
+    auto playerSlot = EntityIndex_to_PlayerSlot(playerIndex);
+    do
+    {
+        if (status >= static_cast<int>(_ExtendPlayerSetting_Blood::kMax) 
+            || status < static_cast<int>(_ExtendPlayerSetting_Blood::kNone)) {
+            break;
+        }
+        if (playerSlot == -1) {
+            break;
+        }
+        auto player = ExtendPlayerManager::GetPlayerByPlayerSlot(playerSlot);
+        if (player == nullptr) {
+            break;
+        }
+        auto [isSuccess, playerSetting] = ExtendPlayerManager::GetPlayerSettingBySteamId(player->m_steamID());
+        if (isSuccess == false) {
+            LOG("can't get player setting, wtf bug?? \n");
+            break;
+        }
+        ExtendPlayerManager::UpdatePlayerSettingBySteamId(player->m_steamID(), _ExtendPlayerSetting {
+            .bloodSetting = static_cast<_ExtendPlayerSetting_Blood>(status),
+            .weaponSetting = playerSetting.weaponSetting
+        });
+
+    } while (false);
+
+    lua_pop(luaVm, 2);
     return 0;
 }
 auto initFunciton(lua_State* luaVm) -> void {
@@ -1038,8 +1095,8 @@ auto initFunciton(lua_State* luaVm) -> void {
     lua_register(luaVm, "luaApi_GetPlayerName", luaApi_GetPlayerName);
     lua_register(luaVm, "luaApi_SetPlayerNameSlient",
                  luaApi_SetPlayerNameSlient);
-    lua_register(luaVm, "luaApi_SetServerBloodStatus", luaApi_SetServerBloodStatus);
-
+    //lua_register(luaVm, "luaApi_SetPlayerWeaponEffectStatus", luaApi_SetPlayerWeaponEffectStatus);
+    lua_register(luaVm, "luaApi_SetPlayerBloodStatus", luaApi_SetPlayerBloodStatus);
     // lua_register(luaVm, "luaApi_TeleportPlayer", luaApi_TeleportPlayer);
 
     luabridge::getGlobalNamespace(luaVm)

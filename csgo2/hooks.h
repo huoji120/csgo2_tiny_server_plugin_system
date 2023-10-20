@@ -19,6 +19,7 @@ typedef void(__fastcall* UTIL_SayText2Filter_t)(IRecipientFilter&,
                                                 const char*, const char*,
                                                 const char*, const char*,
                                                 const char*);
+//typedef void(__fastcall* PostEventAbstract_t)(void*, CSplitScreenSlot, bool, IRecipientFilter*, INetworkSerializable*, const void*, unsigned long);
 typedef void(__fastcall* PostEventAbstract_t)(void*, CSplitScreenSlot, bool, int, const uint64_t*, INetworkSerializable*, const void*, unsigned long, NetChannelBufType_t);
 namespace hooks {
 extern Host_Say_t original_Host_Say;

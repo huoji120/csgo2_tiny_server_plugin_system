@@ -11,5 +11,4 @@ namespace global {
 	extern float m_flUniversalTime;
 	extern float m_flLastTickedTime;
 	extern bool IsMetaModInit;
-	extern bool IsDisableBlood;
 }

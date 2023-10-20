@@ -8,5 +8,4 @@ namespace global {
 	float m_flUniversalTime;
 	float m_flLastTickedTime;
 	bool IsMetaModInit;
-	bool IsDisableBlood;
 }

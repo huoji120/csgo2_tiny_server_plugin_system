@@ -1,6 +1,5 @@
 #pragma once
 #include "../sdk.h"
-#define DLL_CLASS_IMPORT __declspec( dllimport )
 
 class CFormatStringElement;
 class IFormatOutputStream;

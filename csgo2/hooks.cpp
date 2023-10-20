@@ -17,6 +17,7 @@ GameFrame_t origin_GameFrame = NULL;
 CCSWeaponBase_Spawn_t origin_CCSWeaponBase_Spawn = NULL;
 UTIL_SayText2Filter_t origin_UTIL_SayText2Filter = NULL;
 PostEventAbstract_t origin_PostEventAbstract = NULL;
+
 void __fastcall hook_PostEventAbstract(
     void* rcx, 
     CSplitScreenSlot nSlot, 
@@ -28,26 +29,61 @@ void __fastcall hook_PostEventAbstract(
     unsigned long nSize, 
     NetChannelBufType_t bufType)
 {
-    /*
-    if (global::IsDisableBlood == true) {
+    do
+    {
+        if (global::EntitySystem == nullptr) {
+            break;
+        }
+        if (pEvent == nullptr) {
+            break;
+        }
         NetMessageInfo_t* info = pEvent->GetNetMessageInfo();
-        if (info) {
-            if (info->m_MessageId == TE_WorldDecalId)
+        if (info == nullptr) {
+            break;
+        }
+        const auto isBloodAboutMessage = (info->m_MessageId == TE_WorldDecalId || info->m_MessageId == TE_EffectDispatchId);
+        if (isBloodAboutMessage == false/* && isWeaponAboutMessage == false */) {
+            break;
+        }
+        for (uint64 i = 0; i < global::MaxPlayers; i++)
+        {
+            if (!(*(uint64*)clients & ((uint64)1 << i))) {
+                continue;
+            }
+
+            const auto pEntity = global::EntitySystem->GetBaseEntity(i);
+            if (pEntity == nullptr) {
+                continue;
+            }
+
+            if (pEntity->IsBasePlayerController() == false) {
+                continue;
+            }
+            const auto player = reinterpret_cast<CCSPlayerController*>(pEntity);
+
+            const auto [isSuccess, playerSetting] = ExtendPlayerManager::GetPlayerSettingBySteamId(player->m_steamID());
+            if (isSuccess == false) {
+                continue;
+            }
+            bool skipTheEvent = false;
+            if (isBloodAboutMessage) {
+                skipTheEvent = (playerSetting.bloodSetting == _ExtendPlayerSetting_Blood::kDisableBloodEffectDispatch && info->m_MessageId == TE_EffectDispatchId) ||
+                    (playerSetting.bloodSetting == _ExtendPlayerSetting_Blood::kDisableBloodWorldDecal && info->m_MessageId == TE_WorldDecalId) || 
+                    (playerSetting.bloodSetting == _ExtendPlayerSetting_Blood::kDisableBloodWorldDecalAndEffectDispatch);
+            }
+            /*
+            else if (isWeaponAboutMessage)
             {
-                LOG("delete the blood in here \n");
-                //*(uint64_t*)clients &= ~((uint64)1 << nSlot.Get());
+                skipTheEvent = (playerSetting.weaponSetting == _ExtendPlayerSetting_Weapon::kDisablebulletHole);
+            }
+            */
+            if (skipTheEvent) {
+                *(uint64*)clients &= ~((uint64)1 << i);
+                nClientCount--;
             }
         }
-    }
-    
-    */
-    if (pEvent) {
-        NetMessageInfo_t* info = pEvent->GetNetMessageInfo();
-        if (info && info->m_MessageId != 0) {
-            LOG("1111:%d \n", info->m_MessageId);
-        }
-    }
-    return origin_PostEventAbstract(rcx, nSlot, bLocalOnly, nClientCount, clients, pEvent, pData, nSize, bufType);
+    } while (false);
+    origin_PostEventAbstract(rcx, nSlot, bLocalOnly, nClientCount, clients, pEvent, pData, nSize, bufType);
 }
 void __fastcall hook_UTIL_SayText2Filter(
     IRecipientFilter& filter, CCSPlayerController* pEntity,

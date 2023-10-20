@@ -43,7 +43,7 @@ auto CCSPlayerPawn::GetPlayerController() -> CCSPlayerController* {
     if (!pEntitySystem) {
         return nullptr;
     }
-    for (int i = 1; i <= global::MaxPlayers; ++i) {
+    for (int i = 0; i <= global::MaxPlayers; ++i) {
         CBaseEntity* pEntity = pEntitySystem->GetBaseEntity(i);
         if (!pEntity) continue;
         if (pEntity->IsBasePlayerController()) {
