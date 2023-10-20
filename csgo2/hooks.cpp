@@ -6,6 +6,8 @@ namespace hooks {
 VMTHook* VMT_IServerGameClient;
 VMTHook* VMT_INetworkServerServiceInteFace;
 VMTHook* VMT_ISource2ServerInterFace;
+VMTHook* VMT_GameEventSystem;
+
 FireEventServerSide_t original_FireEventServerSide = NULL;
 OnClientConnect_t original_OnClientConnected = NULL;
 OnClientDisconnect_t original_OnClientDisconnect = NULL;
@@ -14,23 +16,45 @@ StartupServer_t origin_StartServer = NULL;
 GameFrame_t origin_GameFrame = NULL;
 CCSWeaponBase_Spawn_t origin_CCSWeaponBase_Spawn = NULL;
 UTIL_SayText2Filter_t origin_UTIL_SayText2Filter = NULL;
+PostEventAbstract_t origin_PostEventAbstract = NULL;
+void __fastcall hook_PostEventAbstract(
+    void* rcx, 
+    CSplitScreenSlot nSlot, 
+    bool bLocalOnly, 
+    int nClientCount, 
+    const uint64* clients, 
+    INetworkSerializable* pEvent, 
+    const void* pData, 
+    unsigned long nSize, 
+    NetChannelBufType_t bufType)
+{
+    /*
+    if (global::IsDisableBlood == true) {
+        NetMessageInfo_t* info = pEvent->GetNetMessageInfo();
+        if (info) {
+            if (info->m_MessageId == TE_WorldDecalId)
+            {
+                LOG("delete the blood in here \n");
+                //*(uint64_t*)clients &= ~((uint64)1 << nSlot.Get());
+            }
+        }
+    }
+    
+    */
+    if (pEvent) {
+        NetMessageInfo_t* info = pEvent->GetNetMessageInfo();
+        if (info && info->m_MessageId != 0) {
+            LOG("1111:%d \n", info->m_MessageId);
+        }
+    }
+    return origin_PostEventAbstract(rcx, nSlot, bLocalOnly, nClientCount, clients, pEvent, pData, nSize, bufType);
+}
 void __fastcall hook_UTIL_SayText2Filter(
     IRecipientFilter& filter, CCSPlayerController* pEntity,
     uint64_t eMessageType, const char* messeageName, const char* param1,
     const char* param2, const char* param3, const char* param4) {
     const auto entIndex =
         PlayerSlot_to_EntityIndex(filter.GetRecipientIndex(0).Get());
-    /*
-LOG("UTIL_SayText2Filter: %s\n", messeageName);
-LOG("entIndex: %d\n", entIndex);
-
-LOG("param1: %s\n", param1);
-LOG("param2: %s\n", param2);
-
-LOG("param3: %s\n", param3);
-LOG("param4: %s\n", param4);
-LOG("eMessageType: %d\n", eMessageType);
-*/
     const auto isHandle = ScriptCallBacks::luCall_onSayText2Filter(
         entIndex, eMessageType, messeageName, param1, param2, param3, param4);
     if (isHandle == false) {
@@ -109,6 +133,9 @@ void __fastcall hook_GameFrame(void* rcx, bool simulating, bool bFirstTick,
     }
     if (global::EntitySystem == nullptr) {
         global::EntitySystem = CGameEntitySystem::GetInstance();
+    }
+    if (global::GlobalVars == nullptr) {
+        global::GlobalVars = GetGameGlobals();
     }
     return origin_GameFrame(rcx, simulating, bFirstTick, bLastTick);
 }
@@ -300,7 +327,12 @@ auto initVmtHook() -> bool {
     VMT_ISource2ServerInterFace =
         new VMTHook(Memory::read<void*>(reinterpret_cast<uint64_t>(
             Offset::InterFaces::ISource2ServerInterFace)));
+    VMT_GameEventSystem =
+        new VMTHook(Memory::read<void*>(reinterpret_cast<uint64_t>(
+            Offset::InterFaces::GameEventSystem)));
 
+    origin_PostEventAbstract = reinterpret_cast<PostEventAbstract_t>(
+        VMT_GameEventSystem->Hook(16, hook_PostEventAbstract));
     original_OnClientConnected = reinterpret_cast<OnClientConnect_t>(
         VMT_IServerGameClient->Hook(11, hook_OnClientConnected));
     original_OnClientDisconnect = reinterpret_cast<OnClientDisconnect_t>(
@@ -323,8 +355,14 @@ auto init() -> bool {
 }
 auto unload() -> void {
     VMT_IServerGameClient->ClearHooks();
+    VMT_INetworkServerServiceInteFace->ClearHooks();
+    VMT_ISource2ServerInterFace->ClearHooks();
+    VMT_GameEventSystem->ClearHooks();
 
     delete VMT_IServerGameClient;
+    delete VMT_INetworkServerServiceInteFace;
+    delete VMT_ISource2ServerInterFace;
+    delete VMT_GameEventSystem;
 
     MH_DisableHook(MH_ALL_HOOKS);
     MH_RemoveHook(MH_ALL_HOOKS);

@@ -4,7 +4,7 @@
 class InterfaceReg;
 //cancer fix me plz
 namespace global {
-    extern bool isMetaModInit;
+    extern bool IsMetaModInit;
 };
 // Pointer arithmetic utility class.
 struct UTILPtr {
@@ -119,7 +119,7 @@ class CModule {
 
    private:
     void InitializeHandle() {
-        if (global::isMetaModInit == false) {
+        if (global::IsMetaModInit == false) {
             this->m_handle = static_cast<void*>(GetModuleHandleA(this->GetName()));
             return;
         }

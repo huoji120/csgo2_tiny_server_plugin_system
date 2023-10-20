@@ -35,9 +35,9 @@ auto init(void* ctx) -> bool {
         serverHandle = reinterpret_cast<uint64_t>(GetModuleHandleA("server.dll"));
         localizeHandle = reinterpret_cast<uint64_t>(GetModuleHandleA("localize.dll"));
 
-        Sleep(200);
+        Sleep(100);
     }
-    global::isMetaModInit = (GetModuleHandleA("metamod.2.cs2.dll") != nullptr);
+    global::IsMetaModInit = (GetModuleHandleA("metamod.2.cs2.dll") != nullptr);
     if (Offset::Init() == false) {
         LOG("Offset::Init() == false !\n");
         return false;

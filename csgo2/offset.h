@@ -6,6 +6,11 @@ class CCSPlayerPawn;
 class CGameEntitySystem;
 class CCSPlayerController;
 class CBaseEntity;
+class IGameEventSystem;
+class CSchemaSystem;
+class CGameResourceService;
+class CLocalize;
+class CCSGameRules;
 typedef uint64_t(__fastcall* HashFunction_t)(const char*, unsigned int,
                                              unsigned int);
 typedef void(__fastcall* StateChanged_t)(void* networkTransmitComponent,
@@ -32,10 +37,7 @@ typedef void(__fastcall* ClientPrint_t)(CCSPlayerController* player,
                                         const char* param3, const char* param4);
 typedef void(__fastcall* CCSWeaponBase_Spawn_t)(CBaseEntity*, void*);
 typedef void(__fastcall* PlayerChangeName_t)(CBaseEntity*, char*);
-class CSchemaSystem;
-class CGameResourceService;
-class CLocalize;
-class CCSGameRules;
+
 namespace Offset {
 namespace InterFaces {
 extern CSchemaSystem* SchemaSystem;
@@ -49,6 +51,7 @@ extern INetworkServerService* INetworkServerServiceInteFace;
 extern ISource2Server* ISource2ServerInterFace;
 extern CCSGameRules* CCSGameRulesInterFace;
 extern ICvar* IVEngineCvar;
+extern IGameEventSystem* GameEventSystem;
 };  // namespace InterFaces
 static const auto pattern_FnUTIL_SayText2FilterPtr = THE_GAME_SIG(
     "48 89 5C 24 ?? 55 56 57 48 8D 6C 24 ?? 48 81 EC ?? ?? ?? ?? 41 0F B6 F8");

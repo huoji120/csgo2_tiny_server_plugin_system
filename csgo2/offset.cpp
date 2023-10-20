@@ -34,6 +34,7 @@ CLocalize* ILocalize;
 INetworkServerService* INetworkServerServiceInteFace;
 CCSGameRules* CCSGameRulesInterFace;
 ICvar* IVEngineCvar;
+IGameEventSystem* GameEventSystem;
 };  // namespace InterFaces
 auto SafeDelayInit(void* ctx) -> void {
     // 需要游戏调用函数初始化
@@ -108,10 +109,13 @@ auto Init() -> bool {
     InterFaces::INetworkServerServiceInteFace =
         reinterpret_cast<INetworkServerService*>(
             engine.FindInterface("NetworkServerService_001").Get());
+    InterFaces::GameEventSystem = reinterpret_cast<IGameEventSystem*>(
+        engine.FindInterface("GameEventSystemServerV001").Get());
     InterFaces::IServerGameClient = reinterpret_cast<IServerGameClients*>(
         server.FindInterface("Source2GameClients001").Get());
     InterFaces::ISource2ServerInterFace = reinterpret_cast<ISource2Server*>(
         server.FindInterface("Source2Server001").Get());
+
     if (InterFaces::ISource2ServerInterFace) {
         InterFaces::GameEventManager =
             (IGameEventManager2*)(CALL_VIRTUAL(
@@ -156,6 +160,8 @@ auto Init() -> bool {
     LOG("[huoji]InterFaces::ISource2ServerInterFace : %llx \n",
         InterFaces::ISource2ServerInterFace);
     LOG("[huoji]InterFaces::IVEngineCvar : %llx \n", InterFaces::IVEngineCvar);
+    LOG("[huoji]InterFaces::GameEventSystem : %llx \n", InterFaces::GameEventSystem);
+
     LOG("[huoji] CGameEntitySystem::GetInstance : %llx \n",
         CGameEntitySystem::GetInstance());
     LOG("init offset success !\n");
@@ -166,6 +172,7 @@ auto Init() -> bool {
     //  sizeof("here") - 1, 0x31415926));
     return FnPlayerChangeName && FnCCSWeaponBase_Spawn && FnEntityRemove &&
            FnRespawnPlayerInDeathMatch && FnGiveNamedItem && Host_SayPtr &&
+           InterFaces::GameEventSystem &&
            InterFaces::IVEngineServer &&
            InterFaces::GameResourceServiceServer &&
            InterFaces::IServerGameClient && InterFaces::GameEventManager &&

@@ -968,7 +968,16 @@ auto luaApi_GetConVarObject(lua_State* luaVm) -> int {
     const auto name = lua_tostring(luaVm, 1);
     lua_pushnumber(luaVm,
                    Offset::InterFaces::IVEngineCvar->FindConVar(name).Get());
+    lua_pop(luaVm, 1);
+
     return 1;
+}
+
+auto luaApi_SetServerBloodStatus(lua_State* luaVm) -> int {
+    // param: isEnableBoold:bool
+    global::IsDisableBlood = !lua_toboolean(luaVm, 1);
+    lua_pop(luaVm, 1);
+    return 0;
 }
 auto initFunciton(lua_State* luaVm) -> void {
     lua_register(luaVm, "ListenToGameEvent", luaApi_ListenToGameEvent);
@@ -1029,6 +1038,7 @@ auto initFunciton(lua_State* luaVm) -> void {
     lua_register(luaVm, "luaApi_GetPlayerName", luaApi_GetPlayerName);
     lua_register(luaVm, "luaApi_SetPlayerNameSlient",
                  luaApi_SetPlayerNameSlient);
+    lua_register(luaVm, "luaApi_SetServerBloodStatus", luaApi_SetServerBloodStatus);
 
     // lua_register(luaVm, "luaApi_TeleportPlayer", luaApi_TeleportPlayer);
 

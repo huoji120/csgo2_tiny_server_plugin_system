@@ -112,3 +112,4 @@ inline T AlignValue(T val, uintptr_t alignment) {
 #include "gameevent/IGameEvent.h"
 #include "tier1/bufferstring.h"
 #include "public/eiface.h"
+#include "public/igameeventsystem.h"

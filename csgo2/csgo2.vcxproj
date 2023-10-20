@@ -230,6 +230,7 @@
     <ClInclude Include="sdk\public\eiface.h" />
     <ClInclude Include="sdk\public\IAppSystem.h" />
     <ClInclude Include="sdk\public\icvar.h" />
+    <ClInclude Include="sdk\public\igameeventsystem.h" />
     <ClInclude Include="sdk\public\irecipientfilter.h" />
     <ClInclude Include="sdk\public\iserver.h" />
     <ClInclude Include="sdk\public\mathlib.h" />

@@ -161,6 +161,7 @@ class EconControlPointInfo_t;
 struct EconItemInfo_t {
 
 };
+class bf_read;
 class bf_write;
 typedef uint32_t SpawnGroupHandle_t;
 typedef uint32_t SwapChainHandle_t;

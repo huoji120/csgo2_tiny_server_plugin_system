@@ -10,5 +10,6 @@ namespace global {
 	extern CGlobalVars* GlobalVars;
 	extern float m_flUniversalTime;
 	extern float m_flLastTickedTime;
-	extern bool isMetaModInit;
+	extern bool IsMetaModInit;
+	extern bool IsDisableBlood;
 }

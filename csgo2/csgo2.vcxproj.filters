@@ -369,6 +369,9 @@
     <ClInclude Include="luaCjson\strbuf.h">
       <Filter>源文件\script_engine\lua_cjson</Filter>
     </ClInclude>
+    <ClInclude Include="sdk\public\igameeventsystem.h">
+      <Filter>头文件\sdk\public</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
