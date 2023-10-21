@@ -131,7 +131,7 @@ auto luaCall_onPlayerSpeak(int speaker, int chatType, std::string message)
                                              lua_tostring(luaVm, -1));
                                          lua_pop(luaVm, 1);
                                      }
-                                     if (lua_isboolean(luaVm, -1)) {
+                                     if (lua_isboolean(luaVm, -1) && result == false) {
                                          result = lua_toboolean(luaVm, -1);
                                      }
                                  }
@@ -231,7 +231,7 @@ auto luaCall_onPlayerTeamChange(int userid, int team, int oldteam,
                                              lua_tostring(luaVm, -1));
                                          lua_pop(luaVm, 1);
                                      }
-                                     if (lua_isboolean(luaVm, -1)) {
+                                     if (lua_isboolean(luaVm, -1) && result == false) {
                                          result = lua_toboolean(luaVm, -1);
                                      }
                                  }
@@ -279,7 +279,7 @@ auto luCall_onSayText2Filter(int player, uint64_t eMessageType,
                                              lua_tostring(luaVm, -1));
                                          lua_pop(luaVm, 1);
                                      }
-                                     if (lua_isboolean(luaVm, -1)) {
+                                     if (lua_isboolean(luaVm, -1) && result == false) {
                                          result = lua_toboolean(luaVm, -1);
                                      }
                                  }

@@ -45,13 +45,14 @@ void __fastcall hook_PostEventAbstract(
         if (isBloodAboutMessage == false/* && isWeaponAboutMessage == false */) {
             break;
         }
-        for (uint64 i = 0; i < global::MaxPlayers; i++)
+        // lazy fix me
+        for (uint64_t i = 0; i < global::MaxPlayers; i++)
         {
-            if (!(*(uint64*)clients & ((uint64)1 << i))) {
+            if (!(*(uint64_t*)clients & ((uint64_t)1 << i))) {
                 continue;
             }
 
-            const auto pEntity = global::EntitySystem->GetBaseEntity(i);
+            const auto pEntity = global::EntitySystem->GetBaseEntity(PlayerSlot_to_EntityIndex(i));
             if (pEntity == nullptr) {
                 continue;
             }
