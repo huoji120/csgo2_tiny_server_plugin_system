@@ -72,4 +72,4 @@ Summarize some common issues:
 4. Q: I would like to hire you for a fee  
    A: It is impossible for accept. I am very satisfied with my real-life job and doing it is just a hobby
 5. Q: THIS PROJECT HAVE BUG!
-   A: Yes i Know it and i fix it, BUT I WOULD NOT BE PLUBIC.Because everyone enters the tavern without paying, they only copy and paste the code and sell it.
+   A: Yes i Know it and i fix it, BUT I WOULD NOT BE PUBLIC.Because everyone enters the tavern without paying, they only copy and paste the code and sell it.
