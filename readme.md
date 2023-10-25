@@ -70,4 +70,6 @@ Summarize some common issues:
 3. Q: Why not continue updating like add linux support && more api && convar?  
    A: I have my own job in real-life and I do not have much time to maintain this project. I will only maintain it when I am free. If you want to continue to maintain it, you can fork it and continue to maintain it.  
 4. Q: I would like to hire you for a fee  
-   A: It is impossible for accept. I am very satisfied with my real-life job and doing it is just a hobby  
+   A: It is impossible for accept. I am very satisfied with my real-life job and doing it is just a hobby
+5. Q: THIS PROJECT HAVE BUG!
+   A: Yes i Know it and i fix it, BUT I WOULD NOT BE PLUBIC.Because everyone enters the tavern without paying, they only copy and paste the code and sell it.
